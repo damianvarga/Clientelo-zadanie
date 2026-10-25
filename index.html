@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETF na NYSE: kolik vás stojí poplatky? | Srovnání VOO, IVV, SPY a dalších</title>
+  <meta name="description" content="Porovnejte 6 nejpopulárnějších ETF obchodovaných na NYSE a spočítejte si, kolik vás během let připraví poplatky. Osobní report do e-mailu za 30 sekund.">
+  <meta property="og:title" content="Vaše ETF vás může připravit o 235 000 Kč. Spočítejte si to za 30 sekund.">
+  <meta property="og:description" content="Srovnání poplatků (TER) u ETF VOO, IVV, SPY, QQQ, VTI a SCHD s kalkulačkou dopadu na vaše portfólio. Zdarma, bez registrace.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="cs_CZ">
+  <meta name="theme-color" content="#0B110E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F3D2E'/%3E%3Ctext x='16' y='22' font-family='Georgia' font-size='16' fill='%23FAF7F2' text-anchor='middle'%3E%E2%82%AC%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a href="/" class="brand" aria-label="ETF Poplatky – domů">
+        <span class="brand__mark">ETF</span>
+        <span class="brand__name">Poplatky.cz</span>
+      </a>
+      <nav class="topbar__nav">
+        <a href="#srovnani" class="topbar__link">Srovnání</a>
+        <a href="#kalkulacka" class="topbar__link">Kalkulačka</a>
+        <a href="#report" class="btn btn--accent btn--sm" data-cta="header">Chci report</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- 1. HERO – zrcadlo reklamy (verze A) -->
+    <section class="hero">
+      <div class="wrap hero__inner">
+        <p class="hero__eyebrow">
+          <span class="dot"></span>
+          Aktualizováno říjen 2026 &middot; čísla přímo od správců fondů
+        </p>
+        <h1 class="hero__title">
+          Vaše ETF vás může připravit o&nbsp;<span class="accent num" id="hero-loss">235&nbsp;000&nbsp;Kč</span>.
+          Aniž byste to zjistili.
+        </h1>
+        <p class="hero__sub">
+          Stejná indexová sledka, dva fondy, rozdílný poplatek. Porovnejte 6 ETF obchodovaných
+          na NYSE a&nbsp;spočítejte si dopad poplatků na <em>vaše</em> peníze. Zabere to 30&nbsp;sekund.
+        </p>
+        <div class="hero__cta">
+          <a href="#kalkulacka" class="btn btn--accent btn--lg" data-cta="hero">Spočítat moje ztracené peníze</a>
+          <a href="#srovnani" class="btn btn--ghost btn--lg" data-cta="hero-secondary">Rovnou porovnat ETF</a>
+        </div>
+        <p class="hero__trust">
+          Bez registrace brokera &middot; žádný prodej &middot; data z
+          vanguard.com, ishares.com, ssga.com a&nbsp;invesco.com
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. FAKTA – bolest ve třech číslech -->
+    <section class="facts" aria-label="Klíčová fakta o poplatcích">
+      <div class="wrap facts__grid">
+        <article class="fact">
+          <p class="fact__value num"><span class="up">0,03 %</span> <span class="fact__vs">vs</span> <span class="down">0,41 %</span></p>
+          <p class="fact__label">TER u nejlevnějšího S&amp;P 500 ETF vs. průměr indexových fondů stejné kategorie</p>
+          <p class="fact__src">Zdroj: Vanguard fact sheet, 31. 12. 2025</p>
+        </article>
+        <article class="fact">
+          <p class="fact__value num">3&times;</p>
+          <p class="fact__label">SPY (0,0945 %) je <span class="down">3× dráž</span> než VOO / IVV (0,03 %) – stejný index, jiný poplatek</p>
+          <p class="fact__src">Zdroj: State Street / Vanguard / iShares, 2026</p>
+        </article>
+        <article class="fact">
+          <p class="fact__value num"><span class="up">15 %</span> <span class="fact__vs">vs</span> <span class="down">30 %</span></p>
+          <p class="fact__label">Srážková daň z dividend z USA – s W-8BEN platíte polovinu. Většina investorů ho nemá</p>
+          <p class="fact__src">Zdroj: Smlouva ČR–USA č. 32/1994 Sb., čl. 10</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3. SROVNÁNÍ – hodnota zdarma, před formulářem -->
+    <section class="section" id="srovnani">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="section__eyebrow">Srovnání</p>
+          <h2 class="section__title">Šest ETF, jeden ukazatel, který rozhoduje</h2>
+          <p class="section__lead">
+            Poplatek za správu (TER) se strhává každý den, i&nbsp;když trh klesá. U dlouhodobého
+            spoření je to jediná jistota, kterou u pasivního fondu máte.
+          </p>
+        </header>
+
+        <div class="table-card" data-table>
+          <div class="table-scroll">
+            <table class="etf-table" id="etf-table">
+              <thead>
+                <tr>
+                  <th scope="col"><button class="sort-btn" data-sort="ticker">ETF</button></th>
+                  <th scope="col">Sledovaný index</th>
+                  <th scope="col" class="is-num"><button class="sort-btn" data-sort="ter">TER&nbsp;%</button></th>
+                  <th scope="col" class="is-num"><button class="sort-btn" data-sort="year">Od roku</button></th>
+                  <th scope="col" class="is-num is-hide-sm">Aktiva</th>
+                </tr>
+              </thead>
+              <tbody id="etf-tbody">
+                <tr><td colspan="5" class="muted">Načítám data…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-card__foot">
+            <p class="src">
+              Zdroje TER: Vanguard fact sheet 30.&nbsp;9.&nbsp;2026 (VOO, VTI), iShares summary
+              prospectus 31.&nbsp;7.&nbsp;2026 (IVV), State Street product listing 9.&nbsp;7.&nbsp;2026 (SPY),
+              invesco.com (QQQ, 0,18&nbsp;%), schwabassetmanagement.com 23.&nbsp;10.&nbsp;2026 (SCHD).
+              Aktiva: fact sheety stejných správců, říjen 2026.
+            </p>
+            <a href="#report" class="btn btn--accent" data-cta="table">Chci report s vysvětlením všech sloupců</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. GRAF – historický vývoj a dopad poplatkov -->
+    <section class="section" id="grafy">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="section__eyebrow">Trh a poplatky</p>
+          <h2 class="section__title">Jak se vyvíjí trh a proč záleží na poplatcích?</h2>
+          <p class="section__lead">
+            Historický graf ukazuje skutečný vývoj širokého amerického trhu (ETF VOO, S&amp;P 500).
+            Spodný graf potom modelově ukazuje, jak rozdílný poplatek (TER) ovlivňuje vaše peníze
+            za stejných podmínek – rozdíl jsou peníze, které zmiznou v&nbsp;poplatcích.
+          </p>
+        </header>
+
+        <div class="chart-card">
+          <div class="chart-card__head">
+            <div>
+              <h3 class="chart-card__title">Vývoj ceny VOO (S&amp;P 500)</h3>
+              <p class="chart-card__sub">Skutečné historické ceny, USD</p>
+            </div>
+            <div class="chart-tabs" role="tablist" aria-label="Časový horizont">
+              <button class="chart-tab is-active" data-range="1" aria-pressed="true">1 rok</button>
+              <button class="chart-tab" data-range="3" aria-pressed="false">3 roky</button>
+              <button class="chart-tab" data-range="5" aria-pressed="false">5 let</button>
+            </div>
+          </div>
+          <div class="chart-stage">
+            <svg id="price-chart" viewBox="0 0 800 320" role="img" aria-label="Graf vývoje ceny VOO"></svg>
+            <p class="chart-stage__note" id="price-note">Načítám data…</p>
+          </div>
+          <div class="chart-foot">
+            <p class="src">
+              Zdroj: Yahoo Finance chart API, denní zavřené ceny (upravené o dividendy).
+              Aktualizováno <strong id="chart-fetched">–</strong>. Data jsou poskytnuta pro
+              informační účely; před investicemi ověřte si aktuální ceny u správce fondu.
+            </p>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card__head">
+            <div>
+              <h3 class="chart-card__title">Modelový dopad poplatků</h3>
+              <p class="chart-card__sub">Výpočet, nikoli predikce</p>
+            </div>
+          </div>
+          <div class="chart-stage">
+            <svg id="fee-chart" viewBox="0 0 800 320" role="img" aria-label="Graf dopadu poplatků"></svg>
+          </div>
+          <div class="chart-foot">
+            <p class="src">
+              Model: počáteční investice 100&nbsp;000&nbsp;Kč + 3&nbsp;000&nbsp;Kč měsíčně,
+              25 let, hrubý výnos 8&nbsp;% p.a., měsíční složené úročení. Červená = průměrný
+              indexový fond (TER 0,41 %), zelená = levné ETF (TER 0,03 %). Stejný vstup,
+              rozdílný poplatek. Minulé výnosy nezaručují výnosy budoucí.
+            </p>
+          </div>
+        </div>
+
+        <p class="chart-cta-link">
+          <a href="#kalkulacka" class="btn btn--accent btn--lg" data-cta="chart">Spočítejte si své číslo →</a>
+          <span class="chart-cta-text">Změňte si vstupy v kalkulačce a uvidíte rozdíl konkrétně pro vás.</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- 4b. KALKULAČKA – interaktivní motor -->
+    <section class="section section--alt" id="kalkulacka">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="section__eyebrow">Kalkulačka poplatků</p>
+          <h2 class="section__title">Kolik přesně necháte na stole?</h2>
+          <p class="section__lead">
+            Zadejte své čísla. Porovnáme, kolik byste měli s&nbsp;levným ETF a&nbsp;kolik s&nbsp;průměrným
+            fondem – rozdíl jsou peníze, které zmizí v&nbsp;poplatcích.
+          </p>
+        </header>
+
+        <div class="calc">
+          <form class="calc__form" id="calc-form" novalidate>
+            <div class="field">
+              <label for="c-initial">Jednorázový vklad</label>
+              <div class="input-money">
+                <input type="number" id="c-initial" name="initial" value="100000" min="0" max="100000000" step="1000" inputmode="numeric">
+                <span class="input-money__unit">Kč</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="c-monthly">Pravidelná platba měsíčně</label>
+              <div class="input-money">
+                <input type="number" id="c-monthly" name="monthly" value="3000" min="0" max="1000000" step="500" inputmode="numeric">
+                <span class="input-money__unit">Kč</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="c-years">Investiční horizont: <output id="c-years-out" class="num strong">25 let</output></label>
+              <input type="range" id="c-years" name="years" value="25" min="5" max="40" step="1">
+            </div>
+            <div class="field">
+              <span class="field__label">Typ fondu</span>
+              <div class="chips" role="radiogroup" aria-label="Typ fondu">
+                <button type="button" class="chip is-active" data-ter="0.03" data-fund="VOO / IVV / VTI" aria-pressed="true">
+                  Levný indexový ETF <span class="chip__val num">0,03 %</span>
+                </button>
+                <button type="button" class="chip" data-ter="0.0945" data-fund="SPY" aria-pressed="false">
+                  SPY <span class="chip__val num">0,0945 %</span>
+                </button>
+                <button type="button" class="chip" data-ter="0.18" data-fund="QQQ" aria-pressed="false">
+                  QQQ <span class="chip__val num">0,18 %</span>
+                </button>
+                <button type="button" class="chip" data-ter="0.77" data-fund="Průměrný aktivní fond" aria-pressed="false">
+                  Průměrný fond <span class="chip__val num">0,77 %</span>
+                </button>
+              </div>
+              <p class="hint">Poslední varianta = 0,41 % (průměr indexových fondů S&amp;P 500, Vanguard 2025) + běžný manažerský příplatek, modelově. Slouží jako srovnávací báz.</p>
+            </div>
+          </form>
+
+          <div class="calc__result" id="calc-result" aria-live="polite">
+            <div class="result__block">
+              <p class="result__label">Konečná hodnota portfolia</p>
+              <p class="result__value num" id="r-final">–</p>
+            </div>
+            <div class="result__block result__block--loss">
+              <p class="result__label">Zaplacené poplatky celkem</p>
+              <p class="result__value num accent" id="r-fees">–</p>
+              <p class="result__note" id="r-fees-note">…</p>
+            </div>
+            <div class="result__block result__block--cmp">
+              <p class="result__label">Rozdíl proti levnému ETF (0,03 %)</p>
+              <p class="result__value num" id="r-gap">–</p>
+              <p class="result__note" id="r-gap-note">…</p>
+            </div>
+            <details class="assumption">
+              <summary>Více informací o modelovém výpočtu</summary>
+              <div class="assumption__body">
+                <p><strong>Jak počítáme:</strong> hrubý výnos 8&nbsp;% p.a., měsíční složené úročení.
+                Poplatek (TER) se strhává ročně z čistého výnosu na rostoucím zůstatku – proto se
+                jeho dopad s časem násobí.</p>
+                <p><strong>Proč 8&nbsp;%:</strong> záměrně konzervativní odhad. Průměr S&amp;P 500
+                od roku 1957 je ≈ 10&nbsp;% p.a. (Fidelity, 2026); Damodaran (NYU Stern) uvádí
+                10,02&nbsp;% p.a. za období 1928–2025 včetně dividend. Nižší číslo snižuje riziko
+                nadsazení výsledku.</p>
+                <p><strong>Co model nezohledňuje:</strong> inflaci, daň z prodeje, kurzové riziko
+                CZK/USD ani poplatky brokera za obchod. Jde o model, ne o predikci.</p>
+                <p><strong>Zdroje poplatků:</strong> Vanguard, iShares, State Street, Invesco a
+                Schwab – oficiální fact sheety a prospekty, 2026 (uvedené pod srovnávací tabulkou).</p>
+                <p class="assumption__legal">Nejde o investiční doporučení ani nabídku. Minulé
+                výnosy nejsou zárukou výnosů budoucích.</p>
+              </div>
+            </details>
+            <a href="#report" class="btn btn--accent btn--block" data-cta="calc">Chci svůj přepočet v e-mailu</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. FORMULÁŘ – až tady, po prokázané hodnotě -->
+    <section class="section" id="report">
+      <div class="wrap narrow">
+        <header class="section__head section__head--center">
+          <p class="section__eyebrow">Osobní report</p>
+          <h2 class="section__title">Pošlete mi to číslo i s vysvětlením</h2>
+          <p class="section__lead">
+            Váš výpočet z kalkulačky, rozbor všech šesti ETF a&nbsp;checklist prvních kroků –
+            všechno v&nbsp;jednom e-mailu, do 2 minut. Jeden e-mail, žádný newsletterový spam.
+          </p>
+        </header>
+
+        <div class="lead-card">
+          <ul class="lead-card__list">
+            <li><span class="check" aria-hidden="true"></span> Váš osobní přepočet ztráty na poplatcích (číslo z kalkulačky)</li>
+            <li><span class="check" aria-hidden="true"></span> Srovnání VOO, IVV, SPY, QQQ, VTI, SCHD – co znamená každý sloupec</li>
+            <li><span class="check" aria-hidden="true"></span> Checklist: W-8BEN (daň 15 % místo 30 %), výběr brokera, první nákup</li>
+          </ul>
+
+          <form class="lead-form" id="lead-form" novalidate>
+            <div class="field">
+              <label for="lf-email">E-mail</label>
+              <input type="email" id="lf-email" name="email" placeholder="vas@email.cz" autocomplete="email" required>
+              <p class="field__error" id="lf-email-error" hidden>Zadejte platný e-mail.</p>
+            </div>
+            <label class="checkbox">
+              <input type="checkbox" id="lf-consent" name="consent" required>
+              <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="#soukromi">Zásady ochrany osobních údajů</a></span>
+            </label>
+            <input type="text" name="company" id="lf-company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <button type="submit" class="btn btn--lg btn--block" id="lf-submit" data-cta="form-submit">
+              Chci svůj report &rarr;
+            </button>
+            <p class="lead-form__note">Odesláním souhlasíte se zpracováním e-mailu (GDPR). Žádné předávání třetím stranám.</p>
+            <p class="lead-form__status" id="lf-status" role="status"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. DŮVĚRA -->
+    <section class="section section--alt" id="co-dostanete">
+      <div class="wrap">
+        <div class="split">
+          <div>
+            <p class="section__eyebrow">Jak to funguje</p>
+            <h2 class="section__title">Tři kroky, žádný závazek</h2>
+            <ol class="steps">
+              <li>
+                <strong>Počítejte.</strong> Kalkulačka běží ve vašem prohlížeči, nikam se nic
+                neodesílá. Změňte si vstupy, klidně desetkrát.
+              </li>
+              <li>
+                <strong>Nechte si poslat report.</strong> Jeden e-mail, do 2 minut, s vaším
+                výpočtem a vysvětlením. Report si můžete rovnou vytisknout.
+              </li>
+              <li>
+                <strong>Udělejte první krok.</strong> Checklist vás provede W-8BEN, výběrem
+                brokera a prvním nákupem. Až budete chtít.
+              </li>
+            </ol>
+          </div>
+          <div class="quote">
+            <p>
+              „Poplatky nejsou vidět na výpisu. Vidíte je až po dvaceti letech, když porovnáte,
+              kde jste mohli být."
+            </p>
+            <p class="quote__src">Princip složeného úročení – ne názor, ale aritmetika</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. FAQ -->
+    <section class="section" id="faq">
+      <div class="wrap narrow">
+        <header class="section__head">
+          <p class="section__eyebrow">Časté otázky</p>
+          <h2 class="section__title">Než kliknete</h2>
+        </header>
+
+        <div class="faq">
+          <details class="faq__item">
+            <summary>Je to investiční doporučení?</summary>
+            <p>Ne. Jde o vzdělávací kalkulačku na základě veřejně dostupných dat. Není to poradenství ani nabídka ke koupi cenných papírů. Minulé výnosy nezaručují výnosy budoucí.</p>
+          </details>
+          <details class="faq__item">
+            <summary>Proč se liší VOO a SPY, když sledují stejný index?</summary>
+            <p>VOO a IVV mají TER 0,03 %, SPY 0,0945 %. Rozdíl vypadá mizivě, ale strhává se každý rok ze zůstatku, který roste složeným úrokem – přes dvacet let to jsou desítky až stovky tisíc korun. SPY vyhovuje institucím kvůli likviditě, drobnému investorovi na poplatcích prodělává.</p>
+          </details>
+          <details class="faq__item">
+            <summary>Jak je to s daněmi z dividend z USA?</summary>
+            <p>Základní srážka je 30 %. Smlouva ČR–USA (č. 32/1994 Sb., čl. 10) a formulář W-8BEN, který vyplníte u brokera, snižují sazbu na 15 %. V ČR pak dividendy zdaníte v daňovém přiznání a zahraniční daň započtete. Doporučujeme ověřit u daňového poradce.</p>
+          </details>
+          <details class="faq__item">
+            <summary>Kde takové ETF koupím?</summary>
+            <p>Přes obchodníka s cennými papíry – české i zahraniční platformy nabízejí přístup na NYSE. Při výběru sledujte poplatky za obchod, měnový převod a podporu W-8BEN. Konkrétního brokera zde nepropagujeme.</p>
+          </details>
+          <details class="faq__item">
+            <summary>Co přesně mi přijde e-mailem?</summary>
+            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete jedním klikem.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. ZÁVĚREČNÉ CTA -->
+    <section class="section section--cta" id="posledni-sance">
+      <div class="wrap narrow center">
+        <h2 class="section__title">Zjistěte své číslo dřív, než ho za vás spočítá dvacet let</h2>
+        <p class="section__lead">30 sekund, jeden e-mail, žádný závazek.</p>
+        <a href="#report" class="btn btn--accent btn--lg" data-cta="final">Chci svůj report</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer" id="soukromi">
+    <div class="wrap">
+      <div class="footer__top">
+        <span class="brand"><span class="brand__mark">ETF</span> <span class="brand__name">Poplatky.cz</span></span>
+        <p class="footer__links">
+          <a href="#srovnani">Srovnání</a>
+          <a href="#kalkulacka">Kalkulačka</a>
+          <a href="#faq">FAQ</a>
+        </p>
+      </div>
+      <p class="footer__disclaimer">
+        <strong>Upozornění na rizika:</strong> Hodnota investic může klesat i růst a není zaručena
+        návratnost původně investované částky. Minulé výnosy nejsou zárukou výnosů budoucích.
+        Stránka má vzdělávací charakter, neposkytuje investiční poradenství ani nabídku
+        k nákupu cenných papírů. Data uváděna se zdrojem; ověřte si je u správce fondu.
+        E-mail zpracováváme za účelem zaslání reportu a souvisejících tipů, odhlásit lze
+        v každém e-mailu. Provozovatel: dle nasazení na Vercel, kontakt v e-mailech.
+      </p>
+      <p class="footer__copy">© 2026 ETF Poplatky.cz</p>
+    </div>
+  </footer>
+
+  <!-- Sticky mobilní lišta -->
+  <div class="sticky-cta" id="sticky-cta" hidden>
+    <div class="sticky-cta__info">
+      <span class="sticky-cta__text">Spočítejte si ztrátu na poplatcích</span>
+      <span class="sticky-cta__num num" id="sticky-num">–</span>
+    </div>
+    <a href="#report" class="btn btn--accent btn--sm" data-cta="sticky">Chci report</a>
+  </div>
+
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/table.js"></script>
+  <script src="/assets/js/calculator.js"></script>
+  <script src="/assets/js/charts.js"></script>
+</body>
+</html>
