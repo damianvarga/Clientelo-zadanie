@@ -61,6 +61,15 @@
           </article>
         </div>
 
+        <div class="portfolio-report" id="t-portfolio" hidden style="margin-top:34px">
+          <h2 class="section__title" style="font-size:26px">Vaše skladanie portfólia</h2>
+          <div class="portfolio-allocations-report" id="t-portfolio-allocations"></div>
+          <p class="portfolio-ter" id="t-portfolio-ter-row" style="margin-top:12px">
+            Váhované TER: <span id="t-portfolio-ter" class="num strong">–</span>
+          </p>
+          <p class="portfolio-comparison" id="t-portfolio-comparison" style="margin-top:8px">–</p>
+        </div>
+
         <div class="lead-card" style="margin-top:34px" id="checklist">
           <h2 class="section__title" style="font-size:26px">Checklist prvních kroků</h2>
           <ol class="steps">
@@ -136,12 +145,41 @@
       document.getElementById("t-scenario").textContent =
         czk(calc.initial) + " + " + czk(calc.monthly) + "/měs., " + calc.years + " let, " +
         String(calc.ter).replace(".", ",") + " % (" + calc.fund + ")";
-    } else {
-      document.getElementById("t-final").textContent = "najdete v e-mailu";
-      document.getElementById("t-fees").textContent = "najdete v e-mailu";
-      document.getElementById("t-gap").textContent = "najdete v e-mailu";
-      document.getElementById("t-scenario").textContent = "Otevřete zaslaný odkaz na report.";
-    }
+      } else {
+        document.getElementById("t-final").textContent = "najdete v e-mailu";
+        document.getElementById("t-fees").textContent = "najdete v e-mailu";
+        document.getElementById("t-gap").textContent = "najdete v e-mailu";
+        document.getElementById("t-scenario").textContent = "Otevřete zaslaný odkaz na report.";
+      }
+
+      if (calc && calc.portfolio) {
+        var p = calc.portfolio;
+        document.getElementById("t-portfolio").hidden = false;
+
+        var allocHtml = "";
+        Object.entries(p.allocations).forEach(function (entry) {
+          var ticker = entry[0];
+          var weight = entry[1];
+          if (weight > 0) {
+            allocHtml += "<div style=\"display:flex; justify-content:space-between; margin:6px 0; font-size:14px;\">" +
+              "<span><span class=\"ticker\" style=\"display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(63,185,119,.14);color:#2E8B57;border:1px solid rgba(63,185,119,.3);font-family:monospace;font-weight:700;\">" + ticker + "</span> " + weight + "%</span>" +
+              "</div>";
+          }
+        });
+        document.getElementById("t-portfolio-allocations").innerHTML = allocHtml;
+        document.getElementById("t-portfolio-ter").textContent = String(p.weightedTer).replace(".", ",") + " %";
+
+        var comparison = "";
+        if (p.gapVsCheapest > 1) {
+          comparison = "O " + p.gapVsCheapest.toLocaleString("cs-CZ") + " Kč menej než pri najlevnom ETF (0,03 %)";
+        } else {
+          comparison = "Ste na úrovni najlevnejšieho ETF.";
+        }
+        if (p.gapVsAverage > 1) {
+          comparison += "; o " + p.gapVsAverage.toLocaleString("cs-CZ") + " Kč viac než pri priemernom fonde (0,41 %)";
+        }
+        document.getElementById("t-portfolio-comparison").textContent = comparison;
+      }
 
     document.getElementById("t-print").addEventListener("click", function () { window.print(); });
 

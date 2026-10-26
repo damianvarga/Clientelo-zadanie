@@ -131,6 +131,7 @@
       consent: true,
       utm: window.etfUtm || {},
       calc: window.etfCalcState || null,
+      portfolio: window.etfPortfolioState || null,
       page: window.location.pathname,
       referrer: document.referrer || null,
       ts: new Date().toISOString()
