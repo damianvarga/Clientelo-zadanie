@@ -9,7 +9,7 @@
   <meta property="og:description" content="Srovnání poplatků (TER) u ETF VOO, IVV, SPY, QQQ, VTI a SCHD s kalkulačkou dopadu na vaše portfólio. Zdarma, bez registrace.">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="cs_CZ">
-  <meta name="theme-color" content="#0B110E">
+  <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F3D2E'/%3E%3Ctext x='16' y='22' font-family='Georgia' font-size='16' fill='%23FAF7F2' text-anchor='middle'%3E%E2%82%AC%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -57,6 +57,29 @@
           Bez registrace brokera &middot; žádný prodej &middot; data z
           vanguard.com, ishares.com, ssga.com a&nbsp;invesco.com
         </p>
+      </div>
+    </section>
+
+    <!-- KOMPAKTNÝ GRAF – dopad poplatkov hneď na začiatok -->
+    <section class="section" id="fee-compact-section">
+      <div class="wrap">
+        <div class="fee-compact">
+          <div class="fee-compact__head">
+            <div>
+              <h2 class="fee-compact__title">Kolik vás mohou poplatky stát za 25 let?</h2>
+              <p class="fee-compact__sub">
+                Stejná investice, stejný trh, jiný poplatek. Rozdíl je v&nbsp;těchto číslech.
+              </p>
+            </div>
+            <a href="#kalkulacka" class="btn btn--accent btn--lg fee-compact__cta" data-cta="hero-chart">Spočítat své číslo</a>
+          </div>
+          <div class="fee-compact__stage">
+            <svg id="fee-compact-chart" viewBox="0 0 700 180" role="img" aria-label="Kompaktní graf dopadu poplatků"></svg>
+          </div>
+          <div class="fee-compact__foot">
+            Model: 100&nbsp;000&nbsp;Kč vklad + 3&nbsp;000&nbsp;Kč měsíčně, 25 let, 8&nbsp;% p.a. Hrubý výnos bez poplatků vs. TER 0,41 % a TER 0,03 %. Výpočet, nikoli predikce.
+          </div>
+        </div>
       </div>
     </section>
 
@@ -185,6 +208,36 @@
           <a href="#kalkulacka" class="btn btn--accent btn--lg" data-cta="chart">Spočítejte si své číslo →</a>
           <span class="chart-cta-text">Změňte si vstupy v kalkulačce a uvidíte rozdíl konkrétně pro vás.</span>
         </p>
+      </div>
+    </section>
+
+    <!-- PORTFOLIO – vlastné zloženie ETF -->
+    <section class="section section--alt" id="portfolio">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="section__eyebrow">Skladanie portfólia</p>
+          <h2 class="section__title">Skladajte si vlastné ETF portfólio</h2>
+          <p class="section__lead">
+            Nastavte si váhy jednotlivých ETF a zistite, ako váhy ovlivnia celkový poplatek (TER)
+            a čo by to znamenalo pre vaše peňazie za 25 rokov.
+          </p>
+        </header>
+
+        <div class="portfolio-card">
+          <div class="portfolio-allocations" id="portfolio-allocations"></div>
+
+          <div class="portfolio-total">
+            <span class="portfolio-total__label">Celkom:</span>
+            <span class="portfolio-total__value" id="portfolio-total">0 %</span>
+            <span class="portfolio-total__hint" id="portfolio-total-hint">Nastavte váhy na 100 %</span>
+          </div>
+
+          <div class="portfolio-result" id="portfolio-result" hidden></div>
+
+          <div class="portfolio-cta">
+            <button class="btn btn--accent btn--block" id="portfolio-email-btn" hidden>Pošlite mi toto portfólio e-mailom</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -430,6 +483,7 @@
   <script src="/assets/js/main.js"></script>
   <script src="/assets/js/table.js"></script>
   <script src="/assets/js/calculator.js"></script>
+  <script src="/assets/js/portfolio.js"></script>
   <script src="/assets/js/charts.js"></script>
 </body>
 </html>

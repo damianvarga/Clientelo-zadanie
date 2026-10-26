@@ -1,12 +1,12 @@
 ﻿(function () {
   "use strict";
 
-  var GREEN = "#7FD4A8";
-  var ORANGE = "#FF9E7A";
-  var ORANGE_LIGHT = "#FF9E7A";
-  var INK = "#DCE8DF";
-  var INK_SOFT = "#9FB3A8";
-  var GRID = "#22332A";
+  var GREEN = "#0F6B4C";
+  var ORANGE = "#B53D22";
+  var ORANGE_LIGHT = "#B53D22";
+  var INK = "#1A1A1A";
+  var INK_SOFT = "#555555";
+  var GRID = "#DDD6C8";
 
   var GROSS = 0.08;
   var CHEAP_TER = 0.03;
@@ -17,6 +17,7 @@
 
   var priceSvg = document.getElementById("price-chart");
   var feeSvg = document.getElementById("fee-chart");
+  var feeCompactSvg = document.getElementById("fee-compact-chart");
   var priceNote = document.getElementById("price-note");
   var fetchedEl = document.getElementById("chart-fetched");
   var tabs = document.querySelectorAll(".chart-tab");
@@ -170,7 +171,7 @@
     var fillPts = "";
     for (var y = 0; y <= YEARS; y++) fillPts += xp(y) + "," + yp(cheap[y]) + " ";
     for (var y = YEARS; y >= 0; y--) fillPts += xp(y) + "," + yp(exp[y]) + " ";
-    feeSvg.appendChild(svgEl("polygon", { points: fillPts.trim(), fill: ORANGE_LIGHT, "fill-opacity": "0.35" }));
+    feeSvg.appendChild(svgEl("polygon", { points: fillPts.trim(), fill: ORANGE_LIGHT, "fill-opacity": "0.18" }));
 
     var cheapPts = "", expPts = "";
     for (var y = 0; y <= YEARS; y++) {
@@ -202,5 +203,64 @@
     feeSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 40, "Modelový rozdiel po " + YEARS + " rokoch: " + czk(gap) + " Kč", { anchor: "end", size: "11px", fill: ORANGE, weight: "600" }));
   }
 
+  function drawFeeCompactChart() {
+    if (!feeCompactSvg) return;
+
+    var w = 700, h = 180;
+    var pad = { l: 55, r: 30, t: 10, b: 30 };
+    var plotW = w - pad.l - pad.r;
+    var plotH = h - pad.t - pad.b;
+
+    clearSvg(feeCompactSvg);
+    feeCompactSvg.setAttribute("width", w);
+    feeCompactSvg.setAttribute("height", h);
+
+    var cheap = [], exp = [];
+    for (var y = 0; y <= YEARS; y++) {
+      cheap.push(futureValue(INITIAL, MONTHLY, y, GROSS - CHEAP_TER / 100));
+      exp.push(futureValue(INITIAL, MONTHLY, y, GROSS - EXPENSIVE_TER / 100));
+    }
+    var maxV = Math.max.apply(null, cheap.concat(exp));
+    var yMax = maxV * 1.08;
+
+    function xp(y) { return pad.l + (y / YEARS) * plotW; }
+    function yp(v) { return h - pad.b - (v / yMax) * plotH; }
+
+    var fillPts = "";
+    for (var y = 0; y <= YEARS; y++) fillPts += xp(y) + "," + yp(cheap[y]) + " ";
+    for (var y = YEARS; y >= 0; y--) fillPts += xp(y) + "," + yp(exp[y]) + " ";
+    feeCompactSvg.appendChild(svgEl("polygon", { points: fillPts.trim(), fill: ORANGE_LIGHT, "fill-opacity": "0.15" }));
+
+    var cheapPts = "", expPts = "";
+    for (var y = 0; y <= YEARS; y++) {
+      cheapPts += xp(y) + "," + yp(cheap[y]) + " ";
+      expPts += xp(y) + "," + yp(exp[y]) + " ";
+    }
+    feeCompactSvg.appendChild(svgEl("polyline", { points: expPts.trim(), fill: "none", stroke: ORANGE, "stroke-width": "2" }));
+    feeCompactSvg.appendChild(svgEl("polyline", { points: cheapPts.trim(), fill: "none", stroke: GREEN, "stroke-width": "2" }));
+
+    feeCompactSvg.appendChild(svgEl("circle", { cx: pad.l + 12, cy: pad.t - 10, r: 3.5, fill: GREEN }));
+    feeCompactSvg.appendChild(textEl(pad.l + 20, pad.t - 10, "Levné ETF (0,03 %)", { size: "10px", fill: INK, weight: "600" }));
+    feeCompactSvg.appendChild(svgEl("circle", { cx: pad.l + 150, cy: pad.t - 10, r: 3.5, fill: ORANGE }));
+    feeCompactSvg.appendChild(textEl(pad.l + 162, pad.t - 10, "Priemerný fond (0,41 %)", { size: "10px", fill: INK, weight: "600" }));
+
+    for (var g = 0; g < 4; g++) {
+      var vy = yMax * (g / 3);
+      var yy = yp(vy);
+      feeCompactSvg.appendChild(svgEl("line", { x1: pad.l, y1: yy, x2: pad.l + plotW, y2: yy, stroke: GRID, "stroke-width": "1" }));
+      feeCompactSvg.appendChild(textEl(pad.l - 6, yy, czk(vy).replace(" Kč", ""), { anchor: "end", size: "9px" }));
+    }
+
+    [0, 10, 20, 25].forEach(function (yr) {
+      var xx = xp(yr);
+      feeCompactSvg.appendChild(svgEl("line", { x1: xx, y1: h - pad.b, x2: xx, y2: h - pad.b + 3, stroke: INK_SOFT, "stroke-width": "1" }));
+      feeCompactSvg.appendChild(textEl(xx, h - pad.b + 14, String(yr), { anchor: "middle", size: "9px" }));
+    });
+
+    var gap = exp[YEARS] - cheap[YEARS];
+    feeCompactSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 32, "Rozdiel po 25 rokoch: " + czk(gap) + " Kč", { anchor: "end", size: "10px", fill: ORANGE, weight: "700" }));
+  }
+
   drawFeeChart();
+  drawFeeCompactChart();
 })();
