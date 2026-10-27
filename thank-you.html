@@ -36,7 +36,7 @@
         </p>
         <div class="hero__cta">
           <button class="btn btn--accent btn--lg" id="t-print">Vytisknout / uložit jako PDF</button>
-          <a href="/#kalkulacka" class="btn btn--ghost btn--lg">Zpět kalkulačka</a>
+          <a href="/#kalkulacka" class="btn btn--ghost btn--lg">Zpět na kalkulačku</a>
         </div>
       </div>
     </section>
@@ -62,12 +62,47 @@
         </div>
 
         <div class="portfolio-report" id="t-portfolio" hidden style="margin-top:34px">
-          <h2 class="section__title" style="font-size:26px">Vaše skladanie portfólia</h2>
+          <h2 class="section__title" style="font-size:26px">Vaše skladání portfolia</h2>
           <div class="portfolio-allocations-report" id="t-portfolio-allocations"></div>
           <p class="portfolio-ter" id="t-portfolio-ter-row" style="margin-top:12px">
             Váhované TER: <span id="t-portfolio-ter" class="num strong">–</span>
           </p>
           <p class="portfolio-comparison" id="t-portfolio-comparison" style="margin-top:8px">–</p>
+        </div>
+
+        <div class="tax-report" id="t-tax" hidden style="margin-top:34px">
+          <h2 class="section__title" style="font-size:26px">Váš výpočet daně z dividend (W-8BEN)</h2>
+          <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:14px;">
+            <span>Roční dividendový příjem:</span>
+            <span id="t-tax-dividend" class="num strong">–</span> Kč
+          </div>
+          <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:14px;">
+            <span>Srážková sazba:</span>
+            <span id="t-tax-rate" class="num strong">–</span> %
+          </div>
+          <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:14px;">
+            <span>Srážková daň ročně:</span>
+            <span id="t-tax-tax" class="num strong">–</span> Kč
+          </div>
+          <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:14px;">
+            <span>Čistý příjem ročně:</span>
+            <span id="t-tax-net" class="num strong">–</span> Kč
+          </div>
+          <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:14px;">
+            <span>Úspora s W-8BEN ročně:</span>
+            <span id="t-tax-savings" class="num up strong">–</span> Kč
+          </div>
+          <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:14px;">
+            <span>Úspora za 10 let:</span>
+            <span id="t-tax-10yr" class="num strong">–</span> Kč
+          </div>
+          <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:14px;">
+            <span>Úspora za 20 let:</span>
+            <span id="t-tax-20yr" class="num strong">–</span> Kč
+          </div>
+          <p style="margin-top:14px; font-size:12px; color:var(--ink-faint);">
+            Formulář W-8BEN vyplňujete u svého brokera. Smlouva ČR–USA č. 32/1994 Sb., čl. 10 snižuje srážkovou daň z 30 % na 15 %.
+          </p>
         </div>
 
         <div class="lead-card" style="margin-top:34px" id="checklist">
@@ -132,6 +167,8 @@
     var data = null;
     try { data = JSON.parse(sessionStorage.getItem("etf_report") || "null"); } catch (e) {}
     var calc = data && data.calc;
+    var portfolio = data && data.portfolio;
+    var tax = data && data.tax;
 
     if (data && data.email) {
       document.getElementById("t-email").textContent = data.email;
@@ -152,8 +189,8 @@
         document.getElementById("t-scenario").textContent = "Otevřete zaslaný odkaz na report.";
       }
 
-      if (calc && calc.portfolio) {
-        var p = calc.portfolio;
+      if (portfolio) {
+        var p = portfolio;
         document.getElementById("t-portfolio").hidden = false;
 
         var allocHtml = "";
@@ -179,6 +216,17 @@
           comparison += "; o " + p.gapVsAverage.toLocaleString("cs-CZ") + " Kč viac než pri priemernom fonde (0,41 %)";
         }
         document.getElementById("t-portfolio-comparison").textContent = comparison;
+      }
+
+      if (tax) {
+        document.getElementById("t-tax").hidden = false;
+        document.getElementById("t-tax-dividend").textContent = czk(tax.annualDividend);
+        document.getElementById("t-tax-rate").textContent = String(tax.taxRate * 100).replace(".", ",");
+        document.getElementById("t-tax-tax").textContent = czk(tax.taxWithheld);
+        document.getElementById("t-tax-net").textContent = czk(tax.netAmount);
+        document.getElementById("t-tax-savings").textContent = czk(tax.annualSavings);
+        document.getElementById("t-tax-10yr").textContent = czk(tax.savings10yr);
+        document.getElementById("t-tax-20yr").textContent = czk(tax.savings20yr);
       }
 
     document.getElementById("t-print").addEventListener("click", function () { window.print(); });
