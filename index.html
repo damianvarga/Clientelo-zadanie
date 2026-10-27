@@ -37,53 +37,34 @@
     <!-- 1. HERO – zrcadlo reklamy (verze A) -->
     <section class="hero">
       <div class="wrap hero__inner">
-        <p class="hero__eyebrow">
-          <span class="dot"></span>
-          Aktualizováno říjen 2026 &middot; čísla přímo od správců fondů
-        </p>
-        <h1 class="hero__title">
-          Vaše ETF vás může připravit o&nbsp;<span class="accent num" id="hero-loss">235&nbsp;000&nbsp;Kč</span>.
-          Aniž byste to zjistili.
-        </h1>
-        <p class="hero__sub">
-          Stejná indexová sledka, dva fondy, rozdílný poplatek. Porovnejte 6 ETF obchodovaných
-          na NYSE a&nbsp;spočítejte si dopad poplatků na <em>vaše</em> peníze. Zabere to 30&nbsp;sekund.
-        </p>
-        <div class="hero__cta">
-          <a href="#kalkulacka" class="btn btn--accent btn--lg" data-cta="hero">Spočítat moje ztracené peníze</a>
-          <a href="#srovnani" class="btn btn--ghost btn--lg" data-cta="hero-secondary">Rovnou porovnat ETF</a>
+        <div class="hero__content">
+          <p class="hero__eyebrow">
+            <span class="dot"></span>
+            Aktualizováno říjen 2026 &middot; čísla přímo od správců fondů
+          </p>
+          <h1 class="hero__title">
+            Vaše ETF vás může připravit o&nbsp;<span class="accent num" id="hero-loss">235&nbsp;000&nbsp;Kč</span>.
+            Aniž byste to zjistili.
+          </h1>
+          <p class="hero__sub">
+            Stejná indexová sledka, dva fondy, rozdílný poplatek. Porovnejte 6 ETF obchodovaných
+            na NYSE a&nbsp;spočítejte si dopad poplatků na <em>vaše</em> peníze. Zabere to 30&nbsp;sekund.
+          </p>
+          <div class="hero__cta">
+            <a href="#kalkulacka" class="btn btn--accent btn--lg" data-cta="hero">Spočítat moje ztracené peníze</a>
+            <a href="#srovnani" class="btn btn--ghost btn--lg" data-cta="hero-secondary">Rovnou porovnat ETF</a>
+          </div>
+          <p class="hero__trust">
+            Bez registrace brokera &middot; žádný prodej &middot; data z
+            vanguard.com, ishares.com, ssga.com a&nbsp;invesco.com
+          </p>
         </div>
-        <p class="hero__trust">
-          Bez registrace brokera &middot; žádný prodej &middot; data z
-          vanguard.com, ishares.com, ssga.com a&nbsp;invesco.com
-        </p>
-      </div>
-    </section>
-
-    <!-- KOMPAKTNÝ GRAF – dopad poplatkov hneď na začiatok -->
-    <section class="section" id="fee-compact-section">
-      <div class="wrap">
-        <div class="fee-compact">
-          <div class="fee-compact__head">
-            <div>
-              <h2 class="fee-compact__title">Kolik vás mohou poplatky stát za 25 let?</h2>
-              <p class="fee-compact__sub">
-                Stejná investice, stejný trh, jiný poplatek. Rozdíl je v&nbsp;těchto číslech.
-              </p>
-            </div>
-            <a href="#kalkulacka" class="btn btn--accent btn--lg fee-compact__cta" data-cta="hero-chart">Spočítat své číslo</a>
-          </div>
-          <div class="fee-compact__stage">
-            <svg id="fee-compact-chart" viewBox="0 0 700 180" role="img" aria-label="Kompaktní graf dopadu poplatků"></svg>
-          </div>
-          <div class="fee-compact__foot">
-            Model: 100&nbsp;000&nbsp;Kč vklad + 3&nbsp;000&nbsp;Kč měsíčně, 25 let, 8&nbsp;% p.a. Hrubý výnos bez poplatků vs. TER 0,41 % a TER 0,03 %. Výpočet, nikoli predikce.
-          </div>
+        <div class="hero__chart">
+          <svg id="fee-hero-chart" viewBox="0 0 420 260" role="img" aria-label="Graf dopadu poplatků"></svg>
         </div>
       </div>
     </section>
 
-    <!-- 2. FAKTA – bolest ve třech číslech -->
     <section class="facts" aria-label="Klíčová fakta o poplatcích">
       <div class="wrap facts__grid">
         <article class="fact">
@@ -184,7 +165,7 @@
           </div>
         </div>
 
-        <div class="chart-card">
+        <div class="chart-card" hidden>
           <div class="chart-card__head">
             <div>
               <h3 class="chart-card__title">Modelový dopad poplatků</h3>
@@ -211,15 +192,74 @@
       </div>
     </section>
 
+    <!-- DAŇ Z DIVIDEND – W-8BEN kalkulačka -->
+    <section class="section section--alt" id="dan">
+      <div class="wrap">
+        <header class="section__head">
+          <p class="section__eyebrow">Daň z dividend z USA</p>
+          <h2 class="section__title">Kolik ušetříte s formulářem W-8BEN?</h2>
+          <p class="section__lead">
+            Bez formuláře W-8BEN strhává USA 30 % srážkové daně z dividend. S W-8BEN (základní smlouva ČR–USA) je to polovina – 15 %.
+          </p>
+        </header>
+
+        <div class="tax-card">
+          <div class="tax-inputs">
+            <div class="field">
+              <label for="tax-dividend">Roční dividendový příjem z amerických ETF</label>
+              <div class="input-money">
+                <input type="number" id="tax-dividend" name="dividend" value="50000" min="0" max="10000000" step="1000" inputmode="numeric">
+                <span class="input-money__unit">Kč ročně</span>
+              </div>
+            </div>
+            <div class="field tax-toggle">
+              <span class="field__label">Máte vyplněný formulář W-8BEN u brokera?</span>
+              <div class="chips tax-chips" role="radiogroup" aria-label="Formulář W-8BEN">
+                <button type="button" class="chip is-active" data-w8ben="true" aria-pressed="true">Ano</button>
+                <button type="button" class="chip" data-w8ben="false" aria-pressed="false">Ne</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="tax-result" id="tax-result">
+            <div class="tax-result__grid">
+              <div class="tax-result__item">
+                <p class="tax-result__label">Srážková daň ročně</p>
+                <p class="tax-result__value num" id="tax-result-tax">–</p>
+              </div>
+              <div class="tax-result__item tax-result--net">
+                <p class="tax-result__label">Čistý dividendový příjem ročně</p>
+                <p class="tax-result__value num" id="tax-result-net">–</p>
+              </div>
+              <div class="tax-result__item tax-result--savings">
+                <p class="tax-result__label">Úspora s W-8BEN ročně</p>
+                <p class="tax-result__value num up" id="tax-result-savings">–</p>
+              </div>
+            </div>
+            <div class="tax-result__longterm">
+              <p class="tax-result__label">Úspora za 10 / 20 let (stejný příjem, bez reinvestice)</p>
+              <div class="tax-result__years">
+                <span class="num" id="tax-result-10yr">–</span> Kč / <span class="num" id="tax-result-20yr">–</span> Kč
+              </div>
+            </div>
+          </div>
+
+          <div class="tax-cta">
+            <button class="btn btn--accent btn--block" id="tax-email-btn" hidden>Pošlete mi návod k W-8BEN e-mailem</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- PORTFOLIO – vlastné zloženie ETF -->
     <section class="section section--alt" id="portfolio">
       <div class="wrap">
         <header class="section__head">
-          <p class="section__eyebrow">Skladanie portfólia</p>
-          <h2 class="section__title">Skladajte si vlastné ETF portfólio</h2>
+          <p class="section__eyebrow">Skladání portfolia</p>
+          <h2 class="section__title">Vyskládejte si vlastní ETF portfolio</h2>
           <p class="section__lead">
-            Nastavte si váhy jednotlivých ETF a zistite, ako váhy ovlivnia celkový poplatek (TER)
-            a čo by to znamenalo pre vaše peňazie za 25 rokov.
+            Nastavte si váhy jednotlivých ETF a zjistěte, jak váhy ovlivňují celkový poplatek (TER)
+            a co by to znamenalo pro vaše peníze za 25 let.
           </p>
         </header>
 
@@ -235,7 +275,7 @@
           <div class="portfolio-result" id="portfolio-result" hidden></div>
 
           <div class="portfolio-cta">
-            <button class="btn btn--accent btn--block" id="portfolio-email-btn" hidden>Pošlite mi toto portfólio e-mailom</button>
+            <button class="btn btn--accent btn--block" id="portfolio-email-btn" hidden>Pošlete mi portfólio e-mailem</button>
           </div>
         </div>
       </div>
@@ -337,10 +377,10 @@
       <div class="wrap narrow">
         <header class="section__head section__head--center">
           <p class="section__eyebrow">Osobní report</p>
-          <h2 class="section__title">Pošlete mi to číslo i s vysvětlením</h2>
+          <h2 class="section__title">Pošlete mi svůj přepočet a souhrn e-mailem</h2>
           <p class="section__lead">
-            Váš výpočet z kalkulačky, rozbor všech šesti ETF a&nbsp;checklist prvních kroků –
-            všechno v&nbsp;jednom e-mailu, do 2 minut. Jeden e-mail, žádný newsletterový spam.
+            Váš výpočet z kalkulačky poplatků, složení portfólia a srovnání šesti ETF –
+            všechno v jednom e-mailu, do 2 minut. Jeden e-mail, žádný newsletterový spam.
           </p>
         </header>
 
@@ -484,6 +524,7 @@
   <script src="/assets/js/table.js"></script>
   <script src="/assets/js/calculator.js"></script>
   <script src="/assets/js/portfolio.js"></script>
+  <script src="/assets/js/tax-calculator.js"></script>
   <script src="/assets/js/charts.js"></script>
 </body>
 </html>
