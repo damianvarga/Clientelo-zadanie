@@ -110,12 +110,56 @@
 
     var lx = xp(n - 1), ly = yp(prices[n - 1]);
     priceSvg.appendChild(svgEl("circle", { cx: lx, cy: ly, r: 3.5, fill: GREEN }));
-    priceSvg.appendChild(textEl(lx + 8, ly, prices[n - 1].toFixed(2) + " USD", { fill: INK, size: "12px", weight: "600" }));
+    var endLabel = prices[n - 1].toFixed(2) + " USD";
+    var endHalfW = endLabel.length * 3.2;
+    var endTx = Math.min(Math.max(lx, endHalfW + 2), w - endHalfW - 2);
+    var endX0 = endTx - endHalfW, endX1 = endTx + endHalfW;
+    var endGlyph = 10;
+
+    function endLabelHitsLine(cy) {
+      var y0 = cy - endGlyph, y1 = cy + endGlyph;
+      var px0 = xp(0), py0 = yp(prices[0]);
+      for (var i = 1; i < n; i++) {
+        var px1 = xp(i), py1 = yp(prices[i]);
+        var ox0 = Math.max(px0, endX0), ox1 = Math.min(px1, endX1);
+        if (ox0 <= ox1 && px1 !== px0) {
+          var t0 = (ox0 - px0) / (px1 - px0);
+          var t1 = (ox1 - px0) / (px1 - px0);
+          var ya = py0 + (py1 - py0) * t0;
+          var yb = py0 + (py1 - py0) * t1;
+          if (Math.min(ya, yb) <= y1 && Math.max(ya, yb) >= y0) return true;
+        }
+        px0 = px1; py0 = py1;
+      }
+      return false;
+    }
+
+    function endLabelBlocked(cy) {
+      if (cy + endGlyph > h - pad.b || cy - endGlyph < pad.t) return true;
+      if (Math.abs(cy - ly) < 3.5 + endGlyph) return true;
+      return endLabelHitsLine(cy);
+    }
+
+    var endCy = null;
+    for (var off = 13; off <= 68 && endCy === null; off += 5) {
+      if (!endLabelBlocked(ly + off)) endCy = ly + off;
+    }
+    for (var offA = 14; offA <= 69 && endCy === null; offA += 5) {
+      if (!endLabelBlocked(ly - offA)) endCy = ly - offA;
+    }
+    if (endCy === null) endCy = ly + 13;
+
+    priceSvg.appendChild(textEl(endTx, endCy, endLabel, {
+      fill: INK, size: "12px", weight: "600", anchor: "middle"
+    }));
 
     [0, Math.floor((n - 1) / 2), n - 1].forEach(function (i) {
       var xx = xp(i);
       priceSvg.appendChild(svgEl("line", { x1: xx, y1: h - pad.b, x2: xx, y2: h - pad.b + 4, stroke: INK_SOFT, "stroke-width": "1" }));
-      priceSvg.appendChild(textEl(xx, h - pad.b + 19, fmtDate(win[i].date), { anchor: "middle", size: "10px" }));
+      var lbl = fmtDate(win[i].date);
+      var halfW = lbl.length * 2.6;
+      var tx = Math.min(Math.max(xx, halfW + 2), w - halfW - 2);
+      priceSvg.appendChild(textEl(tx, h - pad.b + 19, lbl, { anchor: "middle", size: "10px" }));
     });
   }
 
@@ -200,7 +244,7 @@
     });
 
     var gap = exp[YEARS] - cheap[YEARS];
-    feeSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 40, "Modelový rozdiel po " + YEARS + " rokoch: " + czk(gap) + " Kč", { anchor: "end", size: "11px", fill: ORANGE, weight: "600" }));
+    feeSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 40, "Modelový rozdíl po " + YEARS + " letech: " + czk(gap) + " Kč", { anchor: "end", size: "11px", fill: ORANGE, weight: "600" }));
   }
 
   function drawFeeCompactChart() {
@@ -261,6 +305,66 @@
     feeCompactSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 32, "Rozdiel po 25 rokoch: " + czk(gap) + " Kč", { anchor: "end", size: "10px", fill: ORANGE, weight: "700" }));
   }
 
+  function drawFeeHeroChart() {
+    var heroSvg = document.getElementById("fee-hero-chart");
+    if (!heroSvg) return;
+
+    var w = 420, h = 260;
+    var pad = { l: 56, r: 20, t: 26, b: 46 };
+    var plotW = w - pad.l - pad.r;
+    var plotH = h - pad.t - pad.b;
+
+    clearSvg(heroSvg);
+    heroSvg.setAttribute("width", w);
+    heroSvg.setAttribute("height", h);
+
+    var cheap = [], exp = [];
+    for (var y = 0; y <= YEARS; y++) {
+      cheap.push(futureValue(INITIAL, MONTHLY, y, GROSS - CHEAP_TER / 100));
+      exp.push(futureValue(INITIAL, MONTHLY, y, GROSS - EXPENSIVE_TER / 100));
+    }
+    var maxV = Math.max.apply(null, cheap.concat(exp));
+    var yMax = maxV * 1.08;
+
+    function xp(y) { return pad.l + (y / YEARS) * plotW; }
+    function yp(v) { return h - pad.b - (v / yMax) * plotH; }
+
+    var fillPts = "";
+    for (var y = 0; y <= YEARS; y++) fillPts += xp(y) + "," + yp(cheap[y]) + " ";
+    for (var y = YEARS; y >= 0; y--) fillPts += xp(y) + "," + yp(exp[y]) + " ";
+    heroSvg.appendChild(svgEl("polygon", { points: fillPts.trim(), fill: ORANGE_LIGHT, "fill-opacity": "0.15" }));
+
+    var cheapPts = "", expPts = "";
+    for (var y = 0; y <= YEARS; y++) {
+      cheapPts += xp(y) + "," + yp(cheap[y]) + " ";
+      expPts += xp(y) + "," + yp(exp[y]) + " ";
+    }
+    heroSvg.appendChild(svgEl("polyline", { points: expPts.trim(), fill: "none", stroke: ORANGE, "stroke-width": "2" }));
+    heroSvg.appendChild(svgEl("polyline", { points: cheapPts.trim(), fill: "none", stroke: GREEN, "stroke-width": "2" }));
+
+    heroSvg.appendChild(svgEl("circle", { cx: pad.l + 8, cy: pad.t - 12, r: 3, fill: GREEN }));
+    heroSvg.appendChild(textEl(pad.l + 14, pad.t - 12, "Levné ETF (0,03 %)", { size: "10px", fill: INK, weight: "600" }));
+    heroSvg.appendChild(svgEl("circle", { cx: pad.l + 118, cy: pad.t - 12, r: 3, fill: ORANGE }));
+    heroSvg.appendChild(textEl(pad.l + 124, pad.t - 12, "Priemerný fond (0,41 %)", { size: "10px", fill: INK, weight: "600" }));
+
+    for (var g = 0; g < 4; g++) {
+      var vy = yMax * (g / 3);
+      var yy = yp(vy);
+      heroSvg.appendChild(svgEl("line", { x1: pad.l, y1: yy, x2: pad.l + plotW, y2: yy, stroke: GRID, "stroke-width": "1" }));
+      heroSvg.appendChild(textEl(pad.l - 6, yy, czk(vy).replace(" Kč", ""), { anchor: "end", size: "9px" }));
+    }
+
+    [0, 10, 20, 25].forEach(function (yr) {
+      var xx = xp(yr);
+      heroSvg.appendChild(svgEl("line", { x1: xx, y1: h - pad.b, x2: xx, y2: h - pad.b + 3, stroke: INK_SOFT, "stroke-width": "1" }));
+      heroSvg.appendChild(textEl(xx, h - pad.b + 14, String(yr), { anchor: "middle", size: "9px" }));
+    });
+
+    var gap = exp[YEARS] - cheap[YEARS];
+    heroSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 28, "Rozdiel: " + czk(gap) + " Kč", { anchor: "end", size: "10px", fill: ORANGE, weight: "700" }));
+  }
+
   drawFeeChart();
   drawFeeCompactChart();
+  drawFeeHeroChart();
 })();
