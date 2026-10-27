@@ -56,21 +56,32 @@
           "<span class=\"portfolio-row__ter\">TER " + fmtTer(f.ter) + "</span>" +
         "</div>" +
         "<div class=\"portfolio-row__controls\">" +
-          "<input type=\"range\" min=\"0\" max=\"100\" step=\"1\" value=\"" + w + "\" data-ticker=\"" + f.ticker + "\">" +
-          "<input type=\"number\" min=\"0\" max=\"100\" step=\"1\" value=\"" + w + "\" data-ticker=\"" + f.ticker + "\" class=\"portfolio-row__num\">" +
-          "<span class=\"portfolio-row__unit\">%</span>" +
+          "<input type=\"range\" min=\"0\" max=\"100\" step=\"1\" value=\"" + w + "\" data-ticker=\"" + f.ticker + "\" aria-label=\"Váha " + f.ticker + " – posuvník\">" +
+          "<div class=\"portfolio-row__numbox\">" +
+            "<input type=\"number\" min=\"0\" max=\"100\" step=\"1\" value=\"" + w + "\" data-ticker=\"" + f.ticker + "\" class=\"portfolio-row__num\" aria-label=\"Váha " + f.ticker + " v percentách\">" +
+            "<span class=\"portfolio-row__unit\">%</span>" +
+          "</div>" +
         "</div>" +
       "</div>";
     });
     allocationsEl.innerHTML = html;
 
+    function paintRange(range) {
+      var min = Number(range.min) || 0;
+      var max = Number(range.max) || 100;
+      var pct = ((Number(range.value) - min) / (max - min)) * 100;
+      range.style.setProperty("--p", pct + "%");
+    }
+
     document.querySelectorAll(".portfolio-row input[type=\"range\"]").forEach(function (input) {
+      paintRange(input);
       input.addEventListener("input", function () {
         var ticker = this.getAttribute("data-ticker");
         var val = Number(this.value);
         state[ticker] = val;
         var numInput = document.querySelector(".portfolio-row__num[data-ticker=\"" + ticker + "\"]");
         if (numInput) numInput.value = val;
+        paintRange(this);
         update();
       });
     });
@@ -81,7 +92,10 @@
         var val = Math.max(0, Math.min(100, Number(this.value) || 0));
         state[ticker] = val;
         var rangeInput = document.querySelector(".portfolio-row input[type=\"range\"][data-ticker=\"" + ticker + "\"]");
-        if (rangeInput) rangeInput.value = val;
+        if (rangeInput) {
+          rangeInput.value = val;
+          paintRange(rangeInput);
+        }
         update();
       });
     });
@@ -185,4 +199,11 @@
   }
 
   renderAllocations();
+
+  emailBtnEl.addEventListener("click", function () {
+    var reportSection = document.getElementById("report");
+    if (reportSection) {
+      reportSection.scrollIntoView({ behavior: "smooth" });
+    }
+  });
 })();
