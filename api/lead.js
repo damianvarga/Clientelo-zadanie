@@ -51,6 +51,41 @@ async function sendWithResend(key, payload) {
   return res.json();
 }
 
+async function saveLeadToDb(record) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return false;
+  if (record.consent !== true) return false;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify([
+      [
+        "HSET",
+        "lead:" + record.email,
+        "email", record.email,
+        "consent", "true",
+        "consentAt", record.consentAt || "",
+        "ip", record.ip || "",
+        "page", record.page || "",
+        "referrer", record.referrer || "",
+        "utm", JSON.stringify(record.utm || {}),
+        "ts", record.ts || ""
+      ],
+      ["SADD", "leads:index", record.email]
+    ])
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error("Upstash " + res.status + ": " + body);
+  }
+  return true;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -83,6 +118,8 @@ export default async function handler(req, res) {
 
   const record = {
     email: String(email).toLowerCase().slice(0, 254),
+    consent: true,
+    consentAt: new Date().toISOString(),
     utm: utm && typeof utm === "object" ? utm : {},
     calc: calc && typeof calc === "object" ? calc : null,
     page: typeof page === "string" ? page.slice(0, 200) : null,
@@ -93,9 +130,16 @@ export default async function handler(req, res) {
 
   console.log("[lead]", JSON.stringify(record));
 
+  let stored = false;
+  try {
+    stored = await saveLeadToDb(record);
+  } catch (err) {
+    console.error("[lead] db_error", err.message);
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    return res.status(200).json({ ok: true, queued: false, mode: "log_only" });
+    return res.status(200).json({ ok: true, queued: false, mode: "log_only", stored: stored });
   }
 
   const origin = "https://" + (req.headers.host || "etf-poplatky.vercel.app");
@@ -129,9 +173,9 @@ export default async function handler(req, res) {
       text: "Pokračování reportu najdete na stránce " + origin + "/thank-you.html#checklist"
     }).catch((e) => console.error("[lead] secondary email failed", e.message));
 
-    return res.status(200).json({ ok: true, queued: true });
+    return res.status(200).json({ ok: true, queued: true, stored: stored });
   } catch (err) {
     console.error("[lead] resend_error", err.message);
-    return res.status(200).json({ ok: true, queued: false, mode: "log_fallback" });
+    return res.status(200).json({ ok: true, queued: false, mode: "log_fallback", stored: stored });
   }
 }

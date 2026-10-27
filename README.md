@@ -170,8 +170,21 @@ build command: prázdný, output: prázdný – statické soubory sa nasadia sam
 | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady zapisujú do logov) |
 | `RESEND_FROM` | napr. `ETF Poplatky <report@vasedomena.cz>` (voliteľné) |
 | `REPLY_TO` | váš e-mail na odpovede (voliteľné) |
+| `UPSTASH_REDIS_REST_URL` | REST URL z Upstash (voliteľné – bez neho sa leady neukladajú do DB) |
+| `UPSTASH_REDIS_REST_TOKEN` | REST token z Upstash (voliteľné) |
 
 Bez kľúča stránka **plne funguje** – endpoint vracia `200` a loguje `{"mode":"log_only"}`.
+
+### Upstash Redis (databáza leadov)
+1. Účet zdarma na <https://upstash.com> → **Create database** (free tier).
+2. V sekcii **REST API** skopírovať `UPSTASH_REDIS_REST_URL` a `UPSTASH_REDIS_REST_TOKEN`.
+3. Pridať ako environment variables (vyššie) a redeploy.
+
+Lead sa uloží **iba keď používateľ zaškrtnul súhlas** (overené aj serverom –
+bez `consent: true` vracia endpoint `422 consent_required` a neuloží nič).
+Každý záznam obsahuje e-mail, čas súhlasu, IP, UTM, stránku a referrer
+(klúč `lead:<email>` + index `leads:index`). Bez premenných je odpoveď
+`{"ok":true,"stored":false}`.
 
 ### 4) Overenie
 - `POST /api/lead` s validným telom → `{"ok":true}`
@@ -206,3 +219,9 @@ api/lead.js           – serverless endpoint: validace → Resend → fallback 
 - GDPR: jediné spracúvanie = e-mail na zaslanie reportu, súhlas checkboxom,
   odhlásenie v každom e-maile, žiadne tretie strany.
 - Všetky čísla so zdrojom; výnosný predpoklad 8 % p.a. je zrejmý pri kalkulačke.
+
+## 11. Práca s AI agentmi
+
+Výstup AI agentov som kontroloval manuálne tak, že som naprogramoval napr. jednu väčšiu, alebo 2-3 menšie funkcie, ktoré som potom otestoval. Ak išlo len o vizuálne opravy, kontrola bola jednoduchá a okamžitá. 
+
+Najčastejšou chybou AI agentov bolo miešanie češtiny a slovenčiny, ktorú som si všimol až uprostred vývoja projektu. Medzi ďalšie chyby patrilo napr. vykresľovanie prvkov častí stránky tak, že už presahovali hranice časti stránky, pre ktorú patrili, čo napr. pri grafoch znamenalo, že ich nebolo vidieť, ďalej to, že tlačidlo pre W-8BEN formulár nechcelo po kliknutí používateľa presunúť na sekciu s e-mailom (a to ani po opakovaných opravách, nakoniec som nechal AI danú časť zmazať a urobiť nanovo).
