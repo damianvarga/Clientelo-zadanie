@@ -132,6 +132,7 @@
       utm: window.etfUtm || {},
       calc: window.etfCalcState || null,
       portfolio: window.etfPortfolioState || null,
+      tax: window.etfTaxState || null,
       page: window.location.pathname,
       referrer: document.referrer || null,
       ts: new Date().toISOString()
@@ -154,6 +155,8 @@
           sessionStorage.setItem("etf_report", JSON.stringify({
             email: email,
             calc: window.etfCalcState || null,
+            portfolio: window.etfPortfolioState || null,
+            tax: window.etfTaxState || null,
             sentAt: new Date().toISOString()
           }));
         } catch (err) {}
