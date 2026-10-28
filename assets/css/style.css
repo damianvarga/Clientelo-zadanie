@@ -425,7 +425,7 @@ input[type="range"] { width: 100%; accent-color: var(--green); }
 
 /* ---------- steps + quote ---------- */
 .split { display: grid; grid-template-columns: 1.2fr .8fr; gap: 30px; align-items: start; }
-.steps { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 14px; color: var(--ink-soft); }
+.steps { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 14px; color: var(--ink-soft); counter-reset: step; }
 .steps li { position: relative; padding-left: 30px; font-size: 15px; line-height: 1.55; }
 .steps li::before {
   content: counter(step);
