@@ -79,6 +79,19 @@ img { max-width: 100%; display: block; }
 
 .btn--compact { padding: 7px 14px; font-size: 12.5px; border-radius: 6px; }
 
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  background: var(--card);
+  border-color: var(--line-soft);
+  color: var(--ink-soft);
+}
+.btn--accent:disabled {
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+  color: rgba(255,255,255,.5);
+}
+
 /* ---------- topbar ---------- */
 .topbar {
   position: sticky;

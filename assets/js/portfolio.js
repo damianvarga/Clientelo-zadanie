@@ -110,6 +110,7 @@
     totalEl.textContent = total + " %";
     totalEl.classList.toggle("is-complete", isComplete);
     totalEl.classList.toggle("is-incomplete", !isComplete);
+    emailBtnEl.disabled = !isComplete;
 
     if (totalHintEl) {
       if (isComplete) {
@@ -193,7 +194,7 @@
       }
     } else {
       resultEl.hidden = true;
-      emailBtnEl.hidden = true;
+      emailBtnEl.hidden = false;
       window.etfPortfolioState = null;
     }
   }
@@ -201,6 +202,7 @@
   renderAllocations();
 
   emailBtnEl.addEventListener("click", function () {
+    if (emailBtnEl.disabled) return;
     var reportSection = document.getElementById("report");
     if (reportSection) {
       reportSection.scrollIntoView({ behavior: "smooth" });
