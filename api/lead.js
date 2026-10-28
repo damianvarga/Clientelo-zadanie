@@ -1,3 +1,5 @@
+import { Redis } from "@upstash/redis";
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const hits = globalThis.__leadRateLimit || (globalThis.__leadRateLimit = new Map());
@@ -51,39 +53,37 @@ async function sendWithResend(key, payload) {
   return res.json();
 }
 
-async function saveLeadToDb(record) {
+function getRedis() {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return false;
-  if (record.consent !== true) return false;
+  if (!url || !token) return null;
+  return new Redis({ url, token });
+}
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + token,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify([
-      [
-        "HSET",
-        "lead:" + record.email,
-        "email", record.email,
-        "consent", "true",
-        "consentAt", record.consentAt || "",
-        "ip", record.ip || "",
-        "page", record.page || "",
-        "referrer", record.referrer || "",
-        "utm", JSON.stringify(record.utm || {}),
-        "ts", record.ts || ""
-      ],
-      ["SADD", "leads:index", record.email]
-    ])
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error("Upstash " + res.status + ": " + body);
+async function saveLeadToDb(record) {
+  const redis = getRedis();
+  if (!redis) return { configured: false, stored: false };
+  if (record.consent !== true) return { configured: true, stored: false };
+  try {
+    await redis
+      .multi()
+      .hset("newsletter:lead:" + record.email, {
+        email: record.email,
+        consent: "true",
+        consentAt: record.consentAt || "",
+        ip: record.ip || "",
+        page: record.page || "",
+        referrer: record.referrer || "",
+        utm: JSON.stringify(record.utm || {}),
+        ts: record.ts || ""
+      })
+      .sadd("newsletter:emails", record.email)
+      .exec();
+    return { configured: true, stored: true };
+  } catch (err) {
+    console.error("[lead] db_error", String((err && err.message) || err).slice(0, 300));
+    return { configured: true, stored: false };
   }
-  return true;
 }
 
 export default async function handler(req, res) {
@@ -104,7 +104,8 @@ export default async function handler(req, res) {
 
   if (company) return res.status(200).json({ ok: true, queued: false });
 
-  if (!email || !EMAIL_RE.test(String(email))) {
+  const emailNorm = typeof email === "string" ? email.trim().toLowerCase() : "";
+  if (!emailNorm || !EMAIL_RE.test(emailNorm)) {
     return res.status(422).json({ error: "invalid_email" });
   }
   if (consent !== true) {
@@ -113,11 +114,11 @@ export default async function handler(req, res) {
 
   const ip = req.headers["x-forwarded-for"] || req.connection?.remoteAddress || "unknown";
   if (rateLimited(String(ip).split(",")[0].trim())) {
-    return res.status(429).json({ error: "rate_limited" });
+    return res.status(422).json({ error: "rate_limited" });
   }
 
   const record = {
-    email: String(email).toLowerCase().slice(0, 254),
+    email: emailNorm.slice(0, 254),
     consent: true,
     consentAt: new Date().toISOString(),
     utm: utm && typeof utm === "object" ? utm : {},
@@ -130,16 +131,18 @@ export default async function handler(req, res) {
 
   console.log("[lead]", JSON.stringify(record));
 
-  let stored = false;
-  try {
-    stored = await saveLeadToDb(record);
-  } catch (err) {
-    console.error("[lead] db_error", err.message);
+  const db = await saveLeadToDb(record);
+  if (!db.configured) {
+    console.error("[lead] db_not_configured – nastav UPSTASH_REDIS_REST_URL a UPSTASH_REDIS_REST_TOKEN");
+    return res.status(503).json({ error: "db_not_configured" });
+  }
+  if (!db.stored) {
+    return res.status(503).json({ error: "db_unavailable" });
   }
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    return res.status(200).json({ ok: true, queued: false, mode: "log_only", stored: stored });
+    return res.status(200).json({ ok: true, stored: true, queued: false, mode: "log_only" });
   }
 
   const origin = "https://" + (req.headers.host || "etf-poplatky.vercel.app");
@@ -171,11 +174,11 @@ export default async function handler(req, res) {
       reply_to: replyTo,
       subject: "Checklist: W-8BEN, broker, první nákup",
       text: "Pokračování reportu najdete na stránce " + origin + "/thank-you.html#checklist"
-    }).catch((e) => console.error("[lead] secondary email failed", e.message));
+    }).catch((e) => console.error("[lead] secondary email failed", String(e && e.message).slice(0, 300)));
 
-    return res.status(200).json({ ok: true, queued: true, stored: stored });
+    return res.status(200).json({ ok: true, stored: true, queued: true });
   } catch (err) {
-    console.error("[lead] resend_error", err.message);
-    return res.status(200).json({ ok: true, queued: false, mode: "log_fallback", stored: stored });
+    console.error("[lead] resend_error", String((err && err.message) || err).slice(0, 300));
+    return res.status(200).json({ ok: true, stored: true, queued: false, mode: "resend_failed" });
   }
 }
