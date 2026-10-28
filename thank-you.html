@@ -198,6 +198,36 @@
       }
     }
 
+    if (!portfolio && getUrlParam("p_alloc") !== null) {
+      try {
+        portfolio = {
+          allocations: JSON.parse(decodeURIComponent(getUrlParam("p_alloc"))),
+          weightedTer: Number(getUrlParam("p_wt") || 0),
+          yourFinalValue: Number(getUrlParam("p_yfv") || 0),
+          cheapFinalValue: Number(getUrlParam("p_cfv") || 0),
+          avgFinalValue: Number(getUrlParam("p_afv") || 0),
+          gapVsCheapest: Number(getUrlParam("p_gvc") || 0),
+          gapVsAverage: Number(getUrlParam("p_gva") || 0),
+          years: Number(getUrlParam("years") || 25),
+          initial: Number(getUrlParam("initial") || 0),
+          monthly: Number(getUrlParam("monthly") || 0)
+        };
+      } catch (e) {}
+    }
+
+    if (!tax && getUrlParam("t_ad") !== null) {
+      tax = {
+        annualDividend: Number(getUrlParam("t_ad") || 0),
+        hasW8ben: getUrlParam("t_ar") == "0.15",
+        taxRate: Number(getUrlParam("t_ar") || 0.30),
+        taxWithheld: Number(getUrlParam("t_at") || 0),
+        netAmount: Number(getUrlParam("t_an") || 0),
+        annualSavings: Number(getUrlParam("t_as") || 0),
+        savings10yr: Number(getUrlParam("t_10") || 0),
+        savings20yr: Number(getUrlParam("t_20") || 0)
+      };
+    }
+
     if (data && data.email) {
       document.getElementById("t-email").textContent = data.email;
     }

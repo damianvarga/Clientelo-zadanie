@@ -150,6 +150,37 @@ export default async function handler(req, res) {
   const replyTo = process.env.REPLY_TO || undefined;
 
   try {
+    const reportParams = new URLSearchParams();
+    if (record.calc) {
+      reportParams.set("fv", record.calc.finalValue);
+      reportParams.set("fees", record.calc.feesPaid);
+      reportParams.set("gap", record.calc.gapVsCheapest);
+      reportParams.set("initial", record.calc.initial);
+      reportParams.set("monthly", record.calc.monthly);
+      reportParams.set("years", record.calc.years);
+      reportParams.set("ter", record.calc.ter);
+      reportParams.set("fund", record.calc.fund);
+    }
+    if (record.portfolio) {
+      reportParams.set("p_alloc", encodeURIComponent(JSON.stringify(record.portfolio.allocations)));
+      reportParams.set("p_wt", record.portfolio.weightedTer);
+      reportParams.set("p_yfv", record.portfolio.yourFinalValue);
+      reportParams.set("p_cfv", record.portfolio.cheapFinalValue);
+      reportParams.set("p_afv", record.portfolio.avgFinalValue);
+      reportParams.set("p_gvc", record.portfolio.gapVsCheapest);
+      reportParams.set("p_gva", record.portfolio.gapVsAverage);
+    }
+    if (record.tax) {
+      reportParams.set("t_ad", record.tax.annualDividend);
+      reportParams.set("t_ar", record.tax.taxRate);
+      reportParams.set("t_at", record.tax.taxWithheld);
+      reportParams.set("t_an", record.tax.netAmount);
+      reportParams.set("t_as", record.tax.annualSavings);
+      reportParams.set("t_10", record.tax.savings10yr);
+      reportParams.set("t_20", record.tax.savings20yr);
+    }
+    const reportUrl = origin + "/thank-you.html" + (reportParams.toString() ? "?" + reportParams.toString() : "");
+
     await sendWithResend(apiKey, {
       from: from,
       to: [record.email],
@@ -160,21 +191,13 @@ export default async function handler(req, res) {
         "",
         reportText(record.calc),
         "",
-        "Report: " + origin + "/thank-you.html",
+        "Report: " + reportUrl,
         "",
         "--",
         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
         "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
       ].join("\n")
     });
-
-    await sendWithResend(apiKey, {
-      from: from,
-      to: [record.email],
-      reply_to: replyTo,
-      subject: "Checklist: W-8BEN, broker, první nákup",
-      text: "Pokračování reportu najdete na stránce " + origin + "/thank-you.html#checklist"
-    }).catch((e) => console.error("[lead] secondary email failed", String(e && e.message).slice(0, 300)));
 
     return res.status(200).json({ ok: true, stored: true, queued: true });
   } catch (err) {
