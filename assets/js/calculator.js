@@ -20,7 +20,8 @@
 
   if (!els.initial) return;
 
-  var state = { ter: 0.03, fund: "VOO / IVV / VTI" };
+  var state = { initial: null, monthly: null, years: null, ter: null, fund: null };
+  var isDirty = false;
 
   function futureValue(principal, monthly, years, rate) {
     var r = rate / 12;
@@ -45,7 +46,8 @@
   }
 
   function update() {
-    var r = compute(state.ter);
+    var ter = state.ter !== null ? state.ter : CHEAPEST_TER;
+    var r = compute(ter);
     var cheap = compute(CHEAPEST_TER);
     var gap = r.netFv - cheap.netFv;
 
@@ -53,7 +55,7 @@
     els.final.textContent = fmtCzk(r.netFv);
     els.fees.textContent = fmtCzk(r.feesPaid);
     els.feesNote.textContent =
-      "Při " + state.fund + " (TER " + state.ter.toLocaleString("cs-CZ") +
+      "Při " + (state.fund || "VOO / IVV / VTI") + " (TER " + (state.ter !== null ? state.ter : CHEAPEST_TER).toLocaleString("cs-CZ") +
       " %) strhne správce fondu zhruba tolik – bez vámi viditelné položky ve výpisu.";
     els.gap.textContent = gap > 1 ? "− " + fmtCzk(gap) : "0 Kč";
     els.gapNote.textContent = gap > 1
@@ -62,32 +64,38 @@
 
     var lossText = fmtCzk(gap > 1 ? gap : cheap.feesPaid).replace(/\s/g, "\u00a0");
     if (els.heroLoss) {
-      els.heroLoss.textContent = state.ter > 0.03 ? lossText : "235\u00a0000\u00a0Kč";
+      els.heroLoss.textContent = state.ter !== null && state.ter > 0.03 ? lossText : "235\u00a0000\u00a0Kč";
     }
 
-    window.etfCalcState = {
-      initial: r.initial,
-      monthly: r.monthly,
-      years: r.years,
-      gross: GROSS,
-      ter: state.ter,
-      fund: state.fund,
-      finalValue: Math.round(r.netFv),
-      feesPaid: Math.round(r.feesPaid),
-      gapVsCheapest: Math.round(gap),
-      finalValueCheapest: Math.round(cheap.netFv),
-      feesPaidCheapest: Math.round(cheap.feesPaid)
-    };
+    if (isDirty) {
+      window.etfCalcState = {
+        initial: r.initial,
+        monthly: r.monthly,
+        years: r.years,
+        gross: GROSS,
+        ter: state.ter !== null ? state.ter : CHEAPEST_TER,
+        fund: state.fund || "VOO / IVV / VTI",
+        finalValue: Math.round(r.netFv),
+        feesPaid: Math.round(r.feesPaid),
+        gapVsCheapest: Math.round(gap),
+        finalValueCheapest: Math.round(cheap.netFv),
+        feesPaidCheapest: Math.round(cheap.feesPaid)
+      };
+    }
 
     if (window.etfTrack && els.stickyNum) {
-      els.stickyNum.textContent = "ztráta " + fmtCzk(r.feesPaid);
+      els.stickyNum.textContent = isDirty ? "ztráta " + fmtCzk(r.feesPaid) : "";
     }
   }
 
+  function markDirty() {
+    isDirty = true;
+  }
+
   ["initial", "monthly"].forEach(function (k) {
-    els[k].addEventListener("input", update);
+    els[k].addEventListener("input", function () { markDirty(); update(); });
   });
-  els.years.addEventListener("input", update);
+  els.years.addEventListener("input", function () { markDirty(); update(); });
 
   document.querySelectorAll(".chip").forEach(function (chip) {
     chip.addEventListener("click", function () {
@@ -99,12 +107,11 @@
       chip.setAttribute("aria-pressed", "true");
       state.ter = Number(chip.getAttribute("data-ter"));
       state.fund = chip.getAttribute("data-fund");
+      markDirty();
       update();
       if (window.etfTrack) window.etfTrack("calc_change", { ter: state.ter, fund: state.fund });
     });
   });
-
-  update();
 
   window.etfCalcDisplay = { compute: compute, fmtCzk: fmtCzk, GROSS: GROSS };
 })();

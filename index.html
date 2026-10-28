@@ -208,7 +208,7 @@
             <div class="field">
               <label for="tax-dividend">Roční dividendový příjem z amerických ETF</label>
               <div class="input-money">
-                <input type="number" id="tax-dividend" name="dividend" value="50000" min="0" max="10000000" step="1000" inputmode="numeric">
+                <input type="number" id="tax-dividend" name="dividend" min="0" max="10000000" step="1000" inputmode="numeric" placeholder="např. 50 000">
                 <span class="input-money__unit">Kč ročně</span>
               </div>
             </div>
@@ -298,20 +298,20 @@
             <div class="field">
               <label for="c-initial">Jednorázový vklad</label>
               <div class="input-money">
-                <input type="number" id="c-initial" name="initial" value="100000" min="0" max="100000000" step="1000" inputmode="numeric">
+                <input type="number" id="c-initial" name="initial" min="0" max="100000000" step="1000" inputmode="numeric" placeholder="např. 100 000">
                 <span class="input-money__unit">Kč</span>
               </div>
             </div>
             <div class="field">
               <label for="c-monthly">Pravidelná platba měsíčně</label>
               <div class="input-money">
-                <input type="number" id="c-monthly" name="monthly" value="3000" min="0" max="1000000" step="500" inputmode="numeric">
+                <input type="number" id="c-monthly" name="monthly" min="0" max="1000000" step="500" inputmode="numeric" placeholder="např. 3 000">
                 <span class="input-money__unit">Kč</span>
               </div>
             </div>
             <div class="field">
-              <label for="c-years">Investiční horizont: <output id="c-years-out" class="num strong">25 let</output></label>
-              <input type="range" id="c-years" name="years" value="25" min="5" max="40" step="1">
+              <label for="c-years">Investiční horizont: <output id="c-years-out" class="num strong">– let</output></label>
+              <input type="range" id="c-years" name="years" min="5" max="40" step="1" value="25">
             </div>
             <div class="field">
               <span class="field__label">Typ fondu</span>
@@ -381,6 +381,9 @@
           <p class="section__lead">
             Váš výpočet z kalkulačky poplatků, složení portfólia a srovnání šesti ETF –
             všechno v jednom e-mailu, do 2 minut. Jeden e-mail, žádný newsletterový spam.
+          </p>
+          <p class="section__lead" style="font-size:13px; color:var(--ink-faint); margin-top:8px;">
+            Report obsahuje len to, čo vyplníte – kalkulačka, portfólio aj daň sú voliteľné. Môžete ich preskočiť.
           </p>
         </header>
 

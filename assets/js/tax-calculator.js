@@ -13,15 +13,17 @@
 
   if (!container || !dividendInput) return;
 
-  var state = { annualDividend: 0, hasW8ben: true };
+  var state = { annualDividend: null, hasW8ben: null };
+  var isDirty = false;
 
   function fmtCzk(v) {
-    return Math.round(v).toLocaleString("cs-CZ").replace(/\u00a0/g, " ");
+    return Math.round(Number(v) || 0).toLocaleString("cs-CZ").replace(/\u00a0/g, " ");
   }
 
   function calculate() {
-    var annual = Math.max(0, Number(dividendInput.value) || 0);
-    var hasW8ben = state.hasW8ben;
+    var annualInput = Number(dividendInput.value) || 0;
+    var annual = Math.max(0, annualInput);
+    var hasW8ben = state.hasW8ben !== null ? state.hasW8ben : true;
     state.annualDividend = annual;
 
     var rate = hasW8ben ? 0.15 : 0.30;
@@ -37,36 +39,40 @@
     result10yr.textContent = fmtCzk(savings10);
     result20yr.textContent = fmtCzk(savings20);
 
-    window.etfTaxState = {
-      annualDividend: annual,
-      hasW8ben: hasW8ben,
-      taxRate: rate,
-      taxWithheld: Math.round(tax),
-      netAmount: Math.round(net),
-      annualSavings: Math.round(savings),
-      savings10yr: Math.round(savings10),
-      savings20yr: Math.round(savings20)
-    };
-
-    emailBtn.disabled = false;
+    if (isDirty || annual > 0) {
+      window.etfTaxState = {
+        annualDividend: annual,
+        hasW8ben: hasW8ben,
+        taxRate: rate,
+        taxWithheld: Math.round(tax),
+        netAmount: Math.round(net),
+        annualSavings: Math.round(savings),
+        savings10yr: Math.round(savings10),
+        savings20yr: Math.round(savings20)
+      };
+      emailBtn.disabled = false;
+    }
   }
 
-  dividendInput.addEventListener("input", calculate);
+  function markDirty() {
+    isDirty = true;
+  }
+
+  dividendInput.addEventListener("input", function () { markDirty(); calculate(); });
 
   w8benChips.forEach(function (chip) {
     chip.addEventListener("click", function () {
-      w8benChips.forEach(function (c) {
+      document.querySelectorAll("[data-w8ben]").forEach(function (c) {
         c.classList.remove("is-active");
         c.setAttribute("aria-pressed", "false");
       });
       chip.classList.add("is-active");
       chip.setAttribute("aria-pressed", "true");
       state.hasW8ben = chip.getAttribute("data-w8ben") === "true";
+      markDirty();
       calculate();
     });
   });
-
-  calculate();
 
   emailBtn.hidden = false;
 
