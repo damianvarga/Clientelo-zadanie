@@ -161,7 +161,22 @@
           }));
         } catch (err) {}
         track("form_submit", { ok: true });
-        window.location.href = "/thank-you.html";
+
+        var calc = window.etfCalcState || null;
+        var qs = "";
+        if (calc && calc.finalValue) {
+          qs = "?" + new URLSearchParams({
+            fv: calc.finalValue,
+            fees: calc.feesPaid,
+            gap: calc.gapVsCheapest,
+            initial: calc.initial,
+            monthly: calc.monthly,
+            years: calc.years,
+            ter: calc.ter,
+            fund: calc.fund
+          }).toString();
+        }
+        window.location.href = "/thank-you.html" + qs;
       })
       .catch(function (err) {
         if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {

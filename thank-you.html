@@ -164,11 +164,39 @@
     function czk(v) {
       return Math.round(Number(v) || 0).toLocaleString("cs-CZ").replace(/\u00a0/g, " ") + " Kč";
     }
+    function getUrlParam(name) {
+      try {
+        return new URLSearchParams(window.location.search).get(name);
+      } catch (e) { return null; }
+    }
     var data = null;
     try { data = JSON.parse(sessionStorage.getItem("etf_report") || "null"); } catch (e) {}
     var calc = data && data.calc;
     var portfolio = data && data.portfolio;
     var tax = data && data.tax;
+
+    if (!calc || !calc.finalValue) {
+      var fv = getUrlParam("fv");
+      var fees = getUrlParam("fees");
+      var gap = getUrlParam("gap");
+      var initial = getUrlParam("initial");
+      var monthly = getUrlParam("monthly");
+      var years = getUrlParam("years");
+      var ter = getUrlParam("ter");
+      var fund = getUrlParam("fund");
+      if (fv !== null) {
+        calc = {
+          finalValue: Number(fv),
+          feesPaid: Number(fees || 0),
+          gapVsCheapest: Number(gap || 0),
+          initial: Number(initial || 0),
+          monthly: Number(monthly || 0),
+          years: Number(years || 25),
+          ter: Number(ter || 0.03),
+          fund: fund || "VOO / IVV / VTI"
+        };
+      }
+    }
 
     if (data && data.email) {
       document.getElementById("t-email").textContent = data.email;
