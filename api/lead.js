@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import PDFDocument from "pdfkit";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -19,6 +20,126 @@ function rateLimited(key) {
 
 function czk(v) {
   return Math.round(Number(v) || 0).toLocaleString("cs-CZ").replace(/\u00a0/g, " ") + " Kč";
+}
+
+function stripDiacritics(str) {
+  return String(str || "")
+    .replace(/á/g, "a").replace(/č/g, "c").replace(/ď/g, "d")
+    .replace(/é/g, "e").replace(/ě/g, "e").replace(/í/g, "i")
+    .replace(/ň/g, "n").replace(/ó/g, "o").replace(/ř/g, "r")
+    .replace(/š/g, "s").replace(/ť/g, "t").replace(/ů/g, "u")
+    .replace(/ú/g, "u").replace(/ý/g, "y").replace(/ž/g, "z")
+    .replace(/Á/g, "A").replace(/Č/g, "C").replace(/Ď/g, "D")
+    .replace(/É/g, "E").replace(/Ě/g, "E").replace(/Í/g, "I")
+    .replace(/Ň/g, "N").replace(/Ó/g, "O").replace(/Ř/g, "R")
+    .replace(/Š/g, "S").replace(/Ť/g, "T").replace(/Ů/g, "U")
+    .replace(/Ú/g, "U").replace(/Ý/g, "Y").replace(/Ž/g, "Z");
+}
+
+function generateReportPdf(record) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    const doc = new PDFDocument({ size: "A4", margin: 50, info: { Title: "Osobni report - ETF Poplatky.cz" } });
+
+    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const calc = record.calc || null;
+    const portfolio = record.portfolio || null;
+    const tax = record.tax || null;
+
+    doc.fontSize(22).font("Helvetica-Bold").text(stripDiacritics("Osobní report: dopad poplatků ETF"), { align: "center" });
+    doc.fontSize(11).font("Helvetica").text(stripDiacritics("ETF Poplatky.cz — vzdělávací výpočet, nikoli investiční poradenství"), { align: "center" });
+    doc.moveDown();
+    doc.fontSize(9).font("Helvetica").text("Vypracovano: " + new Date().toLocaleDateString("cs-CZ"), { align: "center" });
+    doc.moveDown(1.5);
+
+    if (calc) {
+      doc.fontSize(15).font("Helvetica-Bold").text(stripDiacritics("Kalkulacka poplatku"));
+      doc.moveDown(0.5);
+      doc.fontSize(10.5).font("Helvetica");
+      doc.text("Jednorazovy vklad: " + czk(calc.initial));
+      doc.text("Měsíční platba: " + czk(calc.monthly));
+      doc.text("Investicni horizont: " + calc.years + " let");
+      doc.text("Typ fondu: " + calc.fund + " (TER " + String(calc.ter).replace(".", ",") + " %)");
+      doc.moveDown(0.5);
+      doc.font("Helvetica-Bold").text("Koncova hodnota portfolia: " + czk(calc.finalValue));
+      doc.font("Helvetica").text("Zaplacene poplatky celkem: " + czk(calc.feesPaid));
+      doc.text("Rozdil proti nejlevnejsimu ETF (0,03 %): " + (calc.gapVsCheapest > 0 ? "- " : "") + czk(calc.gapVsCheapest));
+      doc.moveDown(1.2);
+    }
+
+    if (portfolio) {
+      doc.fontSize(15).font("Helvetica-Bold").text(stripDiacritics("Vase portfolio"));
+      doc.moveDown(0.5);
+      doc.fontSize(10.5).font("Helvetica");
+      doc.text("Vahovane TER: " + String(portfolio.weightedTer).replace(".", ",") + " %");
+      Object.entries(portfolio.allocations || {}).forEach(function (entry) {
+        var ticker = entry[0];
+        var weight = entry[1];
+        if (weight > 0) {
+          doc.text(ticker + ": " + weight + "%");
+        }
+      });
+      doc.moveDown(0.5);
+      doc.text("Koncova hodnota vaseho portfolia: " + czk(portfolio.yourFinalValue));
+      doc.text("Koncova hodnota nejlevnejsiho ETF: " + czk(portfolio.cheapFinalValue));
+      doc.text("Koncova hodnota prumerneho fondu: " + czk(portfolio.avgFinalValue));
+      doc.moveDown(1.2);
+    }
+
+    if (tax) {
+      doc.fontSize(15).font("Helvetica-Bold").text(stripDiacritics("Dan z dividend (W-8BEN)"));
+      doc.moveDown(0.5);
+      doc.fontSize(10.5).font("Helvetica");
+      doc.text("Rocni dividendovy prijme: " + czk(tax.annualDividend));
+      doc.text("Srazkova sazba: " + String(tax.taxRate * 100).replace(".", ",") + " %");
+      doc.text("Srazkova dan rocne: " + czk(tax.taxWithheld));
+      doc.text("Cisty prijme rocne: " + czk(tax.netAmount));
+      doc.text("Uspora s W-8BEN rocne: " + czk(tax.annualSavings));
+      doc.text("Uspora za 10 let: " + czk(tax.savings10yr));
+      doc.text("Uspora za 20 let: " + czk(tax.savings20yr));
+      doc.moveDown(1.2);
+    }
+
+    doc.fontSize(15).font("Helvetica-Bold").text(stripDiacritics("Porovnani sest ETF"));
+    doc.moveDown(0.5);
+    doc.fontSize(10.5).font("Helvetica-Bold").text("ETF    Sledovany index    TER %", { continued: false });
+    doc.moveDown(0.3);
+    doc.font("Helvetica");
+    var etfRows = [
+      ["VOO", "S&P 500", "0,03 %"],
+      ["IVV", "S&P 500", "0,03 %"],
+      ["VTI", "Cely trh USA", "0,03 %"],
+      ["SCHD", "Dow Jones US Dividend 100", "0,06 %"],
+      ["SPY", "S&P 500", "0,0945 %"],
+      ["QQQ", "Nasdaq-100", "0,18 %"]
+    ];
+    etfRows.forEach(function (row) {
+      doc.text(row[0] + "    " + row[1] + "    " + row[2]);
+    });
+    doc.moveDown(1.2);
+
+    doc.fontSize(15).font("Helvetica-Bold").text(stripDiacritics("Checklist prvnich kroku"));
+    doc.moveDown(0.5);
+    doc.fontSize(10.5).font("Helvetica");
+    var checklist = [
+      "Formular W-8BEN – vyplnte u brokere, snizí srazkovou dan z dividend z 30 % na 15 % (smlouva CR-USA c. 32/1994 Sb., clan. 10).",
+      "Porovnavejte TER, ne znacku – VOO, IVV i VTI maji 0,03 %; SPY 0,0945 %; QQQ 0,18 %.",
+      "Vyberte brokera – sledujte poplatky za obchod, menovy prevod, podporu W-8BEN a pojisteni vkladů.",
+      "Prvni nákup – zacnete castkou, kterou nemusite brat 10+ let. Pravidelnost porazi nacasovani.",
+      "Nastavte si mesicni platbu – to, co kalkulacka predpoklada, musite realne delat."
+    ];
+    checklist.forEach(function (item, i) {
+      doc.text((i + 1) + ". " + item);
+    });
+    doc.moveDown(1.2);
+
+    doc.fontSize(9).font("Helvetica-Oblique").text(stripDiacritics("Upozorneni na rizika: Vzdelavaci vypocet, nikoli investicni poradenstvi. Model pocita s hrubym vynosem 8 % p.a. a mesicnim slozenym urokem; minule vynosy nezarucuje vynosy budouci. Vsechna cisla maji zdroj uvedeny na hlavni strasnce."));
+
+    doc.end();
+  });
 }
 
 function reportText(calc) {
@@ -181,11 +302,22 @@ export default async function handler(req, res) {
     }
     const reportUrl = origin + "/thank-you.html" + (reportParams.toString() ? "?" + reportParams.toString() : "");
 
+    const pdfBuffer = await generateReportPdf(record);
+    const pdfBase64 = pdfBuffer.toString("base64");
+
     await sendWithResend(apiKey, {
       from: from,
       to: [record.email],
       reply_to: replyTo,
       subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
+      html: [
+        "<h2>Děkujeme za váš zájem.</h2>",
+        "<p>V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.</p>",
+        reportText(record.calc).split("\n").map(function (line) { return "<p>" + line + "</p>"; }).join(""),
+        "<p><a href=\"" + reportUrl + "\">Zobrazit report online</a></p>",
+        "<p>--</p>",
+        "<p style=\"font-size:12px; color:#666666;\">Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.<br>Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR).</p>"
+      ].join(""),
       text: [
         "Děkujeme za váš zájem.",
         "",
@@ -196,7 +328,13 @@ export default async function handler(req, res) {
         "--",
         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
         "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
-      ].join("\n")
+      ].join("\n"),
+      attachments: [
+        {
+          filename: "ETF_osobni_report.pdf",
+          content: pdfBase64
+        }
+      ]
     });
 
     return res.status(200).json({ ok: true, stored: true, queued: true });
