@@ -161,10 +161,22 @@
           }));
         } catch (err) {}
         track("form_submit", { ok: true });
-        submit.disabled = false;
-        setStatus("Report vám byl odeslán e-mailem. Děkujeme!", true);
-        emailInput.value = "";
-        consent.checked = false;
+
+        var calc = window.etfCalcState || null;
+        var qs = "";
+        if (calc && calc.finalValue) {
+          qs = "?" + new URLSearchParams({
+            fv: calc.finalValue,
+            fees: calc.feesPaid,
+            gap: calc.gapVsCheapest,
+            initial: calc.initial,
+            monthly: calc.monthly,
+            years: calc.years,
+            ter: calc.ter,
+            fund: calc.fund
+          }).toString();
+        }
+        window.location.href = "/thank-you.html" + qs;
       })
       .catch(function (err) {
         if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
@@ -177,8 +189,7 @@
             }));
           } catch (e2) {}
           track("form_submit", { ok: true, demo: true });
-          submit.disabled = false;
-          setStatus("Report vám byl odeslán e-mailem (demo režim).", true);
+          window.location.href = "/thank-you.html";
           return;
         }
         console.error(err);

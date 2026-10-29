@@ -270,72 +270,67 @@ export default async function handler(req, res) {
   const from = process.env.RESEND_FROM || "ETF Poplatky <onboarding@resend.dev>";
   const replyTo = process.env.REPLY_TO || undefined;
 
-  try {
-    const reportParams = new URLSearchParams();
-    if (record.calc) {
-      reportParams.set("fv", record.calc.finalValue);
-      reportParams.set("fees", record.calc.feesPaid);
-      reportParams.set("gap", record.calc.gapVsCheapest);
-      reportParams.set("initial", record.calc.initial);
-      reportParams.set("monthly", record.calc.monthly);
-      reportParams.set("years", record.calc.years);
-      reportParams.set("ter", record.calc.ter);
-      reportParams.set("fund", record.calc.fund);
-    }
-    if (record.portfolio) {
-      reportParams.set("p_alloc", encodeURIComponent(JSON.stringify(record.portfolio.allocations)));
-      reportParams.set("p_wt", record.portfolio.weightedTer);
-      reportParams.set("p_yfv", record.portfolio.yourFinalValue);
-      reportParams.set("p_cfv", record.portfolio.cheapFinalValue);
-      reportParams.set("p_afv", record.portfolio.avgFinalValue);
-      reportParams.set("p_gvc", record.portfolio.gapVsCheapest);
-      reportParams.set("p_gva", record.portfolio.gapVsAverage);
-    }
-    if (record.tax) {
-      reportParams.set("t_ad", record.tax.annualDividend);
-      reportParams.set("t_ar", record.tax.taxRate);
-      reportParams.set("t_at", record.tax.taxWithheld);
-      reportParams.set("t_an", record.tax.netAmount);
-      reportParams.set("t_as", record.tax.annualSavings);
-      reportParams.set("t_10", record.tax.savings10yr);
-      reportParams.set("t_20", record.tax.savings20yr);
-    }
-    const reportUrl = origin + "/thank-you.html" + (reportParams.toString() ? "?" + reportParams.toString() : "");
+    try {
+      const reportParams = new URLSearchParams();
+      if (record.calc) {
+        reportParams.set("fv", record.calc.finalValue);
+        reportParams.set("fees", record.calc.feesPaid);
+        reportParams.set("gap", record.calc.gapVsCheapest);
+        reportParams.set("initial", record.calc.initial);
+        reportParams.set("monthly", record.calc.monthly);
+        reportParams.set("years", record.calc.years);
+        reportParams.set("ter", record.calc.ter);
+        reportParams.set("fund", record.calc.fund);
+      }
+      if (record.portfolio) {
+        reportParams.set("p_alloc", encodeURIComponent(JSON.stringify(record.portfolio.allocations)));
+        reportParams.set("p_wt", record.portfolio.weightedTer);
+        reportParams.set("p_yfv", record.portfolio.yourFinalValue);
+        reportParams.set("p_cfv", record.portfolio.cheapFinalValue);
+        reportParams.set("p_afv", record.portfolio.avgFinalValue);
+        reportParams.set("p_gvc", record.portfolio.gapVsCheapest);
+        reportParams.set("p_gva", record.portfolio.gapVsAverage);
+      }
+      if (record.tax) {
+        reportParams.set("t_ad", record.tax.annualDividend);
+        reportParams.set("t_ar", record.tax.taxRate);
+        reportParams.set("t_at", record.tax.taxWithheld);
+        reportParams.set("t_an", record.tax.netAmount);
+        reportParams.set("t_as", record.tax.annualSavings);
+        reportParams.set("t_10", record.tax.savings10yr);
+        reportParams.set("t_20", record.tax.savings20yr);
+      }
+      const reportUrl = origin + "/thank-you.html" + (reportParams.toString() ? "?" + reportParams.toString() : "");
 
-    const pdfBuffer = await generateReportPdf(record);
-    const pdfBase64 = pdfBuffer.toString("base64");
+      const pdfBuffer = await generateReportPdf(record);
+      const pdfBase64 = pdfBuffer.toString("base64");
 
-    await sendWithResend(apiKey, {
-      from: from,
-      to: [record.email],
-      reply_to: replyTo,
-      subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
-      html: [
-        "<h2>Děkujeme za váš zájem.</h2>",
-        "<p>V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.</p>",
-        reportText(record.calc).split("\n").map(function (line) { return "<p>" + line + "</p>"; }).join(""),
-        "<p><a href=\"" + reportUrl + "\">Zobrazit report online</a></p>",
-        "<p>--</p>",
-        "<p style=\"font-size:12px; color:#666666;\">Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.<br>Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR).</p>"
-      ].join(""),
-      text: [
-        "Děkujeme za váš zájem.",
-        "",
-        reportText(record.calc),
-        "",
-        "Report: " + reportUrl,
-        "",
-        "--",
-        "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-        "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
-      ].join("\n"),
-      attachments: [
-        {
-          filename: "ETF_osobni_report.pdf",
-          content: pdfBase64
-        }
-      ]
-    });
+      await sendWithResend(apiKey, {
+        from: from,
+        to: [record.email],
+        reply_to: replyTo,
+        subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
+        text: [
+          "Děkujeme za váš zájem.",
+          "",
+          reportText(record.calc),
+          "",
+          "V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.",
+          "V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).",
+          "",
+          "Report: " + reportUrl,
+          "",
+          "--",
+          "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
+          "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
+        ].join("\n"),
+        attachments: [
+          {
+            filename: "ETF_osobni_report.pdf",
+            content: pdfBase64
+          }
+        ]
+      });
 
     return res.status(200).json({ ok: true, stored: true, queued: true });
   } catch (err) {
