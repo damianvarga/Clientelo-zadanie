@@ -18,7 +18,7 @@ osobní report výměnou za e-mail.
 | Co dostane výměnou | **Osobní report**: vlastní přepočet ztráty na poplatcích (číslo z kalkulačky) + rozbor 6 ETF + checklist prvních kroků (W-8BEN, broker, první nákup) |
 | Kdy žádáme kontakt | **Až po dvou volně přístupných prvcích** – srovnávací tabulka a kalkulačka jsou zdarma, návštěvník už vidí své číslo. Formulář je logický další krok, ne skok |
 | Pole formuláře | **1 pole (e-mail)** + GDPR checkbox + honeypot |
-| Co následuje po odeslání | okamžitá `thank-you.html` s čísly a checklistem (tisknutelné), e-mail do 2 minut (Resend), další tipy jen na vyžádání/odhlašitelně |
+| Co následuje po odeslání | okamžitá `thank-you.html?id=…` zobrazujúca **ten istý PDF súbor**, ktorý je prílohou e-mailu (generuje sa raz na serveri, uloží sa v Redis), e-mail do 2 minút (Resend) |
 
 Hodnota je zrejmá **před** vyplněním: tabulka i kalkulačka jsou kompletně
 funkční bez e-mailu. E-mail je „jen" pro uložení/odeslání reportu.
@@ -205,13 +205,18 @@ npx vercel dev       # plný beh vrátane /api/lead (vyžaduje vercel login)
 
 ```
 index.html            – landing page (hero → fakta → tabulka → kalkulačka → formulář → FAQ)
-thank-you.html        – report po odoslání (čísla + checklist, tisknutelné)
+thank-you.html        – stránka s reportom (zobrazuje uložený PDF súbor cez /api/report)
 assets/css/style.css  – dizajn systém (editorial fintech, mobil-first)
-assets/js/main.js     – UTM, eventy, sticky lišta, odoslanie formulára
+assets/js/main.js     – UTM, eventy, sticky lišta, odoslanie formulára (presmerovanie na ?id=)
 assets/js/table.js    – srovnávací tabulka (řazení, data + zdroje)
 assets/js/calculator.js – výpočet eroze poplatků (8 % p.a., měsíční složené úročení)
-api/lead.js           – serverless endpoint: validace → Resend → fallback do logu
-.env.example          – popis premenných
+lib/report.js          – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu
+lib/report-pdf.js      – jediný PDF generátor (pdfkit + DejaVu, česká diakritika)
+lib/store.js           – ukladanie/načítanie PDF reportov v Upstash Redis
+api/lead.js            – serverless endpoint: validácia → 1 PDF → Redis → Resend → reportId
+api/report.js          – servírovanie uloženého PDF (ten istý súbor ako e-mailová príloha)
+tests/                 – node --test (model, PDF, endpointy, identita PDF pre web/e-mail)
+.env.example           – popis premenných
 ```
 
 ## 10. Právne / compliance

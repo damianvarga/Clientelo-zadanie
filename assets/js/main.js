@@ -150,33 +150,19 @@
         if (!res.ok && res.status !== 200) throw new Error("HTTP " + res.status);
         return res.json().catch(function () { return {}; });
       })
-      .then(function () {
+      .then(function (data) {
         try {
           sessionStorage.setItem("etf_report", JSON.stringify({
             email: email,
-            calc: window.etfCalcState || null,
-            portfolio: window.etfPortfolioState || null,
-            tax: window.etfTaxState || null,
             sentAt: new Date().toISOString()
           }));
         } catch (err) {}
         track("form_submit", { ok: true });
 
-        var calc = window.etfCalcState || null;
-        var qs = "";
-        if (calc && calc.finalValue) {
-          qs = "?" + new URLSearchParams({
-            fv: calc.finalValue,
-            fees: calc.feesPaid,
-            gap: calc.gapVsCheapest,
-            initial: calc.initial,
-            monthly: calc.monthly,
-            years: calc.years,
-            ter: calc.ter,
-            fund: calc.fund
-          }).toString();
-        }
-        window.location.href = "/thank-you.html" + qs;
+        var reportId = data && typeof data.reportId === "string" ? data.reportId : "";
+        window.location.href = reportId
+          ? "/thank-you.html?id=" + encodeURIComponent(reportId)
+          : "/thank-you.html";
       })
       .catch(function (err) {
         if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {

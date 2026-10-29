@@ -31,11 +31,11 @@
         <p class="hero__eyebrow"><span class="dot"></span> Report je připraven &middot; odesláno na <span id="t-email" class="strong">váš e-mail</span></p>
         <h1 class="hero__title">Hotovo. Tady je <span class="accent">vaše číslo</span>.</h1>
         <p class="hero__sub">
-          Stejný výpočet vám právě přistál i v e-mailu spolu s checklistem.
-          Uložte si stránku, ať o něj nepřijdete.
+          V e-mailu máte tentýž PDF report jako níže – včetně vašich výpočtů,
+          srovnání šesti ETF a checklistu prvních kroků.
         </p>
         <div class="hero__cta">
-          <button class="btn btn--accent btn--lg" id="t-print">Vytisknout / uložit jako PDF</button>
+          <a class="btn btn--accent btn--lg" id="t-download" href="#" hidden>Stáhnout PDF</a>
           <a href="/#kalkulacka" class="btn btn--ghost btn--lg">Zpět na kalkulačku</a>
         </div>
       </div>
@@ -43,98 +43,20 @@
 
     <section class="section">
       <div class="wrap">
-        <div class="facts__grid">
-          <article class="fact">
-            <p class="fact__label">Konečná hodnota portfolia</p>
-            <p class="fact__value num" id="t-final">–</p>
-            <p class="fact__src" id="t-scenario">–</p>
-          </article>
-          <article class="fact">
-            <p class="fact__label">Zaplacené poplatky celkem</p>
-            <p class="fact__value num" style="color:#E4572E" id="t-fees">–</p>
-            <p class="fact__src">Strženo správcem fondu, neviditelně na výpisu</p>
-          </article>
-          <article class="fact">
-            <p class="fact__label">Rozdíl proti nejlevnějšímu ETF (0,03 %)</p>
-            <p class="fact__value num" id="t-gap">–</p>
-            <p class="fact__src">Stejný index, stejná doba, jiný poplatek</p>
-          </article>
-        </div>
-
-        <div class="portfolio-report" id="t-portfolio" hidden style="margin-top:34px">
-          <h2 class="section__title" style="font-size:26px">Vaše skladání portfolia</h2>
-          <div class="portfolio-allocations-report" id="t-portfolio-allocations"></div>
-          <p class="portfolio-ter" id="t-portfolio-ter-row" style="margin-top:12px">
-            Váhované TER: <span id="t-portfolio-ter" class="num strong">–</span>
+        <div class="lead-card" id="t-report-card">
+          <h2 class="section__title" style="font-size:26px">Váš osobní report (PDF)</h2>
+          <p class="section__lead">
+            Níže se zobrazuje tentýž soubor, který máte v e-mailu jako přílohu.
+            Obsahuje pouze sekce, které jste vyplnil(a), vždy pak srovnání šesti ETF,
+            checklist prvních kroků a upozornění na rizika.
           </p>
-          <p class="portfolio-comparison" id="t-portfolio-comparison" style="margin-top:8px">–</p>
-        </div>
-
-        <div class="tax-report" id="t-tax" hidden style="margin-top:34px">
-          <h2 class="section__title" style="font-size:26px">Váš výpočet daně z dividend (W-8BEN)</h2>
-          <div style="display:flex; justify-content:flex-start; margin:10px 0; font-size:14px;">
-            <span>Roční dividendový příjem: </span>
-            <span id="t-tax-dividend" class="num strong">–</span>
+          <div id="t-pdf-wrap" hidden>
+            <iframe id="t-pdf" title="Váš osobní report PDF" style="width:100%;height:75vh;border:1px solid rgba(15,61,46,.18);border-radius:12px;background:#fff;margin-top:14px"></iframe>
           </div>
-          <div style="display:flex; justify-content:flex-start; margin:10px 0; font-size:14px;">
-            <span>Srážková sazba: </span>
-            <span id="t-tax-rate" class="num strong">–</span> %
-          </div>
-          <div style="display:flex; justify-content:flex-start; margin:10px 0; font-size:14px;">
-            <span>Srážková daň ročně: </span>
-            <span id="t-tax-tax" class="num strong">–</span>
-          </div>
-          <div style="display:flex; justify-content:flex-start; margin:10px 0; font-size:14px;">
-            <span>Čistý příjem ročně: </span>
-            <span id="t-tax-net" class="num strong">–</span>
-          </div>
-          <div style="display:flex; justify-content:flex-start; margin:10px 0; font-size:14px;">
-            <span>Úspora s W-8BEN ročně: </span>
-            <span id="t-tax-savings" class="num up strong">–</span>
-          </div>
-          <div style="display:flex; justify-content:flex-start; margin:10px 0; font-size:14px;">
-            <span>Úspora za 10 let: </span>
-            <span id="t-tax-10yr" class="num strong">–</span>
-          </div>
-          <div style="display:flex; justify-content:flex-start; margin:10px 0; font-size:14px;">
-            <span>Úspora za 20 let: </span>
-            <span id="t-tax-20yr" class="num strong">–</span>
-          </div>
-          <p style="margin-top:14px; font-size:12px; color:var(--ink-faint);">
-            Formulář W-8BEN vyplňujete u svého brokera. Smlouva ČR–USA č. 32/1994 Sb., čl. 10 snižuje srážkovou daň z 30 % na 15 %.
+          <p id="t-missing" hidden style="margin-top:14px">
+            Report se nepodařilo načíst. Otevřete odkaz z e-mailu, nebo si
+            <a href="/#kalkulacka">spočítejte nový</a>.
           </p>
-        </div>
-
-        <div class="lead-card" style="margin-top:34px" id="checklist">
-          <h2 class="section__title" style="font-size:26px">Checklist prvních kroků</h2>
-          <ol class="steps">
-            <li><strong>Formulář W-8BEN</strong> – vyplňte u brokera, sníží srážkovou daň z dividend z 30 % na 15 % (smlouva ČR–USA č. 32/1994 Sb., čl. 10).</li>
-            <li><strong>Porovnejte TER, ne značku</strong> – VOO, IVV i VTI mají 0,03 %; SPY 0,0945 %; QQQ 0,18 %. Rozdíl se sčítá desítky let.</li>
-            <li><strong>Vyberte brokera</strong> – sledujte poplatky za obchod, měnový převod, podporu W-8BEN a pojištění vkladů.</li>
-            <li><strong>První nákup</strong> – začněte částkou, kterou nemusíte brát 10+ let. Pravidelnost poráží načasování.</li>
-            <li><strong>Nastavte si měsíční platbu</strong> – to, co kalkulačka předpokládá, musíte reálně dělat.</li>
-          </ol>
-
-          <div class="table-card" style="margin-top:26px">
-            <div class="table-scroll">
-              <table class="etf-table">
-                <thead>
-                  <tr><th>ETF</th><th>Sledovaný index</th><th class="is-num">TER %</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td><span class="ticker">VOO</span></td><td>S&P 500</td><td class="is-num"><span class="ter-pill">0,03 %</span></td></tr>
-                  <tr><td><span class="ticker">IVV</span></td><td>S&P 500</td><td class="is-num"><span class="ter-pill">0,03 %</span></td></tr>
-                  <tr><td><span class="ticker">VTI</span></td><td>Celý trh USA</td><td class="is-num"><span class="ter-pill">0,03 %</span></td></tr>
-                  <tr><td><span class="ticker">SCHD</span></td><td>Dow Jones U.S. Dividend 100</td><td class="is-num"><span class="ter-pill">0,06 %</span></td></tr>
-                  <tr><td><span class="ticker">SPY</span></td><td>S&P 500</td><td class="is-num"><span class="ter-pill ter-pill--high">0,0945 %</span></td></tr>
-                  <tr><td><span class="ticker">QQQ</span></td><td>Nasdaq-100</td><td class="is-num"><span class="ter-pill ter-pill--high">0,18 %</span></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="table-card__foot">
-              <p class="src">Zdroje TER: Vanguard, iShares, State Street, Invesco, Schwab – oficiální fact sheety a prospekty, 2026.</p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -161,137 +83,34 @@
 
   <script>
   (function () {
-    function czk(v) {
-      return Math.round(Number(v) || 0).toLocaleString("cs-CZ").replace(/\u00a0/g, " ") + " Kč";
-    }
-    function getUrlParam(name) {
-      try {
-        return new URLSearchParams(window.location.search).get(name);
-      } catch (e) { return null; }
-    }
     var data = null;
     try { data = JSON.parse(sessionStorage.getItem("etf_report") || "null"); } catch (e) {}
-    var calc = data && data.calc;
-    var portfolio = data && data.portfolio;
-    var tax = data && data.tax;
-
-    if (!calc || !calc.finalValue) {
-      var fv = getUrlParam("fv");
-      var fees = getUrlParam("fees");
-      var gap = getUrlParam("gap");
-      var initial = getUrlParam("initial");
-      var monthly = getUrlParam("monthly");
-      var years = getUrlParam("years");
-      var ter = getUrlParam("ter");
-      var fund = getUrlParam("fund");
-      if (fv !== null) {
-        calc = {
-          finalValue: Number(fv),
-          feesPaid: Number(fees || 0),
-          gapVsCheapest: Number(gap || 0),
-          initial: Number(initial || 0),
-          monthly: Number(monthly || 0),
-          years: Number(years || 25),
-          ter: Number(ter || 0.03),
-          fund: fund || "VOO / IVV / VTI"
-        };
-      }
-    }
-
-    if (!portfolio && getUrlParam("p_alloc") !== null) {
-      try {
-        portfolio = {
-          allocations: JSON.parse(decodeURIComponent(getUrlParam("p_alloc"))),
-          weightedTer: Number(getUrlParam("p_wt") || 0),
-          yourFinalValue: Number(getUrlParam("p_yfv") || 0),
-          cheapFinalValue: Number(getUrlParam("p_cfv") || 0),
-          avgFinalValue: Number(getUrlParam("p_afv") || 0),
-          gapVsCheapest: Number(getUrlParam("p_gvc") || 0),
-          gapVsAverage: Number(getUrlParam("p_gva") || 0),
-          years: Number(getUrlParam("years") || 25),
-          initial: Number(getUrlParam("initial") || 0),
-          monthly: Number(getUrlParam("monthly") || 0)
-        };
-      } catch (e) {}
-    }
-
-    if (!tax && getUrlParam("t_ad") !== null) {
-      tax = {
-        annualDividend: Number(getUrlParam("t_ad") || 0),
-        hasW8ben: getUrlParam("t_ar") == "0.15",
-        taxRate: Number(getUrlParam("t_ar") || 0.30),
-        taxWithheld: Number(getUrlParam("t_at") || 0),
-        netAmount: Number(getUrlParam("t_an") || 0),
-        annualSavings: Number(getUrlParam("t_as") || 0),
-        savings10yr: Number(getUrlParam("t_10") || 0),
-        savings20yr: Number(getUrlParam("t_20") || 0)
-      };
-    }
-
     if (data && data.email) {
       document.getElementById("t-email").textContent = data.email;
     }
 
-    if (calc && calc.finalValue) {
-      document.getElementById("t-final").textContent = czk(calc.finalValue);
-      document.getElementById("t-fees").textContent = czk(calc.feesPaid);
-      document.getElementById("t-gap").textContent =
-        (calc.gapVsCheapest > 0 ? "− " : "") + czk(calc.gapVsCheapest);
-      document.getElementById("t-scenario").textContent =
-        czk(calc.initial) + " + " + czk(calc.monthly) + "/měs., " + calc.years + " let, " +
-        String(calc.ter).replace(".", ",") + " % (" + calc.fund + ")";
-      } else {
-        document.getElementById("t-final").textContent = "najdete v e-mailu";
-        document.getElementById("t-fees").textContent = "najdete v e-mailu";
-        document.getElementById("t-gap").textContent = "najdete v e-mailu";
-        document.getElementById("t-scenario").textContent = "Otevřete zaslaný odkaz na report.";
-      }
+    var reportId = null;
+    try {
+      var param = new URLSearchParams(window.location.search).get("id") || "";
+      if (/^[a-f0-9]{32}$/i.test(param)) reportId = param.toLowerCase();
+    } catch (e) {}
 
-      if (portfolio) {
-        var p = portfolio;
-        document.getElementById("t-portfolio").hidden = false;
-
-        var allocHtml = "";
-        Object.entries(p.allocations).forEach(function (entry) {
-          var ticker = entry[0];
-          var weight = entry[1];
-          if (weight > 0) {
-            allocHtml += "<div style=\"display:flex; justify-content:space-between; margin:6px 0; font-size:14px;\">" +
-              "<span><span class=\"ticker\" style=\"display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(63,185,119,.14);color:#2E8B57;border:1px solid rgba(63,185,119,.3);font-family:monospace;font-weight:700;\">" + ticker + "</span> " + weight + "%</span>" +
-              "</div>";
-          }
-        });
-        document.getElementById("t-portfolio-allocations").innerHTML = allocHtml;
-        document.getElementById("t-portfolio-ter").textContent = String(p.weightedTer).replace(".", ",") + " %";
-
-        var comparison = "";
-        if (p.gapVsCheapest > 1) {
-          comparison = "O " + p.gapVsCheapest.toLocaleString("cs-CZ") + " Kč menej než pri najlevnom ETF (0,03 %)";
-        } else {
-          comparison = "Ste na úrovni najlevnejšieho ETF.";
-        }
-        if (p.gapVsAverage > 1) {
-          comparison += "; o " + p.gapVsAverage.toLocaleString("cs-CZ") + " Kč viac než pri priemernom fonde (0,41 %)";
-        }
-        document.getElementById("t-portfolio-comparison").textContent = comparison;
-      }
-
-      if (tax) {
-        document.getElementById("t-tax").hidden = false;
-        document.getElementById("t-tax-dividend").textContent = czk(tax.annualDividend);
-        document.getElementById("t-tax-rate").textContent = String(tax.taxRate * 100).replace(".", ",");
-        document.getElementById("t-tax-tax").textContent = czk(tax.taxWithheld);
-        document.getElementById("t-tax-net").textContent = czk(tax.netAmount);
-        document.getElementById("t-tax-savings").textContent = czk(tax.annualSavings);
-        document.getElementById("t-tax-10yr").textContent = czk(tax.savings10yr);
-        document.getElementById("t-tax-20yr").textContent = czk(tax.savings20yr);
-      }
-
-    document.getElementById("t-print").addEventListener("click", function () { window.print(); });
+    if (reportId) {
+      var src = "/api/report?id=" + reportId;
+      var iframe = document.getElementById("t-pdf");
+      iframe.src = src;
+      document.getElementById("t-pdf-wrap").hidden = false;
+      var download = document.getElementById("t-download");
+      download.href = src;
+      download.setAttribute("download", "ETF_osobni_report.pdf");
+      download.hidden = false;
+    } else {
+      document.getElementById("t-missing").hidden = false;
+    }
 
     if (window.dataLayer) window.dataLayer.push({ event: "report_view" });
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      console.debug("[track]", { event: "report_view" });
+      console.debug("[track]", { event: "report_view", reportId: reportId });
     }
   })();
   </script>
