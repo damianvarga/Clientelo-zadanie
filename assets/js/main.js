@@ -147,10 +147,20 @@
       body: JSON.stringify(body)
     })
       .then(function (res) {
-        if (!res.ok && res.status !== 200) throw new Error("HTTP " + res.status);
+        if (!res.ok && res.status !== 200) {
+          var httpErr = new Error("HTTP " + res.status);
+          httpErr.isHttp = true;
+          throw httpErr;
+        }
         return res.json().catch(function () { return {}; });
       })
       .then(function (data) {
+        var reportId = data && typeof data.reportId === "string" ? data.reportId : "";
+        if (!reportId) {
+          var idErr = new Error("server_nevracel_reportId");
+          idErr.isHttp = true;
+          throw idErr;
+        }
         try {
           sessionStorage.setItem("etf_report", JSON.stringify({
             email: email,
@@ -158,24 +168,12 @@
           }));
         } catch (err) {}
         track("form_submit", { ok: true });
-
-        var reportId = data && typeof data.reportId === "string" ? data.reportId : "";
-        window.location.href = reportId
-          ? "/thank-you.html?id=" + encodeURIComponent(reportId)
-          : "/thank-you.html";
+        window.location.href = "/thank-you.html?id=" + encodeURIComponent(reportId);
       })
       .catch(function (err) {
-        if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-          try {
-            sessionStorage.setItem("etf_report", JSON.stringify({
-              email: email,
-              calc: window.etfCalcState || null,
-              sentAt: new Date().toISOString(),
-              demo: true
-            }));
-          } catch (e2) {}
-          track("form_submit", { ok: true, demo: true });
-          window.location.href = "/thank-you.html";
+        if (!err.isHttp && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+          setStatus("Lokální statický server nemá API. Pro plný test (odeslání + PDF) použijte `npx vercel dev`, nebo deploy na Vercel.", false);
+          submit.disabled = false;
           return;
         }
         console.error(err);

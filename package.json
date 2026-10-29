@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx serve .",
+    "dev:api": "npx vercel dev",
     "start": "npx serve .",
     "test": "node --test \"tests/*.test.js\""
   },

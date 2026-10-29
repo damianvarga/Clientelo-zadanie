@@ -194,10 +194,17 @@ Každý záznam obsahuje e-mail, čas súhlasu, IP, UTM, stránku a referrer
 
 ### Lokálny vývoj
 ```bash
-npx serve .          # statický server (formulár pri lokálnom behu presmeruje
-                     # na thank-you v demo režime, endpoint nie je dostupný)
-npx vercel dev       # plný beh vrátane /api/lead (vyžaduje vercel login)
+npm test             # testy modelu, PDF a endpointov (bez siete)
+npx serve .          # IBA statický náhľad – formulár sa lokálne NEODOŠLE
+                     # (žiadne /api), zobrazí sa jasná chybová hláška
+npx vercel dev       # plný beh vrátane /api/lead a /api/report
+                     # (vyžaduje vercel login + UPSTASH/RESEND env premmenné)
 ```
+
+Celý flow (odoslanie → uložené PDF → zobrazenie v `thank-you.html?id=…` → e-mail)
+funguje až v prostredí, ktoré má serverless funkcie – teda na Vercel deployi
+alebo lokálne cez `npx vercel dev`. Obidva endpointy pracujú s **tým istým
+uloženým PDF súborom** v Upstash Redis.
 
 ---
 
