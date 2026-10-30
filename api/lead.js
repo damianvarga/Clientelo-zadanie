@@ -169,9 +169,10 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, stored: true, queued: false, mode: "report_failed" });
   }
 
+  let pdfBase64;
   try {
     const pdfBuffer = await generateReportPdf(model);
-    const pdfBase64 = pdfBuffer.toString("base64");
+    pdfBase64 = pdfBuffer.toString("base64");
     await saveReport(redis, reportId, {
       version: 1,
       createdAt: model.createdAt,
