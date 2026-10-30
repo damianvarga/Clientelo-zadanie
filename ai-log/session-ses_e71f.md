@@ -2,1401 +2,7 @@
 
 **Session ID:** ses_e71fc90d7ffeHNPJ6e1KipCoEH
 **Created:** 30. 10. 2026 19:12:32
-**Updated:** 30. 10. 2026 22:59:03
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 18.8s)
-
-_Thinking:_
-
-I left a bogus line in the test: `await redis.hsetLike?.();` - that's nonsense, remove it. Also the fake redis for lead.js tests uses multi/hset - but unsubscribeLead uses exists/del/srem which Upstash supports.
-
-Also need to fix: makeFakeRedis in my test doesn't have hset - I used store.set directly which is fine.
-
-Remove the hsetLike line.
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\tests\\unsubscribe.test.js",
-  "newString": "  const redis = makeFakeRedis();\n  redis.store.set(\"newsletter:lead:user@example.com\", { email: \"user@example.com\" });",
-  "oldString": "  const redis = makeFakeRedis();\n  await redis.hsetLike?.();\n  redis.store.set(\"newsletter:lead:user@example.com\", { email: \"user@example.com\" });"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\soukromi.html",
-  "newString": "          <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat kliknutím na odhlášovací odkaz v patičce každého e-mailu, nebo odpovědí na e-mail se slovem „ODHLASIT“ (zpracujeme ručně). Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>",
-  "oldString": "          <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat odpovědí na libovolný e-mail od nás se slovem „ODHLASIT“. Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>"
-}
-```
-
-**Error:**
-```
-Could not find oldString in the file. It must match exactly, including whitespace, indentation, and line endings.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\index.html",
-  "newString": "            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete odkazem v patičce e-mailu (jedno kliknutí), případně odpovědí se slovem ODHLASIT. Podrobnosti o zpracování vašeho e-mailu najdete v <a href=\"/soukromi.html\">Zásadách ochrany osobních údajů</a>.</p>",
-  "oldString": "            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete odpovědí na e-mail se slovem ODHLASIT. Podrobnosti o zpracování vašeho e-mailu najdete v <a href=\"/soukromi.html\">Zásadách ochrany osobních údajů</a>.</p>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\index.html",
-  "newString": "        E-mail zpracováváme za účelem zaslání reportu a souvisejících tipů, odhlásit lze\n        odkazem v každém e-mailu nebo odpovědí se slovem ODHLASIT. Provozovatel: dle nasazení na Vercel, kontakt v e-mailech.",
-  "oldString": "        E-mail zpracováváme za účelem zaslání reportu a souvisejících tipů, odhlásit lze\n        v každém e-mailu. Provozovatel: dle nasazení na Vercel, kontakt v e-mailech."
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 11.6s)
-
-_Thinking:_
-
-soukromi.html edit failed - need to read the current content around that line.
-
-**Tool: grep**
-
-**Input:**
-```json
-{
-  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\soukromi.html",
-  "pattern": "ODHLASIT|Odvolání|odvolat"
-}
-```
-
-**Output:**
-```
-Found 19 matches
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e78e.md:
-  Line 1211: 324:           "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-  Line 4022:   "content": "import { randomUUID } from \"node:crypto\";\nimport { buildReportModel, formatCzk, formatTer, formatRate } from \"../lib/report.js\";\nimport { generateReportPdf } from \"../lib/report-pdf.js\";\nimport { getRedis, saveReport, isValidReportId } from \"../lib/store.js\";\n\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/;\n\nconst hits = globalThis.__leadRateLimit || (globalThis.__leadRateLimit = new Map());\n\nfunction rateLimited(key) {\n  const now = Date.now();\n  const win = 60 * 1000;\n  const arr = (hits.get(key) || []).filter(function (t) { return now - t < win; });\n  if (arr.length >= 5) {\n    hits.set(key, arr);\n    return true;\n  }\n  arr.push(now);\n  hits.set(key, arr);\n  return false;\n}\n\nfunction reportText(model) {\n  const lines = [];\n  if (model.calc) {\n    const calc = model.calc;\n    lines.push(\n      \"Váš výpočet z kalkulačky poplatků:\",\n      \"- Vklad: \" + formatCzk(calc.initial) + \", měsíčně \" + formatCzk(calc.monthly) + \", \" + calc.years + \" let\",\n      \"- Model: hrubý výnos 8 % p.a., poplatek TER \" + formatTer(calc.ter) + \" (\" + calc.fund + \")\",\n      \"- Koncová hodnota portfolia: \" + formatCzk(calc.finalValue),\n      \"- Zaplacené poplatky celkem: \" + formatCzk(calc.feesPaid),\n      \"\"\n    );\n  }\n  if (model.portfolio) {\n    lines.push(\n      \"Vaše skladání portfolia:\",\n      \"- Váhované TER: \" + formatTer(model.portfolio.weightedTer),\n      \"- Koncová hodnota vašeho portfolia: \" + formatCzk(model.portfolio.yourFinalValue),\n      \"\"\n    );\n  }\n  if (model.tax) {\n    lines.push(\n      \"Výpočet daně z dividend (W-8BEN):\",\n      \"- Roční dividendový příjem: \" + formatCzk(model.tax.annualDividend),\n      \"- Srážková sazba: \" + formatRate(model.tax.taxRate),\n      \"- Úspora s W-8BEN ročně: \" + formatCzk(model.tax.annualSavings),\n      \"\"\n    );\n  }\n  if (!lines.length) {\n    lines.push(\"V příloze najdete srovnání šesti ETF, checklist prvních kroků a up...
-  Line 4702: 215:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e839-2.md:
-  Line 6027: | Email 1 (report) | 106–122 | subject `"Váš osobní report: kolik vás stojí poplatky"`, includes unsubscribe line `"Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT."` (line 119) and GDPR line (line 120) |
-
-  Line 6116: - `api/lead.js:119` — email footer: "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT."
-
-  Line 6429: 119:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-  Line 7404: 163:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-  Line 10193: 163:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-  Line 12638:   "content": "import { Redis } from \"@upstash/redis\";\n\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/;\n\nconst hits = globalThis.__leadRateLimit || (globalThis.__leadRateLimit = new Map());\n\nfunction rateLimited(key) {\n  const now = Date.now();\n  const win = 60 * 1000;\n  const arr = (hits.get(key) || []).filter((t) => now - t < win);\n  if (arr.length >= 5) {\n    hits.set(key, arr);\n    return true;\n  }\n  arr.push(now);\n  hits.set(key, arr);\n  return false;\n}\n\nfunction czk(v) {\n  return Math.round(Number(v) || 0).toLocaleString(\"cs-CZ\").replace(/ /g, \" \") + \" Kč\";\n}\n\nfunction reportText(calc) {\n  if (!calc || !calc.years) {\n    return \"Report najdete na strance /thank-you.html – srovnani sesti ETF a checklist prvniho nakupu.\";\n  }\n  return [\n    \"Vas vypocet z kalkulacky:\",\n    \"- Vklad: \" + czk(calc.initial) + \", mesicne \" + czk(calc.monthly) + \", \" + calc.years + \" let\",\n    \"- Model: hruby vynos 8 % p.a., poplatek TER \" + String(calc.ter).replace(\".\", \",\") + \" % (\" + calc.fund + \")\",\n    \"- Konecna hodnota portfolia: \" + czk(calc.finalValue),\n    \"- Zaplacene poplatky celkem: \" + czk(calc.feesPaid),\n    \"- Rozdil proti nejlevnejsimu ETF (0,03 %): \" + czk(calc.gapVsCheapest),\n    \"\",\n    \"Celý report a checklist si otevrete na strance /thank-you.html (odkaz naleznete i v tomto e-mailu).\"\n  ].join(\"\\n\");\n}\n\nasync function sendWithResend(key, payload) {\n  const res = await fetch(\"https://api.resend.com/emails\", {\n    method: \"POST\",\n    headers: {\n      Authorization: \"Bearer \" + key,\n      \"Content-Type\": \"application/json\"\n    },\n    body: JSON.stringify(payload)\n  });\n  if (!res.ok) {\n    const body = await res.text();\n    throw new Error(\"Resend \" + res.status + \": \" + body);\n  }\n  return res.json();\n}\n\nfunction getRedis() {\n  const url = process.env.UPSTASH_REDIS_REST_URL;\n  const token = process.env.UPSTASH_REDIS_REST_TOKEN;\n  if (!url || !tok...
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e91c.md:
-  Line 2774:   "content": "const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/;\n\nconst hits = globalThis.__leadRateLimit || (globalThis.__leadRateLimit = new Map());\n\nfunction rateLimited(key) {\n  const now = Date.now();\n  const win = 60 * 1000;\n  const arr = (hits.get(key) || []).filter((t) => now - t < win);\n  if (arr.length >= 5) {\n    hits.set(key, arr);\n    return true;\n  }\n  arr.push(now);\n  hits.set(key, arr);\n  return false;\n}\n\nfunction czk(v) {\n  return Math.round(Number(v) || 0).toLocaleString(\"cs-CZ\").replace(/\\u00a0/g, \" \") + \" Kč\";\n}\n\nfunction reportText(calc) {\n  if (!calc || !calc.years) {\n    return \"Report najdete na strance /thank-you.html – srovnani sesti ETF a checklist prvniho nakupu.\";\n  }\n  return [\n    \"Vas vypocet z kalkulacky:\",\n    \"- Vklad: \" + czk(calc.initial) + \", mesicne \" + czk(calc.monthly) + \", \" + calc.years + \" let\",\n    \"- Model: hruby vynos 8 % p.a., poplatek TER \" + String(calc.ter).replace(\".\", \",\") + \" % (\" + calc.fund + \")\",\n    \"- Konecna hodnota portfolia: \" + czk(calc.finalValue),\n    \"- Zaplacene poplatky celkem: \" + czk(calc.feesPaid),\n    \"- Rozdil proti nejlevnejsimu ETF (0,03 %): \" + czk(calc.gapVsCheapest),\n    \"\",\n    \"Celý report a checklist si otevrete na strance /thank-you.html (odkaz naleznete i v tomto e-mailu).\"\n  ].join(\"\\n\");\n}\n\nasync function sendWithResend(key, payload) {\n  const res = await fetch(\"https://api.resend.com/emails\", {\n    method: \"POST\",\n    headers: {\n      Authorization: \"Bearer \" + key,\n      \"Content-Type\": \"application/json\"\n    },\n    body: JSON.stringify(payload)\n  });\n  if (!res.ok) {\n    const body = await res.text();\n    throw new Error(\"Resend \" + res.status + \": \" + body);\n  }\n  return res.json();\n}\n\nexport default async function handler(req, res) {\n  res.setHeader(\"Access-Control-Allow-Origin\", \"*\");\n  res.setHeader(\"Access-Control-Allow-Methods\", \"POST, OPTIONS\");\n  res....
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\index.html:
-  Line 480:             <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete odkazem v patičce e-mailu (jedno kliknutí), případně odpovědí se slovem ODHLASIT. Podrobnosti o zpracování vašeho e-mailu najdete v <a href="/soukromi.html">Zásadách ochrany osobních údajů</a>.</p>
-
-  Line 514:         odkazem v každém e-mailu nebo odpovědí se slovem ODHLASIT. Provozovatel: dle nasazení na Vercel, kontakt v e-mailech.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md:
-  Line 234:   checkboxom, odhlásenie odpoveďou „ODHLASIT" v každom e-maile.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\session-ses_e839-2.md:
-  Line 6027: | Email 1 (report) | 106–122 | subject `"Váš osobní report: kolik vás stojí poplatky"`, includes unsubscribe line `"Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT."` (line 119) and GDPR line (line 120) |
-
-  Line 6116: - `api/lead.js:119` — email footer: "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT."
-
-  Line 6429: 119:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-  Line 7404: 163:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js:
-  Line 222:       "Pro odhlášení můžete také odpovědět na tento e-mail se slovem ODHLASIT (zpracujeme ručně).",
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\soukromi.html:
-  Line 49:           <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat odpovědí na libovolný e-mail od nás se slovem „ODHLASIT". Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>
-
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "| `UPSTASH_REDIS_REST_TOKEN` | REST token z Upstash (rovnako potrebné) |\n| `UNSUBSCRIBE_SECRET` | voliteľné – podpis odkazov na odhlásenie v e-mailoch (bez neho sa použije `RESEND_API_KEY`) |\n\n**Bez `RESEND_API_KEY`** (s nakonfigurovaným Redis) endpoint vracia `200` a loguje `mode: \"log_only\"` – lead je uložený, reportId vrátené, e-mail neodíde.\n**Bez `UPSTASH_*`** endpoint vracia `503` s telom `{ \"error\": \"db_not_configured\" }` – konverzný flow **nefunguje**.\n\n### Odhlásenie (unsubscribe)\nKaždý odoslaný e-mail obsahuje odkaz `/api/unsubscribe?token=…` (HMAC-podpísaný e-mail) a hlavičky\n`List-Unsubscribe` + `List-Unsubscribe-Post` (one-click, RFC 8058). Kliknutie alebo POST z e-mailového\nklienta zmaže lead z Redis (`newsletter:lead:<email>` + `newsletter:emails`). Odpoveď slovom\n`ODHLASIT` ostáva ako manuálny fallback (spracuje sa ručne cez REPLY_TO). Endpoint vracia\n`400` bez tokenu, `401` pri zlom podpise, `503` bez Redis.",
-  "oldString": "| `UPSTASH_REDIS_REST_TOKEN` | REST token z Upstash (rovnako potrebné) |\n\n**Bez `RESEND_API_KEY`** (s nakonfigurovaným Redis) endpoint vracia `200` a loguje `mode: \"log_only\"` – lead je uložený, reportId vrátené, e-mail neodíde.\n**Bez `UPSTASH_*`** endpoint vracia `503` s telom `{ \"error\": \"db_not_configured\" }` – konverzný flow **nefunguje**."
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 9.4s)
-
-_Thinking:_
-
-The soukromi.html line 49 has `„ODHLASIT".` with a straight quote at the end maybe - the grep shows `se slovem „ODHLASIT".` - let me read the exact line.
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\soukromi.html",
-  "limit": 5,
-  "offset": 47
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\soukromi.html</path>
-<type>file</type>
-<content>
-47: 
-48:           <h2 class="section__title" style="font-size:22px; margin-top:26px; margin-bottom:18px;">Právní základ a doba uchování</h2>
-49:           <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat odpovědí na libovolný e-mail od nás se slovem „ODHLASIT". Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>
-50:           <p>Model vstupů pro generování osobního PDF reportu se ukládá dočasně (maximálně 30 dnů) za účelem jeho opakovaného zobrazení na stránce poděkování a následně se automaticky smaže; PDF se z modelu vygeneruje znova při každém zobrazení.</p>
-51: 
-
-(Showing lines 47-51 of 89. Use offset=52 to continue.)
-</content>
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "  checkboxom, odhlásenie odkazom v e-maile (one-click) alebo odpoveďou „ODHLASIT\"\n  (manuálny fallback).",
-  "oldString": "  checkboxom, odhlásenie odpoveďou „ODHLASIT\" v každom e-maile."
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "api/report.js          – servírovanie PDF vygenerovaného z uloženého modelu\n                        (zhodný obsah ako e-mailová príloha)\napi/unsubscribe.js     – one-click odhlásenie (GET/POST ?token=, List-Unsubscribe)\nlib/unsubscribe.js     – HMAC podpis/overenie tokenu + zmazanie leadu z Redis",
-  "oldString": "api/report.js          – servírovanie PDF vygenerovaného z uloženého modelu\n                        (zhodný obsah ako e-mailová príloha)"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 16.6s)
-
-_Thinking:_
-
-The soukromi.html line has `„ODHLASIT".` - with a regular double quote `"` at the end, not `“`. Let me try the edit with exact content from read.
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\soukromi.html",
-  "newString": "          <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat kliknutím na odhlášovací odkaz v patičce každého e-mailu, nebo odpovědí na e-mail se slovem „ODHLASIT“ (zpracujeme ručně). Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>",
-  "oldString": "          <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat odpovědí na libovolný e-mail od nás se slovem „ODHLASIT\". Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "node --test \"tests/*.test.js\" 2>&1 | Select-String -Pattern \"^(not ok|ok [0-9]|# (tests|pass|fail))\"",
-  "timeout": 120000,
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
-
-ok 1 - lead endpoint: prijme calc+portfolio+tax, uloží model a vráti reportId
-ok 2 - lead endpoint: prázdne kalkulačky → PDF bez personalizovaných sekcií, s povinnými sekciami
-ok 3 - report endpoint: servíruje platné PDF vygenerované z uloženého modelu
-ok 4 - report endpoint: fallback regenerácia z uloženého modelu dáva ten istý obsah
-ok 5 - report endpoint: neplatné ID → 400, neznáme ID → 404
-ok 6 - lead endpoint: odmietne nevalidný e-mail a chýbajúci súhlas
-ok 7 - formatovanie českých čísel a mien
-ok 8 - sanitizeCalc: prázdny/neúplný vstup → null (žiadne predvolené hodnoty)
-ok 9 - sanitizeCalc: vyplnený vstup sa zachová (vrátane zaokrúhlenia)
-ok 10 - sanitizePortfolio: neúplné váhy (súčet ≠ 100) → null
-ok 11 - sanitizePortfolio: súčet 100 → sekcia je vyplnená
-ok 12 - sanitizeTax: nulový alebo chýbajúci príjem → null
-ok 13 - sanitizeTax: vyplnený vstup sa zachová
-ok 14 - buildReportModel: prázdny body → všetky voliteľné sekcie null
-ok 15 - buildReportContent: povinné sekcie sú vždy prítomné a presné
-ok 16 - buildReportContent: nevyplnené sekcie sa nezobrazia (žiadne pomlčky/nuly)
-ok 17 - buildReportContent: vyplnené sekcie obsahujú aktuálne hodnoty kalkulačiek
-ok 18 - PDF: generátor vytvorí jeden platný, deterministický súbor
-ok 19 - PDF: česká diakritika je zakódovaná v embedded fonte (nie transliterovaná)
-ok 20 - signToken/verifyToken: roundtrip vráti normalizovaný e-mail
-ok 21 - verifyToken: zlý podpis alebo formát → null
-ok 22 - signToken: bez žiadneho secretu → null
-ok 23 - unsubscribe endpoint: GET s platným tokenom → 200 HTML a lead zmazaný
-ok 24 - unsubscribe endpoint: POST one-click → 200 JSON a lead zmazaný
-ok 25 - unsubscribe endpoint: idempotent – neexistujúci lead → 200 removed:false
-ok 26 - unsubscribe endpoint: chýbajúci token → 400, neplatný → 401
-ok 27 - unsubscribe endpoint: bez Redis → 503
-ok 28 - unsubscribe endpoint: nepovolená metóda → 405
-ok 29 - unsubscribeLead: bez redis → false
-# tests 29
-# pass 29
-# fail 0
-
-
-
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 15.4s)
-
-_Thinking:_
-
-All 29 tests pass. Let me also verify Resend API accepts `headers` parameter - yes, Resend API supports custom headers in the send email payload.
-
-One potential issue: when RESEND_API_KEY is not set but we're in log_only mode, no email is sent so no token needed - fine.
-
-When UNSUBSCRIBE_SECRET and RESEND_API_KEY both missing, signToken returns null, unsubUrl is null, no List-Unsubscribe headers - fine (email not sent anyway without RESEND_API_KEY).
-
-Also verify: lead.js test doesn't check email payload - fine.
-
-Update todos and give summary.
-
-Double-check Resend headers format - Resend API docs: `"headers": { "X-Entity-Ref-ID": "..." }` - custom headers supported. List-Unsubscribe should work.
-
-Also note: POST body from email clients for one-click is `List-Unsubscribe=One-Click` as application/x-www-form-urlencoded, not JSON. My endpoint tries JSON parse of body. For form-urlencoded, body might be a string "List-Unsubscribe=One-Click" without token in body - but token is in query string from List-Unsubscribe URL. Actually RFC 8058: the POST goes to the URL in List-Unsubscribe header (the https URL), with body `List-Unsubscribe=One-Click`. So token will be in query string, not body. My handler reads query first - good. Body parse only fallback - fine.
-
-Vercel parses JSON body; for form-urlencoded it might put it in req.body as string or object. Either way query token is primary.
-
-Done. Mark todos complete.
-
-**Tool: todowrite**
-
-**Input:**
-```json
-{
-  "todos": [
-    {
-      "content": "Vytvoriť lib/unsubscribe.js (token + zmazanie leadu)",
-      "priority": "high",
-      "status": "completed"
-    },
-    {
-      "content": "Vytvoriť api/unsubscribe.js (GET/POST endpoint)",
-      "priority": "high",
-      "status": "completed"
-    },
-    {
-      "content": "Doplniť api/lead.js – odkaz + List-Unsubscribe hlavičky",
-      "priority": "high",
-      "status": "completed"
-    },
-    {
-      "content": "Testy unsubscribe",
-      "priority": "high",
-      "status": "completed"
-    },
-    {
-      "content": "Dokumentácia: .env.example, README, soukromi.html, index.html FAQ",
-      "priority": "medium",
-      "status": "completed"
-    },
-    {
-      "content": "Spustiť všetky testy",
-      "priority": "high",
-      "status": "completed"
-    }
-  ]
-}
-```
-
-**Output:**
-```
-[
-  {
-    "content": "Vytvoriť lib/unsubscribe.js (token + zmazanie leadu)",
-    "status": "completed",
-    "priority": "high"
-  },
-  {
-    "content": "Vytvoriť api/unsubscribe.js (GET/POST endpoint)",
-    "status": "completed",
-    "priority": "high"
-  },
-  {
-    "content": "Doplniť api/lead.js – odkaz + List-Unsubscribe hlavičky",
-    "status": "completed",
-    "priority": "high"
-  },
-  {
-    "content": "Testy unsubscribe",
-    "status": "completed",
-    "priority": "high"
-  },
-  {
-    "content": "Dokumentácia: .env.example, README, soukromi.html, index.html FAQ",
-    "status": "completed",
-    "priority": "medium"
-  },
-  {
-    "content": "Spustiť všetky testy",
-    "status": "completed",
-    "priority": "high"
-  }
-]
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 10.8s)
-
-_Thinking:_
-
-All done. Provide concise summary in Slovak.
-
-Hotovo – **29/29 testov prechádza**. Možnosť B implementovaná:
-
-**Nové súbory**
-- `lib/unsubscribe.js` – HMAC token (`signToken`/`verifyToken`) + zmazanie leadu (`DEL newsletter:lead:<email>` + `SREM newsletter:emails`)
-- `api/unsubscribe.js` – `GET` → HTML stránka „Byli jste odhlášeni“, `POST` → one-click JSON; 400/401/503 podľa chyby
-- `tests/unsubscribe.test.js` – 10 nových testov
-
-**Úpravy**
-- `api/lead.js` – v e-maile odkaz `/api/unsubscribe?token=…` + hlavičky `List-Unsubscribe` / `List-Unsubscribe-Post`; ODHLASIT ostáva ako manuálny fallback
-- `.env.example` – `UNSUBSCRIBE_SECRET` (fallback: `RESEND_API_KEY`)
-- `soukromi.html`, `index.html` FAQ/pätička, `README.md` – texty zladené s realitou
-
-**Ako to funguje:** e-mail obsahuje podpísaný odkaz → klik (alebo POST z poštového klienta) zmaže lead z Redis. ODHLASIT odpoveď ide na `REPLY_TO` a spracuje sa ručne.
-
----
-
-## User
-
-skús pridať skript na vercel analytics
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 15.3s)
-
-_Thinking:_
-
-The user wants me to add the Vercel Analytics script. From my earlier audit, I noted that the page doesn't initialize Vercel Analytics (`/_vercel/insights/script.js`), so events don't actually go anywhere.
-
-For Vercel Web Analytics, the script is:
-```html
-<script defer src="/_vercel/insights/script.js"></script>
-```
-
-That's the standard way for static sites on Vercel - you add the script tag and Vercel injects the project ID automatically when deployed.
-
-There's also the `va()` function - Vercel Analytics exposes `window.va` once loaded, which is what main.js already calls.
-
-I should add the script to:
-1. index.html
-2. thank-you.html (for report_view event)
-
-Let me also check if there's anything about enabling Analytics - on Vercel you need to enable Web Analytics in the dashboard, but the script tag is what's needed in code.
-
-I'll add the script tag to both HTML files.
-
-Pridám skript Vercel Analytics do `index.html` a `thank-you.html` (kvôli `report_view`).
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\index.html",
-  "newString": "  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n  <script defer src=\"/_vercel/insights/script.js\"></script>\n</head>",
-  "oldString": "  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\thank-you.html",
-  "newString": "  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n  <script defer src=\"/_vercel/insights/script.js\"></script>\n</head>",
-  "oldString": "  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: grep**
-
-**Input:**
-```json
-{
-  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\index.html",
-  "pattern": "_vercel/insights|stylesheet"
-}
-```
-
-**Output:**
-```
-Found 20 matches
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\unsubscribe.js:
-  Line 9:   '<link rel="stylesheet" href="/assets/css/style.css"></head>' +
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\thank-you.html:
-  Line 11:   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  Line 12:   <link rel="stylesheet" href="/assets/css/style.css">
-
-  Line 13:   <script defer src="/_vercel/insights/script.js"></script>
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\session-ses_e839-2.md:
-  Line 5453: Wait, actually specificity of `.portfolio-row__ticker` = (0,1,0) and `.badge` = (0,1,0) → later in stylesheet wins → `.badge` font shorthand wins. Yes, already existing behavior.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md:
-  Line 50: > **Upozornenie (aktuálny stav):** kód posiela eventy do `window.dataLayer` a `window.va('track')`, ale stránka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez týchto skriptov sa eventy v produkcii **nikam neodosielajú** – na localhoste ich uvidíte len v konzole (`console.debug`). Pre reálne meranie treba dohodiť skript Vercel Analytics a/alebo GTM.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\soukromi.html:
-  Line 11:   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  Line 12:   <link rel="stylesheet" href="/assets/css/style.css">
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\index.html:
-  Line 16:   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  Line 17:   <link rel="stylesheet" href="/assets/css/style.css">
-
-  Line 18:   <script defer src="/_vercel/insights/script.js"></script>
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e78e.md:
-  Line 1533: 11:   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  Line 1534: 12:   <link rel="stylesheet" href="/assets/css/style.css">
-
-  Line 4096:   "content": "<!DOCTYPE html>\n<html lang=\"cs\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Váš osobní report – ETF Poplatky.cz</title>\n  <meta name=\"robots\" content=\"noindex\">\n  <meta name=\"theme-color\" content=\"#0F3D2E\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>\n<body>\n\n  <header class=\"topbar\">\n    <div class=\"wrap topbar__inner\">\n      <a href=\"/\" class=\"brand\" aria-label=\"ETF Poplatky – domů\">\n        <span class=\"brand__mark\">ETF</span>\n        <span class=\"brand__name\">Poplatky.cz</span>\n      </a>\n      <nav class=\"topbar__nav\">\n        <a href=\"/\" class=\"topbar__link\">Zpět na kalkulačku</a>\n      </nav>\n    </div>\n  </header>\n\n  <main>\n    <section class=\"hero\">\n      <div class=\"wrap hero__inner\">\n        <p class=\"hero__eyebrow\"><span class=\"dot\"></span> Report je připraven &middot; odesláno na <span id=\"t-email\" class=\"strong\">váš e-mail</span></p>\n        <h1 class=\"hero__title\">Hotovo. Tady je <span class=\"accent\">vaše číslo</span>.</h1>\n        <p class=\"hero__sub\">\n          V e-mailu máte tentýž PDF report jako níže – včetně vašich výpočtů,\n          srovnání šesti ETF a checklistu prvních kroků.\n        </p>\n        <div class=\"hero__cta\">\n          <a class=\"btn btn--accent btn--lg\" id=\"t-download\" href=\"#\" hidden>Stáhnout PDF</a>\n          <a href=\"/#kalkulacka\" class=\"btn btn--ghost btn--lg\">Zpět na kalkulačku</a>\n        </div>\n      </div>\n    </section>\n\n    <section class=\"section\">\n      <div class=\"wrap\">\n        <div clas...
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e839.md:
-  Line 117: 16:   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  Line 118: 17:   <link rel="stylesheet" href="/assets/css/style.css">
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e839-2.md:
-  Line 5453: Wait, actually specificity of `.portfolio-row__ticker` = (0,1,0) and `.badge` = (0,1,0) → later in stylesheet wins → `.badge` font shorthand wins. Yes, already existing behavior.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e91c.md:
-  Line 2660:   "content": "<!DOCTYPE html>\n<html lang=\"cs\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>ETF na NYSE: kolik vás stojí poplatky? | Srovnání VOO, IVV, SPY a dalších</title>\n  <meta name=\"description\" content=\"Porovnejte 6 nejpopulárnějších ETF obchodovaných na NYSE a spočítejte si, kolik vás během let připraví poplatky. Osobní report do e-mailu za 30 sekund.\">\n  <meta property=\"og:title\" content=\"Vaše ETF vás může připravit o 237 000 Kč. Spočítejte si to za 30 sekund.\">\n  <meta property=\"og:description\" content=\"Srovnání poplatků (TER) u ETF VOO, IVV, SPY, QQQ, VTI a SCHD s kalkulačkou dopadu na vaše portfólio. Zdarma, bez registrace.\">\n  <meta property=\"og:type\" content=\"website\">\n  <meta property=\"og:locale\" content=\"cs_CZ\">\n  <meta name=\"theme-color\" content=\"#0F3D2E\">\n  <link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F3D2E'/%3E%3Ctext x='16' y='22' font-family='Georgia' font-size='16' fill='%23FAF7F2' text-anchor='middle'%3E%E2%82%AC%3C/text%3E%3C/svg%3E\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>\n<body>\n\n  <header class=\"topbar\">\n    <div class=\"wrap topbar__inner\">\n      <a href=\"/\" class=\"brand\" aria-label=\"ETF Poplatky – domů\">\n        <span class=\"brand__mark\">ETF</span>\n        <span class=\"brand__name\">Poplatky.cz</span>\n      </a>\n      <nav class=\"topbar__nav\">\n        <a href=\"#srovnani\" class=\"topbar__link\">Srovnání</a>\n        <a href=\"#kalkulacka\" class=\"...
-  Line 2823:   "content": "<!DOCTYPE html>\n<html lang=\"cs\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Váš osobní report – ETF Poplatky.cz</title>\n  <meta name=\"robots\" content=\"noindex\">\n  <meta name=\"theme-color\" content=\"#0F3D2E\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>\n<body>\n\n  <header class=\"topbar\">\n    <div class=\"wrap topbar__inner\">\n      <a href=\"/\" class=\"brand\" aria-label=\"ETF Poplatky – domů\">\n        <span class=\"brand__mark\">ETF</span>\n        <span class=\"brand__name\">Poplatky.cz</span>\n      </a>\n      <nav class=\"topbar__nav\">\n        <a href=\"/\" class=\"topbar__link\">Zpět na kalkulačku</a>\n      </nav>\n    </div>\n  </header>\n\n  <main>\n    <section class=\"hero\">\n      <div class=\"wrap hero__inner\">\n        <p class=\"hero__eyebrow\"><span class=\"dot\"></span> Report je připraven &middot; odesláno na <span id=\"t-email\" class=\"strong\">váš e-mail</span></p>\n        <h1 class=\"hero__title\">Hotovo. Tady je <span class=\"accent\">vaše číslo</span>.</h1>\n        <p class=\"hero__sub\">\n          Stejný výpočet vám právě přistál i v e-mailu spolu s checklistem.\n          Uložte si stránku, ať o něj nepřijdete.\n        </p>\n        <div class=\"hero__cta\">\n          <button class=\"btn btn--lg\" id=\"t-print\">Vytisknout / uložit jako PDF</button>\n          <a href=\"/#kalkulacka\" class=\"btn btn--ghost btn--lg\">Zpět kalkulačka</a>\n        </div>\n      </div>\n    </section>\n\n    <section class=\"section\">\n      <div class=\"wrap\">\n        <div class=\"facts__grid\">\...
-  Line 5987:   Line 2660:   "content": "<!DOCTYPE html>\n<html lang=\"cs\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>ETF na NYSE: kolik vás stojí poplatky? | Srovnání VOO, IVV, SPY a dalších</title>\n  <meta name=\"description\" content=\"Porovnejte 6 nejpopulárnějších ETF obchodovaných na NYSE a spočítejte si, kolik vás během let připraví poplatky. Osobní report do e-mailu za 30 sekund.\">\n  <meta property=\"og:title\" content=\"Vaše ETF vás může připravit o 237 000 Kč. Spočítejte si to za 30 sekund.\">\n  <meta property=\"og:description\" content=\"Srovnání poplatků (TER) u ETF VOO, IVV, SPY, QQQ, VTI a SCHD s kalkulačkou dopadu na vaše portfólio. Zdarma, bez registrace.\">\n  <meta property=\"og:type\" content=\"website\">\n  <meta property=\"og:locale\" content=\"cs_CZ\">\n  <meta name=\"theme-color\" content=\"#0F3D2E\">\n  <link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F3D2E'/%3E%3Ctext x='16' y='22' font-family='Georgia' font-size='16' fill='%23FAF7F2' text-anchor='middle'%3E%E2%82%AC%3C/text%3E%3C/svg%3E\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>\n<body>\n\n  <header class=\"topbar\">\n    <div class=\"wrap topbar__inner\">\n      <a href=\"/\" class=\"brand\" aria-label=\"ETF Poplatky – domů\">\n        <span class=\"brand__mark\">ETF</span>\n        <span class=\"brand__name\">Poplatky.cz</span>\n      </a>\n      <nav class=\"topbar__nav\">\n        <a href=\"#srovnani\" class=\"topbar__link\">Srovnání</a>\n        <a href=\"#kalkulac...
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 21.5s)
-
-_Thinking:_
-
-There's a subtle issue: Vercel's `/_vercel/insights/script.js` only exists when deployed on Vercel with Web Analytics enabled. On local static server it will 404 - that's fine with defer.
-
-Also important: `window.va` is only available after the script loads. main.js runs immediately on parse (not deferred) and calls track on page_view at load time - at that point `window.va` might not exist yet. Looking at main.js:
-
-```js
-window.etfTrack = track;
-...
-track("page_view", {...});  // runs immediately when main.js loads
-```
-
-main.js is at the end of body without defer, insights script is in head with defer. Defer scripts run in order after document is parsed, before DOMContentLoaded. Regular scripts at end of body run immediately during parsing - so main.js runs BEFORE deferred insights script. So page_view might fire before va is defined.
-
-However Vercel insights script when loaded will auto-track page views itself. Custom `va('track', ...)` calls after load will work for subsequent events. The page_view from main.js might miss va, but Vercel's own script tracks pageviews automatically.
-
-I could improve main.js to queue events until va is ready, but user only asked to add the script. Keep it simple.
-
-Also update README note about analytics - now the script is added.
-
-Aktualizujem poznámku v README (skript už je pridaný):
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) je v `index.html` a `thank-you.html`. Custom eventy z `window.etfTrack()` idú cez `window.va('track')` – **treba mať Web Analytics zapnuté** v Vercel dashing (Project → Web Analytics). `dataLayer` (GTM) stránka stále neinicializuje; bez GTM kontajneru sa eventy do `dataLayer` neposielajú. Na localhoste sa eventy logujú len do konzoly.",
-  "oldString": "> **Upozornenie (aktuálny stav):** kód posiela eventy do `window.dataLayer` a `window.va('track')`, ale stránka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez týchto skriptov sa eventy v produkcií **nikam neodosielajú** – na localhoste ich uvidíte len v konzole (`console.debug`). Pre reálne meranie treba dohodiť skript Vercel Analytics a/alebo GTM."
-}
-```
-
-**Error:**
-```
-Could not find oldString in the file. It must match exactly, including whitespace, indentation, and line endings.
-```
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "node --test \"tests/*.test.js\" 2>&1 | Select-String -Pattern \"^# (tests|pass|fail)\"",
-  "timeout": 60000,
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
-
-# tests 29
-# pass 29
-# fail 0
-
-
-
-```
-
----
-
-## User
-
----
-
-## Assistant (Compaction · MiMo-V2.6-Flash Free · 27.6s)
-
-_Thinking:_
-
-Let me create the anchored summary from the conversation history.
-
-## Objective
-- Audit a overiť pravdivosť tvrdení v `README.md` projektu ETF Clientelo (konverzná landing page), opraviť nepravdivé časti podľa reality a rozšíriť projekt o funkčné odhlásenie používateľa (možnosť B: odkaz + List-Unsubscribe).
-
-## Important Details
-- Projekt: `C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie` (README je tu, nie v koreni workspace)
-- Stack: čisté HTML/CSS/vanilla JS, bez build kroku; nasadenie Vercel; `api/lead.js` + `api/report.js` serverless; Upstash Redis; Resend
-- Používateľ si zvolil možnosť **B** (odkaz v e-maile + List-Unsubscribe hlavičky), NIE A (Resend Receiving webhook) — ODHLASIT odpoveď ostáva len manuálny fallback
-- Zvolené body plánu 1+3+4 (GDPR texty, testy, kozmetika); body 2 (skript Vercel Analytics) a 5 (commit) si používateľ NEPRIAL
-- Kľúčový fakt: do Redis sa ukladá **len model** (`{version, createdAt, model}`), NIE PDF; PDF sa regeneruje cez `/api/report` (kľúč `report:<id>`, TTL 30 dní)
-- Bez `UPSTASH_*` → endpoint vracia `503 db_not_configured` (flow padá); bez `RESEND_API_KEY` → `200` + `mode: "log_only"`
-- Overené pravdivé: hero výpočet 234 728 Kč; TER QQQ 0,18 %, SPY 0,0945 %, VOO/IVV/VTI 0,03 %, priemer 0,41 %
-- `npm` je blokovaný PowerShell execution policy → testy spúšťať cez `node --test "tests/*.test.js"`
-- Web je v češtine – texty endpointov/páv byť v češtine
-
-## Work State
-### Completed
-- Audit README — identifikované nepravdivosti: PDF v Redis, „funguje bez kľúčov", logy bez vstupov kalkulačky, nefungujúca analytika (žiaden GTM/Vercel Analytics skript), padajúce testy, „žiadne tretie strany"
-- `README.md` opravený: §1 (model nie PDF), §2 (poradie sekcií vrátane grafy/daň/portfólio), §3 (upozornenie o neinic. analytike, boolean sekcie), §6 (H1/CTA podľa reality), §7, §8 (UPSTASH potrebné, RESEND voliteľný), §9 (úplná štruktúra), §10 (spracovatelia), preklep „Najkomplexnejšie"
-- `.env.example` opravený (503, nie „všetko voliteľné"; pridaný `UNSUBSCRIBE_SECRET`)
-- GDPR texty: `index.html` (form note → zpracovatelé Resend/Upstash/Vercel; FAQ → odpoveď ODHLASIT; footer; zdroj grafu → snapshot + `scripts/fetch-voo.cjs`); `soukromi.html` (odoslanie vstupov kalkulačky, model nie PDF, Google Fonts, odhlásenie)
-- `tests/api.test.js` prepísané na architektúru „len model" → **19/19 testov prechádzalo**
-- Zmazaný `test-list2.mjs`
-- **Implementácia možnosti B (rozpracované):**
-  - ✅ `lib/unsubscribe.js` – `signToken`, `verifyToken` (HMAC-SHA256, timingSafeEqual), `unsubscribeLead` (`DEL newsletter:lead:<email>` + `SREM newsletter:emails`); secret: `UNSUBSCRIBE_SECRET` fallback `RESEND_API_KEY`
-  - ✅ `api/unsubscribe.js` – GET (HTML stránka „Byli jste odhlášeni.") / POST (one-click JSON), 400/401/405/503
-  - ✅ `api/lead.js` – import `signToken`, `unsubUrl`, hlavičky `List-Unsubscribe` + `List-Unsubscribe-Post`, text e-mailu s odkazom + ODHLASIT fallback
-  - ✅ `tests/unsubscribe.test.js` – 9 testov (roundtrip, zlý podpis, GET/POST maže lead, idempotencia, 400/401/405/503)
-  - ✅ `.env.example` + `README.md` (sekcia „Odhlásenie (unsubscribe)") doplnené
-  - ✅ `index.html` FAQ + footer aktualizované na „odkaz v patičce e-mailu"
-  - ⚠️ `soukromi.html` edit odhlásenia **ZLYHAL** (oldString nesedel – grep našiel 19 zhôd, treba skontrolovať aktuálny text na riadkoch ~46-56)
-
-### Active
-- Dokončovanie bodu 5 plánu: opraviť odhlásenie v `soukromi.html` (Zásady ochrany osobních údajů – veta o odvolaní súhlasu)
-
-### Blocked
-- (none)
-
-## Next Move
-1. Prečítať `soukromi.html` (okolie riadkov 46–56) a opraviť vetu o odhlásení: primárne „odkazem v patičce každého e-mailu", ODHLASIT ako manuálny fallback
-2. Spustiť `node --test "tests/*.test.js"` v `Clientelo-zadanie` a overiť, že všetky testy (19 + 9 nových) prechádzajú
-
-## Relevant Files
-- `Clientelo-zadanie/README.md` – auditovaný a opravený; sekcia „Odhlásenie (unsubscribe)" pridaná
-- `Clientelo-zadanie/.env.example` – opravený + `UNSUBSCRIBE_SECRET`
-- `Clientelo-zadanie/lib/unsubscribe.js` – nový: token sign/verify + zmazanie leadu
-- `Clientelo-zadanie/api/unsubscribe.js` – nový: GET/POST unsubscribe endpoint
-- `Clientelo-zadanie/api/lead.js` – pridané `signToken`, List-Unsubscribe hlavičky, odkaz v texte e-mailu
-- `Clientelo-zadanie/tests/unsubscribe.test.js` – nový, 9 testov
-- `Clientelo-zadanie/tests/api.test.js` – prepísané na model-only architektúru
-- `Clientelo-zadanie/soukromi.html` – čaká oprava vety o odhlásení (edit zlyhal)
-- `Clientelo-zadanie/index.html` – GDPR texty hotové (FAQ, form note, footer, zdroj grafu)
-- `Clientelo-zadanie/lib/store.js` – `reportKey`, `saveReport`/`loadReport`, getRedis
-- `Clientelo-zadanie/index.html:161` – zdroj grafu = statický snapshot `assets/data/voo-history.json`
-
----
-
-## User
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 5.4s)
-
-_Thinking:_
-
-The user wants me to continue. I was updating the README note about analytics, but the edit failed because the string didn't match. Let me read the README section and fix it.
-
-**Tool: grep**
-
-**Input:**
-```json
-{
-  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "pattern": "Upozornenie|dataLayer|insights"
-}
-```
-
-**Output:**
-```
-Found 29 matches
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e91c.md:
-  Line 2487: Tracking: track(name, data) → window.va? Vercel Analytics custom events use va('track', name, data). I'll implement generic: push to dataLayer (GA4-ready), call va if exists, and console.debug. README explains.
-
-  Line 2709:   "content": "(function () {\n  \"use strict\";\n\n  var UTM_KEYS = [\"utm_source\", \"utm_medium\", \"utm_campaign\", \"utm_term\", \"utm_content\", \"gclid\", \"fbclid\"];\n\n  function captureUtm() {\n    var params = new URLSearchParams(window.location.search);\n    var stored = {};\n    var changed = false;\n    UTM_KEYS.forEach(function (k) {\n      var v = params.get(k);\n      if (v) { stored[k] = v; changed = true; }\n    });\n    if (changed) {\n      try { localStorage.setItem(\"etf_utm\", JSON.stringify(stored)); } catch (e) {}\n    }\n    try {\n      return JSON.parse(localStorage.getItem(\"etf_utm\") || \"{}\");\n    } catch (e) { return {}; }\n  }\n\n  function track(name, data) {\n    var payload = Object.assign({ event: name }, data || {});\n    if (Array.isArray(window.dataLayer)) { window.dataLayer.push(payload); }\n    if (typeof window.va === \"function\") {\n      try { window.va(\"track\", name, payload); } catch (e) {}\n    }\n    if (window.location.hostname === \"localhost\" || window.location.hostname === \"127.0.0.1\") {\n      console.debug(\"[track]\", payload);\n    }\n  }\n\n  window.etfTrack = track;\n  window.etfUtm = captureUtm();\n\n  track(\"page_view\", {\n    path: window.location.pathname,\n    referrer: document.referrer || null\n  });\n\n  document.addEventListener(\"click\", function (e) {\n    var el = e.target.closest(\"[data-cta]\");\n    if (!el) return;\n    track(\"cta_click\", { cta: el.getAttribute(\"data-cta\") });\n  });\n\n  var faq = document.getElementById(\"faq\");\n  if (faq) {\n    faq.addEventListener(\"toggle\", function (e) {\n      if (e.target.open) track(\"faq_open\", { q: e.target.querySelector(\"summary\").textContent.trim() });\n    }, true);\n  }\n\n  var sticky = document.getElementById(\"sticky-cta\");\n  var leadSection = document.getElementById(\"report\");\n  if (sticky && leadSection) {\n    var hero = document.querySelector(\".hero\");\n    var pastHero = false;\n    var inLead = false;\n  ...
-  Line 2823:   "content": "<!DOCTYPE html>\n<html lang=\"cs\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Váš osobní report – ETF Poplatky.cz</title>\n  <meta name=\"robots\" content=\"noindex\">\n  <meta name=\"theme-color\" content=\"#0F3D2E\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>\n<body>\n\n  <header class=\"topbar\">\n    <div class=\"wrap topbar__inner\">\n      <a href=\"/\" class=\"brand\" aria-label=\"ETF Poplatky – domů\">\n        <span class=\"brand__mark\">ETF</span>\n        <span class=\"brand__name\">Poplatky.cz</span>\n      </a>\n      <nav class=\"topbar__nav\">\n        <a href=\"/\" class=\"topbar__link\">Zpět na kalkulačku</a>\n      </nav>\n    </div>\n  </header>\n\n  <main>\n    <section class=\"hero\">\n      <div class=\"wrap hero__inner\">\n        <p class=\"hero__eyebrow\"><span class=\"dot\"></span> Report je připraven &middot; odesláno na <span id=\"t-email\" class=\"strong\">váš e-mail</span></p>\n        <h1 class=\"hero__title\">Hotovo. Tady je <span class=\"accent\">vaše číslo</span>.</h1>\n        <p class=\"hero__sub\">\n          Stejný výpočet vám právě přistál i v e-mailu spolu s checklistem.\n          Uložte si stránku, ať o něj nepřijdete.\n        </p>\n        <div class=\"hero__cta\">\n          <button class=\"btn btn--lg\" id=\"t-print\">Vytisknout / uložit jako PDF</button>\n          <a href=\"/#kalkulacka\" class=\"btn btn--ghost btn--lg\">Zpět kalkulačka</a>\n        </div>\n      </div>\n    </section>\n\n    <section class=\"section\">\n      <div class=\"wrap\">\n        <div class=\"facts__grid\">\...
-  Line 3273:   "content": "# ETF Poplatky – konverzní landing page (Zadanie B)\n\nLead magnet pre českého drobného investora: srovnání 6 ETF obchodovaných na NYSE\n(VOO, IVV, SPY, QQQ, VTI, SCHD) + kalkulačka dopadu poplatků. Návštěvník dostává\nosobní report výměnou za e-mail.\n\n**Stack:** čisté HTML + CSS + vanilla JS, bez build kroku. Nasazení: Vercel\n(statické soubory + serverless funkce `api/lead.js`).\n\n---\n\n## 1. Cílová skupina a mechanika konverze\n\n| Otázka | Odpověď |\n|---|---|\n| Kdo | Čech 25–45 let, mobil, začátečník/mírně pokročilý, měsíčně spoří, zvažuje brokera (Fio, Trading 212, DEGIRO, Portu), bojí se poplatků a daní z dividend |\n| Odkud | Meta / Google Ads, studený traffic, ~5 s pozornosti |\n| Co dostane výměnou | **Osobní report**: vlastní přepočet ztráty na poplatcích (číslo z kalkulačky) + rozbor 6 ETF + checklist prvních kroků (W-8BEN, broker, první nákup) |\n| Kdy žádáme kontakt | **Až po dvou volně přístupných prvcích** – srovnávací tabulka a kalkulačka jsou zdarma, návštěvník už vidí své číslo. Formulář je logický další krok, ne skok |\n| Pole formuláře | **1 pole (e-mail)** + GDPR checkbox + honeypot |\n| Co následuje po odeslání | okamžitá `thank-you.html` s čísly a checklistem (tisknutelné), e-mail do 2 minut (Resend), další tipy jen na vyžádání/odhlašitelně |\n\nHodnota je zrejmá **před** vyplněním: tabulka i kalkulačka jsou kompletně\nfunkční bez e-mailu. E-mail je „jen\" pro uložení/odeslání reportu.\n\n---\n\n## 2. Proč v takovém pořadí sekce (odůvodnění)\n\nNávěštěvník přichází z mobilu na 5 sekund = rozhoduje první obrazovka a jeden slib.\n\n1. **Hero (1. obrazovka)** – zrcadlo reklamy (message match). Číselný hook\n   „235 000 Kč\" (vypočteno, viz §5) + jasný příslib „spočítejte si to za 30 sekund\".\n   Dvě CTA: primární vede na kalkulačku (okamžitá hodnota), sekundární na tabulku.\n   Úmyslně **nevede přímo na formulář** – cold návštěvník není připraven dát e-mail.\n2. **Tři fakta** – rychlé „bolesti\" čísly se zdroji (0,03 % vs 0,4...
-  Line 5625: Free reports make effective lead magnets, offering valuable insights in exchange for contact details. Brain Biotech’s landing page delivers this with a professional design, guiding visitors through a CEO letter, strategic highlights, and key figures, with a clear option to download the full report.
-
-  Line 5630: - CEO Letter: The letter reinforces the authority of the report, making the insights feel trustworthy.
-
-  Line 6177: Spanning over 130 endpoints, our market data APIs are grouped into 9 broad asset classes / categories: (1) Core Time Series Stock Data APIs covering stocks, ETFs, and mutual funds, (2) Index Data APIs, (3) Options Data APIs, (4) Alpha Intelligence covering news and sentiments, earnings call transcripts, insider transactions, congressional/politician trades, institutional holdings, top gainers and losers, and other market insights, (5) Fundamental Data, (6) Forex and Crypto Currencies (e.g., Bitcoin), (7) Commodities, (8) Economic Indicators, and (9) Technical Indicators - also outlined here. Examples in this documentation are for demo purposes. Claim your free API key today to explore our full API offerings!
-
-  Line 7177: 3. Oba grafy: `IntersectionObserver` → init až keď sú vo viewport (mimo prvej obrazovky = **LCP sa nedotkne**), eventy `chart_view`, `chart_interact` do existujúceho `dataLayer`.
-
-  Line 7227: - `assets/js/main.js` – UTM → localStorage → lead payload; eventy `page_view`, `cta_click`, `table_sort`, `calc_change`, `form_view`, `form_error`, `form_submit`, `report_view` → `dataLayer` + `window.va`; sticky bar logika; odoslanie formulára (lokálne demo presmerovanie na thank-you).
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e8e1.md:
-  Line 287: - odosielanie udalostí do dataLayer a window.va, ak sú tieto integrácie dostupné
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e839.md:
-  Line 758: 24:     if (Array.isArray(window.dataLayer)) { window.dataLayer.push(payload); }
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\main.js:
-  Line 24:     if (Array.isArray(window.dataLayer)) { window.dataLayer.push(payload); }
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e839-2.md:
-  Line 6721: 144: sú už napojené na `dataLayer`.
-
-  Line 9784: What about tracking events (dataLayer)? Existing track() calls - keep.
-
-  Line 10254: 24:     if (Array.isArray(window.dataLayer)) { window.dataLayer.push(payload); }
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e7b5.md:
-  Line 569: - Upozornenie na rizika
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e78e.md:
-  Line 109: ## 6. Upozornenie na riziká
-
-  Line 1313: 24:     if (Array.isArray(window.dataLayer)) { window.dataLayer.push(payload); }
-
-  Line 1814: 292:     if (window.dataLayer) window.dataLayer.push({ event: "report_view" });
-
-  Line 2505: 55: Udalosti (`assets/js/main.js`, volají `window.etfTrack` → `dataLayer` + Vercel Analytics `va('track')`):
-
-  Line 2594: 144: sú už napojené na `dataLayer`.
-
-  Line 2719:   Line 292:     if (window.dataLayer) window.dataLayer.push({ event: "report_view" });
-
-  Line 4096:   "content": "<!DOCTYPE html>\n<html lang=\"cs\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Váš osobní report – ETF Poplatky.cz</title>\n  <meta name=\"robots\" content=\"noindex\">\n  <meta name=\"theme-color\" content=\"#0F3D2E\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>\n<body>\n\n  <header class=\"topbar\">\n    <div class=\"wrap topbar__inner\">\n      <a href=\"/\" class=\"brand\" aria-label=\"ETF Poplatky – domů\">\n        <span class=\"brand__mark\">ETF</span>\n        <span class=\"brand__name\">Poplatky.cz</span>\n      </a>\n      <nav class=\"topbar__nav\">\n        <a href=\"/\" class=\"topbar__link\">Zpět na kalkulačku</a>\n      </nav>\n    </div>\n  </header>\n\n  <main>\n    <section class=\"hero\">\n      <div class=\"wrap hero__inner\">\n        <p class=\"hero__eyebrow\"><span class=\"dot\"></span> Report je připraven &middot; odesláno na <span id=\"t-email\" class=\"strong\">váš e-mail</span></p>\n        <h1 class=\"hero__title\">Hotovo. Tady je <span class=\"accent\">vaše číslo</span>.</h1>\n        <p class=\"hero__sub\">\n          V e-mailu máte tentýž PDF report jako níže – včetně vašich výpočtů,\n          srovnání šesti ETF a checklistu prvních kroků.\n        </p>\n        <div class=\"hero__cta\">\n          <a class=\"btn btn--accent btn--lg\" id=\"t-download\" href=\"#\" hidden>Stáhnout PDF</a>\n          <a href=\"/#kalkulacka\" class=\"btn btn--ghost btn--lg\">Zpět na kalkulačku</a>\n        </div>\n      </div>\n    </section>\n\n    <section class=\"section\">\n      <div class=\"wrap\">\n        <div clas...
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\index.html:
-  Line 18:   <script defer src="/_vercel/insights/script.js"></script>
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md:
-  Line 50: > **Upozornenie (aktuálny stav):** kód posiela eventy do `window.dataLayer` a `window.va('track')`, ale stránka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez týchto skriptov sa eventy v produkcii **nikam neodosielajú** – na localhoste ich uvidíte len v konzole (`console.debug`). Pre reálne meranie treba dohodiť skript Vercel Analytics a/alebo GTM.
-
-  Line 135: Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) volá `window.etfTrack()`; do `dataLayer`/Vercel Analytics sa reálne dostanú až po pridaní príslušných skriptov (viď §3).
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\session-ses_e839-2.md:
-  Line 6721: 144: sú už napojené na `dataLayer`.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\thank-you.html:
-  Line 13:   <script defer src="/_vercel/insights/script.js"></script>
-
-  Line 112:     if (window.dataLayer) window.dataLayer.push({ event: "report_view" });
-
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 5.1s)
-
-_Thinking:_
-
-The README still has the old text. Let me read the exact line and update it. Also update line 135.
-
-README ešte stále má starý text – opravím ho.
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "limit": 5,
-  "offset": 48
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md</path>
-<type>file</type>
-<content>
-48: Udalosti (`assets/js/main.js` → `window.etfTrack`; `report_view` priamo v `thank-you.html`):
-49: 
-50: > **Upozornenie (aktuálny stav):** kód posiela eventy do `window.dataLayer` a `window.va('track')`, ale stránka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez týchto skriptov sa eventy v produkcii **nikam neodosielajú** – na localhoste ich uvidíte len v konzole (`console.debug`). Pre reálne meranie treba dohodiť skript Vercel Analytics a/alebo GTM.
-51: 
-52: | Event | Kedy | Čo meria |
-
-(Showing lines 48-52 of 283. Use offset=53 to continue.)
-</content>
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 10.1s)
-
-_Thinking:_
-
-The edit failed earlier - maybe special characters issue. Let me try with exact content from the file. Looking at line 50 carefully - maybe the quotes are special characters. Let me try replaceAll with a shorter unique string.
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) je vložený v `index.html` a `thank-you.html`. Custom eventy z `window.etfTrack()` idú cez `window.va('track')` – treba mať Web Analytics **zapnuté** vo Vercel dashing (Project → Web Analytics). `dataLayer` (GTM) stránka stále neinicializuje; bez GTM kontajneru sa eventy do `dataLayer` neposielajú. Na localhoste sa eventy logujú len do konzole (`console.debug`).",
-  "oldString": "> **Upozornenie (aktuálny stav):** kód posiela eventy do `window.dataLayer` a `window.va('track')`, ale stránka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez týchto skriptov sa eventy v produkcií **nikam neodosielajú** – na localhoste ich uvidíte len v konzole (`console.debug`). Pre reálne meranie treba dohodiť skript Vercel Analytics a/alebo GTM."
-}
-```
-
-**Error:**
-```
-Could not find oldString in the file. It must match exactly, including whitespace, indentation, and line endings.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 8.2s)
-
-_Thinking:_
-
-There might be special characters - like "produkcií" vs "produkcií" - the grep showed "produkcií" with í. Let me read the raw bytes or use a smaller unique string.
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "$line = (Get-Content -Path \"README.md\" -TotalCount 50)[-1]; $line | Format-Hex | Select-Object -First 5; Write-Host \"---\"; Write-Host $line",
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
-
-
-           00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
-
-00000000   3E 20 2A 2A 55 70 6F 7A 6F 72 6E 65 6E 69 65 20  > **Upozornenie 
-00000010   28 61 6B 74 75 3F 3F 6C 6E 79 20 73 74 61 76 29  (aktu??lny stav)
-00000020   3A 2A 2A 20 6B 3F 3F 64 20 70 6F 73 69 65 6C 61  :** k??d posiela
-00000030   20 65 76 65 6E 74 79 20 64 6F 20 60 77 69 6E 64   eventy do `wind
-00000040   6F 77 2E 64 61 74 61 4C 61 79 65 72 60 20 61 20  ow.dataLayer` a 
-00000050   60 77 69 6E 64 6F 77 2E 76 61 28 27 74 72 61 63  `window.va('trac
-00000060   6B 27 29 60 2C 20 61 6C 65 20 73 74 72 3F 3F 6E  k')`, ale str??n
-00000070   6B 61 20 2A 2A 6E 65 69 6E 69 63 69 61 6C 69 7A  ka **neinicializ
-00000080   75 6A 65 20 47 54 4D 20 61 6E 69 20 73 6B 72 69  uje GTM ani skri
-00000090   70 74 20 56 65 72 63 65 6C 20 41 6E 61 6C 79 74  pt Vercel Analyt
-000000A0   69 63 73 2A 2A 20 28 60 2F 5F 76 65 72 63 65 6C  ics** (`/_vercel
-000000B0   2F 69 6E 73 69 67 68 74 73 2F 73 63 72 69 70 74  /insights/script
-000000C0   2E 6A 73 60 29 2E 20 42 65 7A 20 74 3F 3F 63 68  .js`). Bez t??ch
-000000D0   74 6F 20 73 6B 72 69 70 74 6F 76 20 73 61 20 65  to skriptov sa e
-000000E0   76 65 6E 74 79 20 76 20 70 72 6F 64 75 6B 63 69  venty v produkci
-000000F0   69 20 2A 2A 6E 69 6B 61 6D 20 6E 65 6F 64 6F 73  i **nikam neodos
-00000100   69 65 6C 61 6A 3F 3F 2A 2A 20 3F 3F 3F 20 6E 61  ielaj??** ??? na
-00000110   20 6C 6F 63 61 6C 68 6F 73 74 65 20 69 63 68 20   localhoste ich 
-00000120   75 76 69 64 3F 3F 74 65 20 6C 65 6E 20 76 20 6B  uvid??te len v k
-00000130   6F 6E 7A 6F 6C 65 20 28 60 63 6F 6E 73 6F 6C 65  onzole (`console
-00000140   2E 64 65 62 75 67 60 29 2E 20 50 72 65 20 72 65  .debug`). Pre re
-00000150   3F 3F 6C 6E 65 20 6D 65 72 61 6E 69 65 20 74 72  ??lne meranie tr
-00000160   65 62 61 20 64 6F 68 6F 64 69 3F 3F 20 73 6B 72  eba dohodi?? skr
-00000170   69 70 74 20 56 65 72 63 65 6C 20 41 6E 61 6C 79  ipt Vercel Analy
-00000180   74 69 63 73 20 61 2F 61 6C 65 62 6F 20 47 54 4D  tics a/alebo GTM
-00000190   2E                                               .               
----
-> **Upozornenie (aktu��lny stav):** kƈd posiela eventy do `window.dataLayer` a `window.va('track')`, ale str��nka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez t��chto skriptov sa eventy v produkcii **nikam neodosielajƭ** �?" na localhoste ich uvid��te len v konzole (`console.debug`). Pre re��lne meranie treba dohodi�� skript Vercel Analytics a/alebo GTM.
-
-
-
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 19.4s)
-
-_Thinking:_
-
-The issue is encoding - the file is likely UTF-8 but PowerShell is reading it with wrong encoding. The `?` in hex dump are actually multi-byte UTF-8 sequences. Let me use the Read tool content which showed proper text, and try edit with exact string from Read tool. Looking at the Read output:
-
-```
-50: > **Upozornenie (aktuálny stav):** kód posiela eventy do `window.dataLayer` a `window.va('track')`, ale stránka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez týchto skriptov sa eventy v produkcii **nikam neodosielajú** – na localhoste ich uvidíte len v konzole (`console.debug`). Pre reálne meranie treba dohodiť skript Vercel Analytics a/alebo GTM.
-```
-
-Wait - the grep earlier showed "produkcií" with í, but Read shows "produkcií" with í as well. Looking at my first failed edit, I had "produkcií" - let me compare more carefully.
-
-Actually the issue might be the en-dash `–` character. Let me try a smaller unique substring for replace, or use PowerShell to replace the whole line.
-
-File má inú enkódovaciu/medzeru – použijem PowerShell na nahradenie celého riadku.
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "$lines = [System.IO.File]::ReadAllLines(\"README.md\", [System.Text.Encoding]::UTF8)\n$new = '> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) je vložený v `index.html` a `thank-you.html`. Custom eventy z `window.etfTrack()` idú cez `window.va(''track'')` – treba mať Web Analytics **zapnuté** vo Vercel dashing (Project → Web Analytics). `dataLayer` (GTM) stránka stále neinicializuje; bez GTM kontajneru sa eventy do `dataLayer` neposielajú. Na localhoste sa eventy logujú len do konzole (`console.debug`).'\n$lines[49] = $new\n[System.IO.File]::WriteAllLines(\"README.md\", $lines, (New-Object System.Text.UTF8Encoding($false)))\nWrite-Host \"OK line 50 updated\"\nWrite-Host $lines[49]",
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
-OK line 50 updated
-> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) je vlo�en� v `index.html` a `thank-you.html`. Custom eventy z `window.etfTrack()` id� cez `window.va('track')` - treba ma� Web Analytics **zapnut�** vo Vercel dashing (Project  Web Analytics). `dataLayer` (GTM) str�nka st�le neinicializuje; bez GTM kontajneru sa eventy do `dataLayer` neposielaj�. Na localhoste sa eventy loguj� len do konzole (`console.debug`).
-
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 6.8s)
-
-_Thinking:_
-
-The line was updated. Let me also fix the other reference on line 135 about analytics, and verify the file looks good. Also need to check if there are issues with encoding from the PowerShell write - the WriteAllLines with UTF8Encoding($false) should be fine, the garbled output is just console display.
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "limit": 3,
-  "offset": 50
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md</path>
-<type>file</type>
-<content>
-50: > **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) je vložený v `index.html` a `thank-you.html`. Custom eventy z `window.etfTrack()` idú cez `window.va('track')` – treba mať Web Analytics **zapnuté** vo Vercel dashing (Project → Web Analytics). `dataLayer` (GTM) stránka stále neinicializuje; bez GTM kontajneru sa eventy do `dataLayer` neposielajú. Na localhoste sa eventy logujú len do konzole (`console.debug`).
-51: 
-52: | Event | Kedy | Čo meria |
-
-(Showing lines 50-52 of 283. Use offset=53 to continue.)
-</content>
-```
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "limit": 3,
-  "offset": 135
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md</path>
-<type>file</type>
-<content>
-135: Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) volá `window.etfTrack()`; do `dataLayer`/Vercel Analytics sa reálne dostanú až po pridaní príslušných skriptov (viď §3).
-136: 
-137: ---
-
-(Showing lines 135-137 of 283. Use offset=138 to continue.)
-</content>
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 9.5s)
-
-_Thinking:_
-
-Fix line 135 too.
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) volá `window.etfTrack()`; do Vercel Analytics sa reálne dostanú cez `window.va('track')` (skript je vložený, treba zapnutý Web Analytics, viď §3).",
-  "oldString": "Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) volá `window.etfTrack()`; do `dataLayer`/Vercel Analytics sa reálne dostanú až po pridaní príslušných skriptov (viď §3)."
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 5.4s)
-
-_Thinking:_
-
-Done. Skript je pridaný do index.html a thank-you.html, README je aktualizovaný. Súhrn.
-
-Skript Vercel Analytics je pridaný a README aktualizovaný.
-
----
-
-## User
-
-je ešte niečo, čo treba v readme opraviť?
-ako otestovať necommitnuté zmeny?
-aký komentár dať commitu?
-ODPOVEDZ JASNE A HLAVNE STRUČNE!
-
----
-
-## Assistant (Plan · MiMo-V2.6-Flash Free · 9.2s)
-
-_Thinking:_
-
-The user asks three questions in Slovak:
-1. Is there anything else in README that needs fixing?
-2. How to test uncommitted changes?
-3. What commit message to use?
-
-I need to check the README quickly (read-only) and answer concisely. Let me scan README for remaining issues.
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md"
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md</path>
-<type>file</type>
-<content>
-1: # ETF Clientelo – konverzná landing page (Zadanie B)
-2: 
-3: Lead magnet pre českého drobného investora: porovnanie 6 ETF obchodovaných na NYSE
-4: (VOO, IVV, SPY, QQQ, VTI, SCHD) + kalkulačka dopadu poplatkov. Návštevník dostáva
-5: osobný report výměnou za e-mail.
-6: 
-7: **Stack:** čisté HTML + CSS + vanilla JS, bez build kroku. Nasadenie: Vercel
-8: (statické súbory + serverless funkcie `api/lead.js`).
-9: 
-10: ---
-11: 
-12: ## 1. Cieľová skupina a mechanika konverzie
-13: 
-14: | Otázka | Odpoveď |
-15: |---|---|
-16: | Kto | Čech/Češka 25–45 rokov, mobil, začiatočník/pokročilý, mesačne odkladá, zvažuje brokera (Fio, Trading 212, DEGIRO, Portu), bojí sa poplatkov a dane z dividend |
-17: | Odkiaľ | Meta / Google Ads, studený traffic, ~5 s pozornosti |
-18: | Čo dostanete výmenou | **Osobný report**: vlastný prepočet straty na poplatkoch (číslo z kalkulačky) + rozbor 6 ETF + checklist prvých krokov (W-8BEN, broker, prvý nákup) |
-19: | Kedy žiadame kontakt | Až po voľne prístupných prvkoch – porovnávacia tabuľka, grafy a kalkulačky. Formulár je logický ďalší krok, nie skok |
-20: | Polia formulára | **1 pole (e-mail)** + GDPR checkbox + honeypot |
-21: | Čo nasleduje po odoslaní | okamžitá `thank-you.html?id=…` zobrazujúca PDF zhodné s prílohou e-mailu. Do Redis sa ukladá **len model** vstupov; PDF sa z neho vygeneruje znova cez `/api/report`. |
-22: 
-23: Hodnota je zrejmá pred vyplnením: tabuľka i kalkulačka sú funkčné bez e-mailu. E-mail je potrebný na uloženie/odoslanie reportu.
-24: 
-25: ---
-26: 
-27: ## 2. Dôvod poradia sekcií
-28: 
-29: Návštevník prichádza z mobilu na 5 sekúnd = rozhoduje prvá obrazovka a jeden sľub.
-30: 
-31: 1. **Hero (1. obrazovka)** – zrkadlo reklamy (message match). Číselný hák „235 000 Kč" (vypočítané, viz §5) + jasný prísľub „spočítajte si to za 30 sekúnd". Dve CTA: primárna vedie na kalkulačku (okamžitá hodnota), sekundárna na tabuľku. Úmyselne **nevedie priamo na formulár** – studený návštevník nie je pripravený dať e-mail.
-32: 2. **Tri fakty** – rýchle „bolesti" číslami so zdrojmi (0,03 % vs 0,41 %; 3× dráž SPY; daň 15 % vs 30 %). Dôvera cez zdroje, nie cez logá klientov, ktoré nemáme.
-33: 3. **Porovnávacia tabuľka (voľná)** – prvá skutočná hodnota. Návštevník si odnáša odpoveď bez registrácie → dôvera → ochota pokračovať.
-34: 4. **Grafy (voľné)** – historický vývoj VOO + modelový dopad poplatkov (sekcia `#grafy`).
-35: 5. **Kalkulačka dane z dividend / W-8BEN (voľná)** – sekcia `#dan`.
-36: 6. **Kalkulačka portfólia (voľná)** – sekcia `#portfolio`.
-37: 7. **Kalkulačka poplatkov (voľná, interaktívna)** – emocionálny motor: osobné číslo. Tu sa mení správanie z „zaujímavé" na „to sa týka mňa".
-38: 8. **Formulár** – žiadosť o kontakt v momente, keď návštevník vidí svoju stratu.
-39: 9. **Ako to funguje (3 kroky)** – odstraňuje strach zo záväzku a z „predaja".
-40: 10. **FAQ** – posledné námietky (dane, broker, „nie je to odporúčanie") až po formulári, pretože ľudia čítajú FAQ skôr po rozhodnutí než pred ním.
-41: 11. **Záverečné CTA** – pre tých, čo prešli celú stránku.
-42: 12. **Sticky mobilná lišta** – po opustení hero je CTA neustále na dosah palca; zmizne vnútri sekcie formulára, aby neprekážala.
-43: 
-44: ---
-45: 
-46: ## 3. Meranie celej cesty
-47: 
-48: Udalosti (`assets/js/main.js` → `window.etfTrack`; `report_view` priamo v `thank-you.html`):
-49: 
-50: > **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) je vložený v `index.html` a `thank-you.html`. Custom eventy z `window.etfTrack()` idú cez `window.va('track')` – treba mať Web Analytics **zapnuté** vo Vercel dashing (Project → Web Analytics). `dataLayer` (GTM) stránka stále neinicializuje; bez GTM kontajneru sa eventy do `dataLayer` neposielajú. Na localhoste sa eventy logujú len do konzole (`console.debug`).
-51: 
-52: | Event | Kedy | Čo meria |
-53: |---|---|---|
-54: | `page_view` | načítanie | 100 % návštev |
-55: | `cta_click` (hero / tabuľka / kalkulačka / sticky / finálny) | kliknutie na CTA | záujem o pokračovanie |
-56: | `table_sort` | triedenie tabuľky | zapojenie do obsahu |
-57: | `calc_change` | zmena fondu v kalkulačke | osobné zapojenie |
-58: | `form_view` | formulár vo viewportu 40 % | dosiahnutie zóny konverzie |
-59: | `form_error` | nevalidný e-mail / súhlas / sieť | kde sa stratia leady |
-60: | `form_submit` | úspešné odoslanie | **konverzia** |
-61: | `report_view` | zobrazenie thank-you | dokončenie cesty |
-62: 
-63: **Atribúcia:** UTM parametre z URL sa ukladajú do `localStorage`
-64: (`etf_utm`) a odosielajú sa spolu s leadom. V logu Vercel funkcie `[lead]`
-65: vidíte `email + utm` a **boolean prítomnosti sekcií**
-66: (`sections: {calc: true/false, portfolio: …, tax: …}`) – nie konkrétne vstupy
-67: kalkulačky (tie sú len v uloženom modeli v Redis). Cesta **teda** v kóde je
-68: úplná: **reklama → príchod → interakcia → formulár → odoslanie → report**,
-69: každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte
-70: napojiť (viď vyššie).
-71: 
-72: **Hypotéza (očakávanie na 100 návštev):** 100 page_view → 35–45 `form_view`
-73: → 8–12 `form_submit`. Overuje sa (až po zapnutí analytiky) v dashboarde +
-74: filtrovaním `[lead]` logov funkcie `api/lead`.
-75: 
-76: ---
-77: 
-78: ## 4. Očakávaná konverzia
-79: 
-80: **8–12 % lead CVR** (form_submit / unique page_view) na studenom mobilnom trafficu.
-81: 
-82: - dôvod optimizmu: lead magnet je číselne personalizovaný, formulár má 1 pole, hodnota je viditeľná pred formulárom, sticky CTA
-83: - dôvod opatrnosti: studený traffic, mobil, dôvera k finančnému obsahu
-84: - medzikroky: CTR z reklamy na stránku očakávame 1,2–2 %, bounce < 55 %, `form_view` rate 35–45 % z page_view
-85: 
-86: ---
-87: 
-88: ## 5. Reálne dáta a zdroje
-89: 
-90: | Údaj | Hodnota | Zdroj (overené 10/2026) |
-91: |---|---|---|
-92: | TER VOO | 0,03 % | Vanguard fact sheet, 30. 9. 2026 |
-93: | TER IVV | 0,03 % | iShares summary prospectus, 31. 7. 2026 |
-94: | TER SPY | 0,0945 % | State Street product listing, 9. 7. 2026 |
-95: | TER QQQ | 0,18 % | invesco.com (Invesco QQQ) |
-96: | TER VTI | 0,03 % | Vanguard fact sheet, 30. 9. 2026 |
-97: | TER SCHD | 0,060 % | schwabassetmanagement.com, 23. 10. 2026 |
-98: | Priemerný indexových fondov S&P 500 | 0,41 % | Vanguard fact sheet (31. 12. 2025) |
-99: | Výnos S&P 500 | ≈ 10 % p.a. od 1957 | Fidelity (2026); Damodaran, NYU Stern: 10,02 % 1928–2025 |
-100: | Daň z dividend USA | 30 % → 15 % s W-8BEN | Zmluva ČR–USA č. 32/1994 z.z., čl. 10 (MF ČR / IRS) |
-101: 
-102: **Výpočet hero čísla (235 000 Kč):** východiskový scénár kalkulačky
-103: 100 000 Kč vklad + 3 000 Kč/mesiac × 25 rokov, hrubý výnos 8 % p.a.,
-104: mesačné zložené úročenie. Rozdiel konečnej hodnoty pri TER 0,41 % vs 0,03 %
-105: = **234 728 Kč** (zaokruhlené). Kalkulačka používa rovnakú metódu
-106: (`assets/js/calculator.js`, funkcia `futureValue`).
-107: 
-108: ---
-109: 
-110: ## 6. Dve verzie reklamy
-111: 
-112: > Hero stránky je vyladený na **verzii A** (message match). Pri spustení verzie B upravte H1 + sub v `index.html` a `og:title` (hypotéza A/B č. 1).
-113: 
-114: ### Verzia A – strata (východisková, aktuálne nasadená)
-115: - **Headline (H1 v `index.html`):** Vaše ETF vás může připravit o 235 000 Kč. Aniž byste to zjistili.
-116: - **Sub:** Stejná indexová sledka, dva fondy, rozdílný poplatek. Porovnejte 6 ETF obchodovaných na NYSE a spočítejte si dopad poplatků na vaše peníze. Zabere to 30 sekund.
-117: - **CTA:** Spočítat moje ztracené peníze (primárna) + Rovnou porovnat ETF (sekundárna)
-118: 
-119: ### Verzia B – jednoduchosť
-120: - **Headline:** První kroky s ETF bez zbytečných poplatků: osobní report + checklist.
-121: - **Text:** Nevíte, který broker si vybrat? Porovnali sme 6 fondů na NYSE, přepočitali dopad poplatků a připravili checklist prvních kroků (W-8BEN, broker, první nákup). Zadejte e-mail a dostanete osobní report.
-122: 
-123: - **CTA:** Zjistit více
-124: 
-125: ---
-126: 
-127: ## 7. A/B hypotézy (zoradené podľa očakávaného dopadu)
-128: 
-129: | # | Hypotéza | Varianta A (kontrola) vs. B | Prečo práve toto poradie | Metrika |
-130: |---|---|---|---|---|
-131: | **1** | Číselný hook v hero poráža všeobecný headline | „Vaše ETF vás může připravit o 235 000 Kč" vs. „Srovnání ETF pro českého investora" | Headline je jediný text, ktorý studený mobilný návštevník stihne prečítať; ovplyvňuje bounce aj všetky ďalšie kroky naraz = najväčší multiplikátor | bounce rate + CTR z hero (30 sekúnd) |
-132: | **2** | Formulár s 1 poľom konvertuje viac ako e-mail + meno | len e-mail vs. e-mail + meno (meno zvyšuje personalizáciu e-mailu) | priamy vplyv na hlavnú metriku, nízke riziko, ľahko testovateľné | form_submit / form_view |
-133: | **3** | Voľná kalkulačka + formulár pod ňou poráža gate za e-mailom | výsledok viditeľný okamžite vs. výsledok až po zadaní e-mailu | gate môže zdvihnúť konverzný pomer, ale zabiť dôveru a zdieľanie – preto až tretí, vyššie riziko | form_submit / page_view; sekundárne bounce |
-134: 
-135: Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) volá `window.etfTrack()`; do Vercel Analytics sa reálne dostanú cez `window.va('track')` (skript je vložený, treba zapnutý Web Analytics, viď §3).
-136: 
-137: ---
-138: 
-139: ## 8. Spustenie (deploy na Vercel)
-140: 
-141: ### 1) Resend kľúč (e-maily)
-142: 1. Účet zdarma na <https://resend.com> (3 000 e-mailov/mesiac, 100/deň).
-143: 2. V dashboarde → **API Keys** → vytvoriť kľúč, skopírovať.
-144: 3. Overiť odosielateľa: bez vlastnej domény funguje len
-145:    `ETF Clientelo <onboarding@resend.dev>` na váš vlastný overený e-mail
-146:    (vo free pláne stačí). Pred reálnou kampaňou pridajte vlastnú doménu
-147:    (SPF/DKIM) a nastavte `RESEND_FROM`.
-148: 
-149: ### 2) Deploy
-150: ```bash
-151: # z tohoto adresára
-152: npx vercel          # prvýkrát – prihlásenie + výber projektu (Hobby, zdarma)
-153: npx vercel --prod   # produkcia
-154: ```
-155: alebo: nahrajte repo ako projekt na vercel.com (framework: Other, build command: prázdny, output: prázdny – statické soubory sa nasadia samé).
-156: 
-157: ### 3) Premenné prostredia (Project → Settings → Environment Variables)
-158: | Variable | Hodnota |
-159: |---|---|
-160: | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady ukladajú do Redis a vracia sa `mode: "log_only"`, e-mail sa nepošle) |
-161: | `RESEND_FROM` | napr. `ETF Clientelo <report@clientelo.cz>` (voliteľné) |
-162: | `REPLY_TO` | e-mail na odpovede (voliteľné) |
-163: | `UPSTASH_REDIS_REST_URL` | REST URL z Upstash (**potrebné pre fungujúci flow** – bez neho endpoint vracia `503 db_not_configured` a formulár pre používateľa zlyhá) |
-164: | `UPSTASH_REDIS_REST_TOKEN` | REST token z Upstash (rovnako potrebné) |
-165: | `UNSUBSCRIBE_SECRET` | voliteľné – podpis odkazov na odhlásenie v e-mailoch (bez neho sa použije `RESEND_API_KEY`) |
-166: 
-167: **Bez `RESEND_API_KEY`** (s nakonfigurovaným Redis) endpoint vracia `200` a loguje `mode: "log_only"` – lead je uložený, reportId vrátené, e-mail neodíde.
-168: **Bez `UPSTASH_*`** endpoint vracia `503` s telom `{ "error": "db_not_configured" }` – konverzný flow **nefunguje**.
-169: 
-170: ### Odhlásenie (unsubscribe)
-171: Každý odoslaný e-mail obsahuje odkaz `/api/unsubscribe?token=…` (HMAC-podpísaný e-mail) a hlavičky
-172: `List-Unsubscribe` + `List-Unsubscribe-Post` (one-click, RFC 8058). Kliknutie alebo POST z e-mailového
-173: klienta zmaže lead z Redis (`newsletter:lead:<email>` + `newsletter:emails`). Odpoveď slovom
-174: `ODHLASIT` ostáva ako manuálny fallback (spracuje sa ručne cez REPLY_TO). Endpoint vracia
-175: `400` bez tokenu, `401` pri zlom podpise, `503` bez Redis.
-176: 
-177: ### Upstash Redis (databáza leadov)
-178: 1. Účet zdarma na <https://upstash.com> → **Create database** (free tier).
-179: 2. V sekcii **REST API** skopírovať `UPSTASH_REDIS_REST_URL` a `UPSTASH_REDIS_REST_TOKEN`.
-180: 3. Pridať ako environment variables (vyššie) a redeploy.
-181: 
-182: Lead sa uloží **iba keď používateľ zaškrtol súhlas** (overené aj serverom –
-183: bez `consent: true` vracia endpoint `422 consent_required` a neuloží nič).
-184: Každý záznam obsahuje e-mail, čas súhlasu, IP, UTM, stránku a referrer
-185: (klúč `newsletter:lead:<email>` + index `newsletter:emails`). Bez premenných
-186: (`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`) endpoint vracia HTTP 503
-187: s telom `{ "error": "db_not_configured" }`.
-188: 
-189: ### 4) Overenie
-190: - `POST /api/lead` s validným telom a nakonfigurovaným Redis → `{"ok":true, "stored":true, "reportId":"…"}` (bez Redis → `503 db_not_configured`)
-191: - odoslanie formulára → presmerovanie na `/thank-you.html?id=…`
-192: - v dashboarde Vercel → Deployments → fungovanie → Logs → riadky `[lead]`
-193:   s `email + utm + sections` (boolean, nie hodnoty kalkulačky)
-194: 
-195: ### Lokálny vývoj
-196: ```bash
-197: npm test             # testy modelu, PDF a endpointov (bez siete)
-198: npx serve .          # IBA statický náhľad – formulár sa lokálne NEODOŠLE
-199:                      # (žiadne /api), zobrazí sa jasná chybová hláška
-200: npx vercel dev       # plný beh vrátane /api/lead a /api/report
-201:                      # (vyžaduje vercel login + UPSTASH env premenné;
-202:                      #  RESEND voliteľný – bez neho log_only)
-203: ```
-204: 
-205: Celý flow (odoslanie → uložený model → regenerované PDF → zobrazenie v `thank-you.html?id=…` → e-mail) funguje až v prostredí, ktoré má serverless funkcie – teda na Vercel deployi, alebo lokálne cez `npx vercel dev`. PDF sa neukladá do Redis trvalo; ukladá sa len model (vstupy kalkulačky/portfóla/dane) a PDF sa z neho vygeneruje znova pri každom načítaní `thank-you.html?id=…` cez endpoint `/api/report`. E-mail dostane PDF ako prílohu priamo počas odosielania formulára.
-206: 
-207: ---
-208: 
-209: ## 9. Štruktúra súborov
-210: 
-211: ```
-212: index.html            – landing page (hero → fakta → tabulka → grafy → daň →
-213:                         portfolio → kalkulačka → formulár → FAQ → finální CTA)
-214: thank-you.html        – stránka s reportom (iframe cez /api/report?id=…)
-215: soukromi.html         – zásady ochrany osobních údajů (vrátane zoznamu
-216:                         spracovateľov: Resend, Upstash, Vercel)
-217: assets/css/style.css  – dizajn (editorial fintech, mobil-first)
-218: assets/data/          – statické dáta (napr. voo-history.json pre graf)
-219: assets/js/main.js     – UTM, eventy, sticky lišta, odoslanie formulára (presmerovanie na ?id=)
-220: assets/js/table.js    – porovnávacia tabuľka (radenie, dáta + zdroje)
-221: assets/js/calculator.js – výpočet erózie poplatkov (8 % p.a., mesačné zložené úročenie)
-222: assets/js/portfolio.js – kalkulačka váh portfólia
-223: assets/js/tax-calculator.js – kalkulačka dane z dividend (W-8BEN)
-224: assets/js/charts.js   – grafy (cena VOO + modelový dopad poplatkov)
-225: lib/report.js          – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu
-226: lib/report-pdf.js      – PDF generátor (pdfkit + DejaVu, česká diakritika)
-227: lib/store.js           – ukladanie/načítanie **modelov** reportov v Upstash Redis
-228:                         (kľúč report:<id>, TTL 30 dní; PDF sa neukladá)
-229: api/lead.js            – serverless endpoint: validácia → uloženie leadu → 1 PDF
-230:                         (len na prílohu e-mailu) → model do Redis → Resend → reportId
-231: api/report.js          – servírovanie PDF vygenerovaného z uloženého modelu
-232:                         (zhodný obsah ako e-mailová príloha)
-233: api/unsubscribe.js     – one-click odhlásenie (GET/POST ?token=, List-Unsubscribe)
-234: lib/unsubscribe.js     – HMAC podpis/overenie tokenu + zmazanie leadu z Redis
-235: scripts/fetch-voo.cjs  – načítanie histórie cien VOO do assets/data
-236: tests/                 – node --test (model, PDF, endpointy, regenerácia PDF
-237:                          z modelu, validácia vstupov)
-238: .env.example           – popis premenných
-239: ```
-240: 
-241: ## 10. Právne / compliance
-242: - Disclaimer na stránke i v pätičke: nie je investičné poradenstvo.
-243: - GDPR: účel spracovania = e-mail na zaslanie reportu (+ súvisiace tipy), súhlas
-244:   checkboxom, odhlásenie odkazom v e-maile (one-click) alebo odpoveďou „ODHLASIT"
-245:   (manuálny fallback).
-246:   **Spracovatelia (tretie strany):** Resend (odosielanie), Upstash Redis
-247:   (ukladanie: e-mail, čas súhlasu, IP, UTM, stránka, referrer), Vercel
-248:   (hosting + serverless), Google Fonts (písma). Zoznam je aj v
-249:   `soukromi.html` – tvrdenie „žiadne tretie strany" by bolo nepravdivé.
-250: - Všetky čísla so zdrojom; výnosný predpoklad 8 % p.a. je zrejmý pri kalkulačke.
-251: 
-252: ## 11. Práca s AI agentmi
-253: 
-254: ### Ako som dával pokyny agentom
-255: 
-256: - **Rozdelenie dlhých zadaní** – ak to bolo potrebné, zadania som rozdelil na kroky. Najkomplexnejšie úlohy som nechával analyzovať ChatGPT, ktorý vedel vytvoriť prompty pre tieto úlohy pre iných AI agentov, príp. ich rozdeliť na menšie časti.
-257: - **Presné a štruktúrované zadania** – buď som rozdelil zadania, ako opísané v predchádzajúcom bode, alebo som sa snažil odovzdávať agentom pokyny tak, aby riešili len jednu jednoduchú opravu, kým danú vec neurobili. 
-258: - **Overenie pred ukončením** – niekedy som požiadal aj samotného AI agenta o overenie výstupu, no implementované funkcie som otestoval aj manuálne.
-259: 
-260: ### Ako som kontroloval výstup
-261: 
-262: Výstup AI agentov som kontroloval manuálne tak, že som zadal agentovi napr. jednu väčšiu, alebo 2-3 menšie funkcie, ktoré mal implementovať, a ktoré som potom otestoval. Ak išlo len o vizuálne opravy, kontrola bola jednoduchá a okamžitá. Po tom, čo už bol funkčný e-mailový formulár, som už ale testoval funkcie až po commite/deployi, keďže mi na localhoste nefungovalo odosielanie e-mailov.
-263: 
-264: Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi som to oznámil a povedal mu, aby to opravil. To som robil dovtedy, kým daná funkcia nebola správne naprogrovaná. Raz sa ale stalo aj to, že som musel zmeniť samotný nástroj na AI (z KiloCode na OpenCode), lebo KiloCode sa zasekol a odmietol naprogramovať danú funkciu.
-265: 
-266: ### Kde sa agenti pomýlili
-267: 
-268: | Chyba | Kontext | Ako som to opravil |
-269: |---|---|---|
-270: | **Miešanie češtiny a slovenčiny** | UI texty v kóde boli česko-slovensky | Preložil som texty do češtiny. |
-271: | **HTML nesting bug – skrytá celá stránka** | V `ses_e839` bolo otvorené `<section id="dan" hidden>` bez uzatváracieho tagu, čo schovalo celý obsah pod ním (kalkulačka, portfólio, tabuľka atď.) | Odstránil som zatváraciu zatvorku a nechal sekcie viditeľné |
-272: | **PDF text zarovnaný vpravo (checklist)** | Predchádzajúca inštrukcia nechala kurzor na pravej strane suboru, takže checklist bol v úzkej pravej štvrtine | Opravené – pridané `doc.x = PAGE_MARGIN` na začiatok `sectionTitle()` (`lib/report-pdf.js:64`), takže každý nadpis sekcie (vrátane checklistu) začína na ľavom okraji ako ostatné prvky; posledná oprava fungovala |
-273: | **Dva nezávislé PDF generátory** | V `ses_e78e` existovali dva rozdielne PDF generátory, jeden pre PDF na stránke, druhý pre PDF v e-maili, každý s vlastnou štruktúrou dát. | Generátory som zjednotil do jedného, ktorý generuje jedno spoločné PDF. |
-274: | **Tlačidlo W-8BEN neposúvalo na sekciu e-mailu** | Opravované viacnásobne, bez výsledku | Nakoniec som danú časť nechal AI zmazať a urobiť nanovo |
-275: | **E-mailový formulár sa nedalo odoslať na localhoste** | Endpoint `/api/lead` nie je dostupný bez Vercela | Testoval som až po commite/deployi, ako je uvedené na začiatku tejto časti |
-276: | **Nefungujúce odosielanie e-mailov po prerobení DB** | Po tom, čo som implementoval pomocou AI to, aby sa už base64 PDF súbora neukladalo do databázy, sa prestali odosielať e-maily | deklarovanú konštantu sme presunuli mimo try block, keďže to spôsobovalo chybu pri pokuse o odoslanie prílohy.
-277: 
-278: ## 12. Možnosti pokračovania vývoja
-279: 
-280: - doplniť logiku, ktorá podľa `?v=A`/`?v=B` bude vedieť urobiť A/B testovanie,
-281: - vylepšiť dizajn stránky tak, aby vyzeral profesionálnejšie (napr. pridaním ilustračných obrázkov)
-282: - rozdelenie obsahu hlavnej stránky na podstránky
-283: - pridanie ďalších investičných kalkulačiek a nástrojov
-
-(End of file - total 283 lines)
-</content>
-```
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "git -C . status --short 2>&1; Write-Host \"---\"; git -C . log --oneline -5 2>&1",
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
- M .env.example
- M README.md
- M ai-log/session-ses_e7b5.md
- M api/lead.js
- M index.html
- D test-list2.mjs
- M tests/api.test.js
- M thank-you.html
-?? api/unsubscribe.js
-?? lib/unsubscribe.js
-?? soukromi.html
-?? tests/unsubscribe.test.js
----
-12844ba pdf fix - nechodilo emailom
-d50dd42 readme + ai-log + pdf fix
-007fa7c pdfBase64 sa už neukladá do DB
-d402bd9 oprava reklamy a názvu značky
-2a3892b reklamy
-
-```
+**Updated:** 30. 10. 2026 23:41:01
 
 ---
 
@@ -6926,6 +5532,566 @@ _Thinking:_
 Done. One font (Helvetica/Arial/sans-serif) throughout. The pre monospace is gone - report text uses same font with pre-wrap.
 
 Celé HTML telo teraz používa **jeden font** (Helvetica/Arial/sans-serif) – monospace `pre` je preč, report je v tom istom fonte s `white-space: pre-wrap`.
+
+---
+
+## User
+
+vysvetli mi toto 
+Realizácia: utm_campaign (a ostatné UTM) sa zachytí z URL, uloží do localStorage (etf_utm) a pošle spolu s leadom na /api/lead.
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 17.6s)
+
+_Thinking:_
+
+The user wants me to explain what that sentence from the README means. This is just an explanation question - no edits needed.
+
+Je to **atribúcia – odkiaľ prišiel lead** (z akej reklamy).
+
+**Ako to funguje:**
+
+1. **Reklama** (Meta/Google) pridá do URL parametre, napr.:
+   ```
+   https://etf-clientelo.cz/?utm_source=meta&utm_campaign=prosinec2026
+   ```
+2. **`main.js` (`captureUtm`)** ich prečíta z `window.location.search` a pri súhlase uloží do `localStorage` (`etf_utm`), aby prežili medzi stránkami.
+3. **Pri odoslaní formulára** sa `window.etfUtm` prilepí do payloadu:
+   ```json
+   { "email": "...", "consent": true, "utm": { "utm_source": "meta", "utm_campaign": "prosinec2026" } }
+   ```
+4. **Na serveri** (`api/lead.js`) sa UTM uloží spolu s leadom do Redisu a **loguje sa** do Vercel logov:
+   ```
+   [lead] {"email":"…","utm":{"utm_source":"meta","utm_campaign":"prosinec2026"},…}
+   ```
+
+**Prečo to je užitočné:** vieš potom spočítať, koľko leadov prišlo z akej kampane (napr. Meta vs. Google, alebo konkrétny kreatív), aj keď na stránke nemáš plnú analytiku.
+
+**Poznámka:** UTM z URL sa do payloadu vždy pošlú; do `localStorage` sa ukladajú **až po súhlase** v cookie lište (ePrivacy).
+
+---
+
+## User
+
+. Meranie celej cesty
+Udalosti (assets/js/main.js → window.etfTrack):
+
+Stav merania: skript Vercel Analytics (/_vercel/insights/script.js) sa načíta až po súhlase v cookie lište (consent.js; localStorage kľúč etf_consent). Custom eventy z window.etfTrack() idú cez window.va('track') len ak je súhlas udelený a Web Analytics zapnuté vo Vercel dashboarde. UTM z URL sa pre aktuálnu návštevu použijú v lead payloade vždy; ukladanie do localStorage (etf_utm) len so súhlasom. dataLayer (GTM) stránka neinicializuje. Na localhoste sa eventy logujú len do konzole. report_view sa nemerá – thank-you.html ho pushuje len do (neinicializovaného) dataLayer a do konzole.
+
+Event	Kedy	Čo meria
+page_view	načítanie	100 % návštev
+cta_click (hero / tabuľka / kalkulačka / sticky / finálny)	kliknutie na CTA	záujem o pokračovanie
+table_sort	triedenie tabuľky	zapojenie do obsahu
+calc_change	zmena fondu v kalkulačke	osobné zapojenie
+portfolio_complete	vyplnené váhy portfólia (súčet 100 %)	dokončenie kalkulačky portfólia
+faq_open	rozbalenie otázky v FAQ	čo návštevníka zaujíma
+form_view	formulár vo viewportu 40 %	dosiahnutie zóny konverzie
+form_error	nevalidný e-mail / súhlas / sieť	kde sa stratia leady
+form_submit	úspešné odoslanie	konverzia
+report_view	zobrazenie thank-you	len lokálne v konzole – do analytiky sa neposiela
+Atribúcia: UTM parametre z URL sa ukladajú do localStorage (etf_utm) a odosielajú sa spolu s leadom. V logu Vercel funkcie [lead] vidíte email + utm a boolean prítomnosti sekcií (sections: {calc: true/false, portfolio: …, tax: …}) – nie konkrétne vstupy kalkulačky (tie sú len v uloženom modeli v Redis). Cesta teda v kóde je úplná: reklama → príchod → interakcia → formulár → odoslanie → report, každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte napojiť (viď vyššie).
+
+Hypotéza (očakávanie na 100 návštev): 100 page_view → 35–45 form_view → 8–12 form_submit. Overuje sa (až po zapnutí analytiky) v dashboarde + filtrovaním [lead] logov funkcie api/lead. 
+a toto? ako pre 15-ročného
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 21.5s)
+
+_Thinking:_
+
+The user wants me to explain this README section about measurement in a simple way, like for a 15-year-old. Plan mode is active but this is just an explanation request - no edits needed.
+
+## Meranie celej cesty – pre 15-ročného
+
+Predstav si, že predávaš limonádu a chceš vedieť, **kto prišiel, čo robil a kúpil**.
+
+### Eventy = „sledovače"
+Keď niekto urobí niečo dôležité na stránke, stránka **pošle správu** (event):
+
+| Event | Čo to znamená po slovensky |
+|---|---|
+| `page_view` | „Prišiel niekto na stránku" |
+| `cta_click` | „Klikol na tlačidlo Chcem report" |
+| `table_sort` | „Triedil tabuľku ETF" |
+| `calc_change` | „Hral sa s kalkulačkou poplatkov" |
+| `portfolio_complete` | „Dokončil skladanie portfólia (100 %)" |
+| `faq_open` | „Rozklikol otázku v FAQ" |
+| `form_view` | „Dostal sa k formuláru" |
+| `form_error` | „Nepodarilo sa mu odoslať (zlý e-mail atď.)" |
+| `form_submit` | „**Odoslal formulár = zákazník!**" |
+| `report_view` | „Otvoril stránku poďakovania" – ale to sa zatiaľ **nemeria** |
+
+### Ako sa to dostane do štatistík
+1. Kód zavolá `window.etfTrack("cta_click", …)`
+2. **Až keď klikneš „Súhlasím"** v cookie lište, načíta sa merací skript Vercel Analytics a eventy sa odošlú do Vercel dashboardu
+3. Bez súhlasu sa nič neposiela (len na localhoste to vidíš v konzoli)
+
+### UTM = „odkiaľ prišiel"
+Reklama pridá do odkazu `?utm_source=meta` – to sa pošle spolu s e-mailom, takže vieš, že ten lead prišiel z Meta reklamy, nie z Googlu.
+
+### Atribúcia + hypotéza
+V logoch Vercel funkcie vidíš e-mail + UTM + čo vyplnil (áno/nie). Cesta je kompletná v kóde, ale **pekný graf cesty v dashboarde ešte nie je**.
+
+**Očakávanie na 100 návštev:** 100 ľudí príde → 35–45 sa dostane k formuláru → 8–12 odošle.
+
+---
+
+## User
+
+a ako urobím graf v dashboarde
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 30.5s)
+
+_Thinking:_
+
+The user is asking how to create a funnel/visualization dashboard for the conversion path. This is a question about options, not necessarily asking me to implement something yet. I'm in plan mode so I should only present options and research, not implement.
+
+Let me think about the options for visualizing the conversion path:
+
+1. **Vercel Analytics (built-in)** - Has custom events, page views, but no real funnel visualization out of the box. Limited for funnel charts.
+
+2. **Vercel logs + manual analysis** - The [lead] logs already have UTM + sections. Could use Vercel log filters.
+
+3. **Simple admin page** - Build a lightweight `/admin` or `/funnel` page that reads from Redis and shows counts (page_views aren't in Redis though - only leads are).
+
+4. **Third party analytics with funnels** - Plausible, Umami, PostHog, GA4 - but adds complexity/consent.
+
+5. **Export leads to a simple dashboard** - Since leads are in Redis with UTM, could make a protected page that shows lead counts by UTM source.
+
+6. **Google Sheets / CSV export** - Pull leads from Redis periodically.
+
+The problem: page_view, form_view etc. are client-side events that only go to Vercel Analytics (if consent). Lead data (email, UTM, sections) is in Redis. There's no server-side event log for the full funnel.
+
+So the realistic options are:
+
+**Option A: Vercel Analytics dashboard** (easiest)
+- Already has custom events if consent is given
+- Shows event counts over time
+- No true funnel visualization, but you can compare form_submit / page_view rates- Limitation: only counts users who accepted cookies
+
+**Option B: Custom funnel page reading Redis + Vercel logs**
+- Redis only has leads (final step)
+- Full funnel needs client events → would need to store events somewhere**Option C: Simple admin stats page**
+- Show leads by day, by UTM source, by sections filled
+- Doesn't show intermediate funnel steps**Option D: Hook into Resend/webhooks or export**
+
+I should present these options clearly and ask which direction they want. Plan mode is active so I must NOT implement anything.
+
+Existuje niekoľko ciest – záleží, koľko chceš investovať do implementácie vs. externých nástrojov.
+
+## Možnosti
+
+### 1. Vercel Analytics dashboard (najjednoduchšie, už takmer hotové)
+- Eventy `page_view`, `form_view`, `form_submit`… už **idú do Vercel Analytics** (po súhlase v cookie lište)
+- V dashing: **Project → Web Analytics** vidíš návštevy, custom events, session replay
+- **Limít:** nie je to klasický „funnel“ graf (100 → 40 → 10 v jednom grafe); musíš porovnávať počty eventov. A meria len používateľov so súhlasom.
+
+### 2. Admin stránka / API (vlastný „dashboard“)
+- Nový endpoint (napr. `api/stats.js`) čítať z Redis + počítať leady za deň/zdroj
+- Admin stránka (chránená heslom) s tabuľkou: leady podľa UTM, dňa, vyplnených sekcií
+- **Limít:** v Redis sú **len leady** (posledný krok). Medzikroky (`page_view` → `form_view`) **nevidíš**, lebo sa neukladajú serverovo.
+
+### 3. PostHog / Plausible / GA4 (plný funnel)
+- PostHog má hotový **funnel vizualizáciu** (zadarmo do limitu)
+- Treba pridať skript + súhlas (rovnaký consent bar)
+- GA4 má „funnel exploration“, ale viac práce s nastavením
+
+### 4. Export leadov → Google Sheets
+- Skript (cron / Vercel cron) ťahá leady z Redis a posiela do Sheets
+- Jednoduchý prehľad, ale bez medzikrokov
+
+---
+
+## Čo odporúčam
+
+**Ak chceš rýchlo vedieť „koľko leadov a odkiaľ“:**  
+→ **Option 2** (admin API + stránka) – ukáže leady, UTM, sekcióny. Medzikroky vieš odhadnúť z Vercel Analytics eventov.
+
+**Ak chceš pekný funnel graf bez veľa práce:**  
+→ **Option 3** (PostHog) – vložíš skript, nastavíš funnel, hotovo.
+
+---
+
+Ktorý smer ťa zaujíma? Môžem pripraviť konkrétny plán (aké súbory, endpoint, ochrana admin stránky atď.).
+
+---
+
+## User
+
+chcem možnosť 1, čo mám urobiť v kóde?
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 25.5s)
+
+_Thinking:_
+
+The user wants Option 1 - Vercel Analytics dashboard. They want to know what they need to do in the code. Looking at the current state:
+
+1. Vercel Analytics script is already loaded via consent.js after cookie consent
+2. Events are already sent via window.va('track') when consent is granted
+3. report_view is NOT sent to va - only to dataLayer (dead)
+
+What needs to be done in code for Option 1:
+- Mostly done already! The code already:
+  - Loads /_vercel/insights/script.js after consent
+  - Calls window.va('track', name, payload) for all etfTrack events when consent granted
+
+What's missing:
+- report_view still not going to va - could add it (but user previously said to acknowledge it's not measured - wait, they said "uznať, že sa nemeria" for README. Now they want option 1 which means they want Vercel Analytics. Should I add report_view to va now?
+
+Actually for option 1 to work fully:
+1. Enable Web Analytics in Vercel dashboard (not code - user action)
+2. Code is mostly ready - maybe wire report_view to va3. Maybe nothing else needed in code
+
+Let me check what's already in place and what small code changes might help.
+
+Current state from conversation:
+- consent.js loads insights after grant ✓
+- main.js track() calls window.va when consentGranted ✓
+- thank-you.html report_view only dataLayer + console.debug - NOT va
+
+So the only code change for a complete funnel would be wiring report_view to also call window.va when consent is granted. That's a small change in thank-you.html.
+
+Also need user to:
+1. Enable Web Analytics in Vercel dashboard
+2. Deploy3. Accept cookies when testing
+
+I should present a clear plan of what's already done vs what needs to change in code vs what the user must do in Vercel dashboard. Plan mode is active so I should NOT make edits - only present the plan.
+
+Väčšina kódu už je pripravená. Čo treba:
+
+## Už je v kóde (netreba meniť)
+- `consent.js` – načíta `/_vercel/insights/script.js` **po súhlase** v cookie lište
+- `main.js` – `window.etfTrack()` posiela `window.va('track', …)` **len so súhlasom**
+- Eventy: `page_view`, `cta_click`, `table_sort`, `calc_change`, `portfolio_complete`, `faq_open`, `form_view`, `form_error`, `form_submit`
+
+## Čo treba doplniť v kóde (malá zmena)
+V `thank-you.html` doplniť odoslanie `report_view` do `window.va` (teraz ide len do mŕtveho `dataLayer`):
+
+```js
+if (typeof window.va === "function") {
+  try { window.va("track", "report_view", { reportId: reportId }); } catch (e) {}
+}
+```
+
+…aby bol funnel kompletný: `page_view` → `form_submit` → `report_view`.
+
+## Čo máš urobiť TY (mimo kódu)
+1. Vo **Vercel dashing** projektu: **Settings → Web Analytics → Enable**
+2. Deploy (`npx vercel --prod`)
+3. Pri testovaní **kliknúť „Súhlasím“** v cookie lište (bez toho sa nič neposiela)
+
+## Ako uvidíš dáta
+**Project → Web Analytics** → Events: počty `form_submit`, `form_view` atď. za obdobie. Pomer `form_submit / page_view` = konverzia.
+
+---
+
+Chceš, aby som doplnil ten `report_view` do `thank-you.html`?
+
+---
+
+## User
+
+vidim veci ako visitors, page views, bounce rate, referrers, countries,...
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 16.6s)
+
+_Thinking:_
+
+The user is saying they see visitors, page views, bounce rate, referrers, countries in Vercel Analytics - but they're probably looking for the custom events (form_submit, form_view, etc.). Let me explain where to find custom events in Vercel Analytics dashboard.
+
+To sú **štatistiky návštev** (automatické). Naše **custom eventy** sú inde:
+
+**Web Analytics → Events** (záložka hore) – tam uvidíš:
+- `page_view`, `cta_click`, `form_view`, `form_submit`, `calc_change`…
+
+Ak tam eventy **nevidíš**, môže byť príčina:
+1. **Web Analytics nie je zapnutý** pre produkčný deployment (Settings → Web Analytics → Enable)
+2. **Neklikol si „Súhlasím“** v cookie lište – bez súhlasu sa `va()` nevolá
+3. **Deploy nie je najnovší** (starý build bez consent.js / trackingu)
+4. **Ad-blocking** v prehliadači blokuje `/_vercel/insights/`
+
+Overenie: otvor produkčnú URL **v inkognito**, klikni „Souhlasím“, prejdi na formulár, odoslať (alebo aspoň `form_view`). Potom v dashing pod Events filtruj na `form_view` / `form_submit`.
+
+Ak Events sekcia vôbec nie je, Web Analytics ešte nie je aktívne zapnuté.
+
+---
+
+## User
+
+stručne v README doplň tento bod
+- zobraziť vo Verceli pokročilé štatistiky, 
+<čo je v kóde a čo nie je v kóde/verceli>
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 21.1s)
+
+_Thinking:_
+
+The user wants me to add a brief point to README about Vercel advanced stats - what's in the code vs what's not in code/Vercel. Let me add this to the relevant section (§3 Meranie or §12 Možnosti).
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
+  "limit": 35,
+  "offset": 46
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md</path>
+<type>file</type>
+<content>
+46: ## 3. Meranie celej cesty
+47: 
+48: Udalosti (`assets/js/main.js` → `window.etfTrack`):
+49: 
+50: > **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) sa načíta **až po súhlase** v cookie lište (`consent.js`; `localStorage` kľúč `etf_consent`). Custom eventy z `window.etfTrack()` idú cez `window.va('track')` len ak je súhlas udelený a Web Analytics zapnuté vo Vercel dashboarde. UTM z URL sa pre aktuálnu návštevu použijú v lead payloade vždy; ukladanie do `localStorage` (`etf_utm`) len so súhlasom. `dataLayer` (GTM) stránka neinicializuje. Na localhoste sa eventy logujú len do konzoly. **`report_view` sa nemerá** – `thank-you.html` ho pushuje len do (neinicializovaného) `dataLayer` a do konzoly.
+51: 
+52: | Event | Kedy | Čo meria |
+53: |---|---|---|
+54: | `page_view` | načítanie | 100 % návštev |
+55: | `cta_click` (hero / tabuľka / kalkulačka / sticky / finálny) | kliknutie na CTA | záujem o pokračovanie |
+56: | `table_sort` | triedenie tabuľky | zapojenie do obsahu |
+57: | `calc_change` | zmena fondu v kalkulačke | osobné zapojenie |
+58: | `portfolio_complete` | vyplnené váhy portfólia (súčet 100 %) | dokončenie kalkulačky portfólia |
+59: | `faq_open` | rozbalenie otázky v FAQ | čo návštevníka zaujíma |
+60: | `form_view` | formulár vo viewportu 40 % | dosiahnutie zóny konverzie |
+61: | `form_error` | nevalidný e-mail / súhlas / sieť | kde sa stratia leady |
+62: | `form_submit` | úspešné odoslanie | **konverzia** |
+63: | `report_view` | zobrazenie thank-you | **len lokálne v konzole** – do analytiky sa neposiela |
+64: 
+65: **Atribúcia:** UTM parametre z URL sa ukladajú do `localStorage`
+66: (`etf_utm`) a odosielajú sa spolu s leadom. V logu Vercel funkcie `[lead]`
+67: vidíte `email + utm` a **boolean prítomnosti sekcií**
+68: (`sections: {calc: true/false, portfolio: …, tax: …}`) – nie konkrétne vstupy
+69: kalkulačky (tie sú len v uloženom modeli v Redis). Cesta **teda** v kóde je
+70: úplná: **reklama → príchod → interakcia → formulár → odoslanie → report**,
+71: každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte
+72: napojiť (viď vyššie).
+73: 
+74: **Hypotéza (očakávanie na 100 návštev):** 100 page_view → 35–45 `form_view`
+75: → 8–12 `form_submit`. Overuje sa (až po zapnutí analytiky) v dashboarde +
+76: filtrovaním `[lead]` logov funkcie `api/lead`.
+77: 
+78: ---
+79: 
+80: ## 4. Očakávaná konverzia
+
+(Showing lines 46-80 of 281. Use offset=81 to continue.)
+</content>
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 21.9s)
+
+_Thinking:_
+
+I'll add a brief subsection about what's visible in Vercel vs what's not - after the hypotéza paragraph.
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
+  "newString": "**Hypotéza (očakávanie na 100 návštev):** 100 page_view → 35–45 `form_view`\n→ 8–12 `form_submit`. Overuje sa (až po zapnutí analytiky) v dashboarde +\nfiltrovaním `[lead]` logov funkcie `api/lead`.\n\n### Čo vidíte vo Vercel Analytics (Web Analytics → Events)\n\n| Vo Verceli **je** | Vo Verceli **nie je** |\n|---|---|\n| Automatické: visitors, page views, bounce rate, referrers, countries, devices | Funnel graf (100 → 40 → 10 v jednom grafe) |\n| Custom eventy: `page_view`, `cta_click`, `form_view`, `form_submit`, `calc_change`, `table_sort`, `faq_open`, `portfolio_complete`, `form_error` | `report_view` (iba konzola / `dataLayer`) |\n| Session replay (ak je zapnutý) | Konkrétne vstupy kalkulačky (len v Redis module) |\n| | UTM leadov (len v logoch funkcie `api/lead`) |\n| | Meranie bez súhlasu v cookie lište |\n\nFunnel treba poskladať manuálne porovnaním počtov eventov (napr. `form_submit / page_view`).",
+  "oldString": "**Hypotéza (očakávanie na 100 návštev):** 100 page_view → 35–45 `form_view`\n→ 8–12 `form_submit`. Overuje sa (až po zapnutí analytiky) v dashboarde +\nfiltrovaním `[lead]` logov funkcie `api/lead`."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 4.7s)
+
+_Thinking:_
+
+Done. Brief response.
+
+Doplnené do §3: tabuľka „čo vo Verceli je / čo nie je" + poznámka, že treba poskladať `form_submit / page_view`.
+
+---
+
+## User
+
+STRUCNE doplň v časti 12 prvä odrážku -- čo treba doplniť, aby sa vo Verceli zobrazili pokorčilé štatistiky
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 6.3s)
+
+_Thinking:_
+
+The user wants me to add a brief first bullet point to section 12 (Možnosti pokračovania vývoja) about what needs to be done to show advanced stats in Vercel.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
+  "limit": 15,
+  "offset": 290
+}
+```
+
+**Error:**
+```
+Offset 290 is out of range for this file (282 lines)
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 5.2s)
+
+_Thinking:_
+
+Let me read the end of the file.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
+  "limit": 20,
+  "offset": 265
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md</path>
+<type>file</type>
+<content>
+265: | Chyba | Kontext | Ako som to opravil |
+266: |---|---|---|
+267: | **Miešanie češtiny a slovenčiny** | UI texty v kóde boli česko-slovensky | Preložil som texty do češtiny. |
+268: | **HTML nesting bug – skrytá celá stránka** | V `ses_e839` bolo otvorené `<section id="dan" hidden>` bez uzatváracieho tagu, čo schovalo celý obsah pod ním (kalkulačka, portfólio, tabuľka atď.) | Odstránil som neuzavretú sekciu #dan. |
+269: | **PDF text zarovnaný vpravo (checklist)** | Predchádzajúca inštrukcia nechala kurzor na pravej strane suboru, takže checklist bol v úzkej pravej štvrtine | Opravené – pridané `doc.x = PAGE_MARGIN` na začiatok `sectionTitle()` (`lib/report-pdf.js:64`), takže každý nadpis sekcie (vrátane checklistu) začína na ľavom okraji ako ostatné prvky; posledná oprava fungovala |
+270: | **Dva nezávislé PDF generátory** | V `ses_e78e` existovali dva rozdielne PDF generátory, jeden pre PDF na stránke, druhý pre PDF v e-maili, každý s vlastnou štruktúrou dát. | Generátory som zjednotil do jedného, ktorý generuje jedno spoločné PDF. |
+271: | **Tlačidlo W-8BEN neposúvalo na sekciu e-mailu** | Opravované viacnásobne, bez výsledku | Nakoniec som danú časť nechal AI zmazať a urobiť nanovo |
+272: | **E-mailový formulár sa nedalo odoslať na localhoste** | Endpoint `/api/lead` nie je dostupný bez Vercela | Testoval som až po commite/deployi, ako je uvedené na začiatku tejto časti |
+273: | **Nefungujúce odosielanie e-mailov po prerobení DB** | Po tom, čo som implementoval pomocou AI to, aby sa už base64 PDF súbora neukladalo do databázy, sa prestali odosielať e-maily | Deklarovanú konštantu som presunul mimo try block, keďže to spôsobovalo chybu pri pokuse o odoslanie prílohy.
+274: | **Nepochopenie požiadavky** | Namiesto úpravy README.md podľa stavu stránky začal agent opravovať stránku podľa README.md. | Požiadal som agenta, aby vrátil stránku do predošlého stavu a upresnil som požiadavku.
+275: 
+276: ## 12. Čo sa mi nepodarilo a možnosti pokračovania vývoja
+277: 
+278: - zobraziť vo Verceli pokročilé štatistiky, 
+279: - doplniť logiku, ktorá podľa `?v=A`/`?v=B` bude vedieť urobiť A/B testovanie,
+280: - vylepšiť dizajn stránky tak, aby vyzeral profesionálnejšie (napr. pridaním ilustračných obrázkov)
+281: - rozdelenie obsahu hlavnej stránky na podstránky
+282: - pridanie ďalších investičných kalkulačiek a nástrojov
+
+(End of file - total 282 lines)
+</content>
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 11.1s)
+
+_Thinking:_
+
+The first bullet already exists: "zobraziť vo Verceli pokročilé štatistiky," - I need to expand it with what needs to be done. User wants me to add what needs to be done to show advanced stats in Vercel.
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
+  "newString": "- zobraziť vo Verceli pokročilé štatistiky – zapnúť **Web Analytics** vo Vercel dashboarde\n  (Settings → Web Analytics → Enable), deploynúť najnovší build a pri návšteve kliknúť\n  „Souhlasím“ v cookie lište; custom eventy potom prídu do **Web Analytics → Events**\n  (`form_submit`, `form_view`, `calc_change`…). Funnel sa skladá manuálne\n  (`form_submit / page_view`); `report_view` a vstupy kalkulačky v dashing nie sú,",
+  "oldString": "- zobraziť vo Verceli pokročilé štatistiky, "
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 7.1s)
+
+_Thinking:_
+
+Done. Brief response.
+
+Doplnené v §12 – prvá odrážka teraz obsahuje konkrétne kroky (zapnúť Web Analytics, deploy, súhlas v cookie lište) a čo v dashing nie je.
+
+---
+
+## User
+
+prečo je tu 
+Atribúcia: UTM parametre z URL sa ukladajú do localStorage (etf_utm) a odosielajú sa spolu s leadom. V logu Vercel funkcie [lead] vidíte email + utm a boolean prítomnosti sekcií (sections: {calc: true/false, portfolio: …, tax: …}) – nie konkrétne vstupy kalkulačky (tie sú len v uloženom modeli v Redis). Cesta teda v kóde je úplná: reklama → príchod → interakcia → formulár → odoslanie → report, každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte napojiť (viď vyššie). 
+viď vyššie?
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 15.6s)
+
+_Thinking:_
+
+The user is asking about "viď vyššie" (see above) in the README - why does it say that. Looking at the context, the "viď vyššie" refers to the Stav merania note above which talks about Vercel Analytics and what needs to be done. But actually after my recent edits, the flow is:
+
+1. Stav merania (note about consent, va, etc.)
+2. Table of events
+3. Atribúcia paragraph - ends with "vizualizáciu cesty v dashboarde treba ešte napojiť (viď vyššie)"
+4. Hypotéza
+5. Čo vidíte vo Vercel Analytics table
+
+The "viď vyššie" was written when the "Stav merania" note was the only explanation. Now there's a better section "Čo vidíte vo Vercel Analytics" BELOW this paragraph. So "viď vyššie" is now inaccurate - it should either be removed or say "viď nižšie" pointing to the new table, or just remove the reference since the info is nearby.
+
+Let me fix this.
+
+„Viď vyššie“ odkazovalo na poznámku *Stav merania*, ale lepšia tabuľka „Čo vidíte vo Verceli“ je teraz **nižšie**. Opravím to.
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
+  "newString": "každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte\nposkladať manuálne (viď tabuľku nižšie).",
+  "oldString": "každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte\nnapojiť (viď vyššie)."
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 4.3s)
+
+_Thinking:_
+
+Done. Brief response.
+
+Opravené – „viď vyššie“ → „viď tabuľku nižšie“ (odkazuje na novú tabuľku „Čo vidíte vo Verceli“).
 
 ---
 
