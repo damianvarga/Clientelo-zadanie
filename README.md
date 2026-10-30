@@ -170,7 +170,7 @@ Bez kľúča stránka **plne funguje** – endpoint vracia `200` a loguje `{"mod
 2. V sekcii **REST API** skopírovať `UPSTASH_REDIS_REST_URL` a `UPSTASH_REDIS_REST_TOKEN`.
 3. Pridať ako environment variables (vyššie) a redeploy.
 
-Lead sa uloží **iba keď používateľ zaškrtnul súhlas** (overené aj serverom –
+Lead sa uloží **iba keď používateľ zaškrtol súhlas** (overené aj serverom –
 bez `consent: true` vracia endpoint `422 consent_required` a neuloží nič).
 Každý záznam obsahuje e-mail, čas súhlasu, IP, UTM, stránku a referrer
 (klúč `lead:<email>` + index `leads:index`). Bez premenných je odpoveď

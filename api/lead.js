@@ -169,15 +169,13 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, stored: true, queued: false, mode: "report_failed" });
   }
 
-  let pdfBase64;
   try {
     const pdfBuffer = await generateReportPdf(model);
-    pdfBase64 = pdfBuffer.toString("base64");
+    const pdfBase64 = pdfBuffer.toString("base64");
     await saveReport(redis, reportId, {
       version: 1,
       createdAt: model.createdAt,
-      model: model,
-      pdfBase64: pdfBase64
+      model: model
     });
   } catch (err) {
     console.error("[lead] store_error", String((err && err.message) || err).slice(0, 300));
