@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
+  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -158,7 +159,9 @@
           </div>
           <div class="chart-foot">
             <p class="src">
-              Zdroj: Yahoo Finance chart API, denní zavřené ceny (upravené o dividendy).
+              Zdroj: Yahoo Finance (denní zavřené ceny, upravené o dividendy) –
+              statický snapshot <code>assets/data/voo-history.json</code>, obnova
+              přes <code>scripts/fetch-voo.cjs</code>.
               Aktualizováno <strong id="chart-fetched">–</strong>. Data jsou poskytnuta pro
               informační účely; před investicemi ověřte si aktuální ceny u správce fondu.
             </p>
@@ -402,13 +405,13 @@
             </div>
             <label class="checkbox">
               <input type="checkbox" id="lf-consent" name="consent" required>
-              <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="#soukromi">Zásady ochrany osobních údajů</a></span>
+              <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="/soukromi.html">Zásady ochrany osobních údajů</a></span>
             </label>
             <input type="text" name="company" id="lf-company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
             <button type="submit" class="btn btn--lg btn--block" id="lf-submit" data-cta="form-submit">
               Chci svůj report &rarr;
             </button>
-            <p class="lead-form__note">Odesláním souhlasíte se zpracováním e-mailu (GDPR). Žádné předávání třetím stranám.</p>
+            <p class="lead-form__note">Odesláním souhlasíte se zpracováním e-mailu (GDPR). Zpracovatelé: Resend, Upstash, Vercel – viz <a href="/soukromi.html">Zásady ochrany osobních údajů</a>.</p>
             <p class="lead-form__status" id="lf-status" role="status"></p>
           </form>
         </div>
@@ -475,7 +478,7 @@
           </details>
           <details class="faq__item">
             <summary>Co přesně mi přijde e-mailem?</summary>
-            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete jedním klikem.</p>
+            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete odkazem v patičce e-mailu (jedno kliknutí), případně odpovědí se slovem ODHLASIT. Podrobnosti o zpracování vašeho e-mailu najdete v <a href="/soukromi.html">Zásadách ochrany osobních údajů</a>.</p>
           </details>
         </div>
       </div>
@@ -492,7 +495,7 @@
 
   </main>
 
-  <footer class="footer" id="soukromi">
+  <footer class="footer">
     <div class="wrap">
       <div class="footer__top">
         <span class="brand"><span class="brand__mark">ETF</span> <span class="brand__name">Clientelo.cz</span></span>
@@ -500,6 +503,7 @@
           <a href="#srovnani">Srovnání</a>
           <a href="#kalkulacka">Kalkulačka</a>
           <a href="#faq">FAQ</a>
+          <a href="/soukromi.html">Zásady ochrany osobních údajů</a>
         </p>
       </div>
       <p class="footer__disclaimer">
@@ -508,7 +512,7 @@
         Stránka má vzdělávací charakter, neposkytuje investiční poradenství ani nabídku
         k nákupu cenných papírů. Data uváděna se zdrojem; ověřte si je u správce fondu.
         E-mail zpracováváme za účelem zaslání reportu a souvisejících tipů, odhlásit lze
-        v každém e-mailu. Provozovatel: dle nasazení na Vercel, kontakt v e-mailech.
+        odkazem v každém e-mailu nebo odpovědí se slovem ODHLASIT. Provozovatel: dle nasazení na Vercel, kontakt v e-mailech.
       </p>
       <p class="footer__copy">© 2026 ETF Clientelo.cz</p>
     </div>

@@ -2,7 +2,7 @@
 
 **Session ID:** ses_e7b50366fffe2DzsaIbvadWtaW
 **Created:** 10/28/2026, 11:44:35 PM
-**Updated:** 10/30/2026, 1:35:20 PM
+**Updated:** 10/30/2026, 5:42:24 PM
 
 ---
 
@@ -1264,6 +1264,441 @@ Syntax is clean. Let me verify the final state of the change:
 Hotovo. V `api/lead.js` (riadok 175–179) sa už do Redis neukladá `pdfBase64` — uklada sa len `version`, `createdAt` a `model`. Premenná `pdfBase64` sa nadále generuje len pre e-mailovú prílohu (nesie sa do DB).
 
 `/api/report.js` má záložnú logiku: ak `pdfBase64` chýba, PDF sa znova vygeneruje z uloženého `model`, takže `thank-you.html?id=...` bude fungovať bežnej. Jediné, čo sa stratí, je rýchleššie načítanie z cache (PDF sa znova vygeneruje pri každom požiadavke).
+
+---
+
+## User
+
+do README.md do sekcie 11 doplň v slovenčine -- ako som s AI pracoval (aké pokyny dostali agenti, ako som kontroloval ich výstup a kde sa pomýlili). Vychádzaj z logov v priečinku ai-log
+
+---
+
+## Assistant
+
+**Tool: read**
+
+**Tool: read**
+
+---
+
+## Assistant
+
+**Tool: read**
+
+**Tool: read**
+
+**Tool: read**
+
+---
+
+## Assistant
+
+**Tool: read**
+
+**Tool: read**
+
+**Tool: read**
+
+---
+
+## Assistant
+
+Mám dostatok informácií z logov. Teraz doplním sekciu 11 v README.md.
+
+
+**Tool: edit**
+
+---
+
+## Assistant
+
+**Tool: read**
+
+---
+
+## Assistant
+
+**Tool: edit**
+
+---
+
+## Assistant
+
+**Tool: read**
+
+---
+
+## Assistant
+
+**Tool: edit**
+
+**Tool: edit**
+
+---
+
+## Assistant
+
+Hotovo. Sekcia 11 v `README.md` je teraz doplnená podľa logov z `ai-log/`. Obsahuje:
+
+- **Ako som dával pokyny agentom** – štruktúrované zadania (numbers v `ses_e78e`), zákaz implementácie od nuly, overenie pred ukončením
+- **Ako som kontroloval výstup** – `node --check`, manuálny code review, test suite (19 testov v `ses_e789`), revert keď nebolo spokojnosť
+- **Tabuľka chýb AI** s kontextom a opravou (miešanie češtiny/slovenčiny, HTML nesting bug, PDF zarovnanie vpravo, dva PDF generátory, tlačidlo W-8BEN, localhost email, rate-limiting)
+- **Zhrnutie** – efektivita agentov vs. potreba detailného zadania a manuálnej kontroly
+
+---
+
+## User
+
+skús z logov zistiť - raz som musel aj zmeniť ai nástroj, pomocou ktorého som implementoval jednu funkciu, lebo sa mi to nedarilo. Mala by to byť zmena z Kilocode na Opencode. Skús to zistiť z logov.
+
+---
+
+## Assistant
+
+Let me check the remaining session logs for any mention of Kilocode or Opencode:
+
+
+**Tool: read**
+
+**Tool: read**
+
+**Tool: read**
+
+**Tool: read**
+
+**Tool: read**
+
+---
+
+## Assistant
+
+Prečítal som všetky dostupné session logy v priečinku `ai-log/` (`ses_e78e`, `ses_e7b5`, `ses_e839`, `ses_e91c`, `ses_e789`, `ses_e7d0`, `ses_e839-2`, `ses_e8e1`, `conversation.md`) a hľadal som spomenutia „Kilocode“ a „Opencode“.
+
+**Nenašiel som žiadne explicitné pomenovanie žiadneho z týchto nástrojov v logoch.**
+
+V niektorých session hlavičkách sa uvádza model/tool napríklad:
+- `Assistant (Build · MiMo-V2.6-Flash Free · 8.8s)` — `ses_e78e`
+- `Assistant (Plan · MiMo-V2.6-Flash Free · 13.3s)` — `ses_e91c`
+
+ale „Kilocode“ ani „Opencode“ nikde nie je uvedené.
+
+**Záver:** Z logov, ktoré mám k dispozícii, nedá sa potvrdiť, že si zmenil AI nástroj z Kilocode na Opencode. Buď tá informácia v logoch nie je zaznamenaná, alebo sa nachádza v nejakej inej súčasťi konverzácie, ktorú nemám k dispozícii. Ak chceš, môžem sekciu 11 v `README.md` doplniť o túto poznatku (alebo ju tam nechať bez konkrétneho pomenovania nástroja).
+
+---
+
+## User
+
+skús nájsť v logoch nejakú časť, kde kilocode opakovane hovorí, že ide programovať a potom tvrdí, že to nemôže urobiť
+
+---
+
+## Assistant
+
+Prehľadám všetky logy v priečinku `ai-log/` za vzorkami, kde Kilocode (alebo iný asistent) slibuje implementáciu a potom odmietne s odôvodnením, že to nedokáže.
+
+
+**Tool: grep**
+
+**Tool: grep**
+
+---
+
+## Assistant
+
+Našiel som niekoľko prípadov. Pozriem si kontext okolo najzrejších odkazov na "read-only režim" kde asistent slíbil niečo urobiť a potom to nemohol:
+
+<details>
+
+
+**Tool: read**
+
+**Tool: read**
+
+**Tool: read**
+
+**Tool: read**
+
+---
+
+## Assistant
+
+Našiel som niekoľko jasných prípadov, kde asistent (Kilocode) slíbil niečo implementovať a potom odmietol s odkazom na **read-only režim**:
+
+---
+
+### 1. `session-ses_e7d0.md` (riadky 218–254)
+
+Používateľ požiadal o zarovnanie textu v PDF doľava ("zarovnaj ju vlavo"). Asistent odpovedal:
+
+> **I'm in read-only mode, so I can't edit the file directly. Here's the fix you need to make:**
+
+Potom dal manuálny návod, ako by si to mal upraviť sám, a na záver:
+
+> **If you'd like me to apply this edit, switch to an agent with write permissions (e.g., `kilo`).**
+
+Keď používateľ povedal "yes", až vtedy sa asistent prepnul do režimu, kde mal zápisové práva a opravu uskutočnil.
+
+---
+
+### 2. `session-ses_e789.md` (riadky 246–248)
+
+Po návrhu reklamy a štruktúry prvej obrazovky asistent písal:
+
+> **Implementáciu textov do `index.html` alebo reklamných kreatív je potrebné urobiť v režime, ktorý umožňuje úpravy súborov (momentalne som v read-only režime). Ak chcete, môžem prejsť do implementačného režimu a texty priamo vložiť do kódu.**
+
+---
+
+### 3. `session-ses_e8d1.md` (riadky 330–338)
+
+Používateľ požiadal o návrh implementácie interaktívneho prvku (skladanie portfólia), ktorý by獲得 e-mail. Asistent:
+
+> **v read-only režime nemôžem upravovať súbory. Návrh nie je implementáciou, len konceptom, ktorý môžete previazať s existujúcim kódom.**
+
+---
+
+### 4. `session-ses_e8d1.md` (riadky 763–769)
+
+Používateľ požiadal o pomenovanie commitu. Asistent:
+
+> **Nie som v režime, ktorý umožňuje spúšťať git príkazy (commit, push atď.) — sú to mutujúce operácie a ja som momentálne v read-only režime.**
+
+---
+
+**Zhrnutie:** V logoch sa opakovane vyskytuje vzor, kde asistent najprv slúpi, že niečo vyrieši (úprava súboru, implementácia kódu, commit), ale potom uviedie, že to nemôže urobiť, pretože je v **read-only režime**, a odkáže používateľa na iného agenta (napr. `kilo`) alebo na manuálnu úpravu. Názvy "Kilocode" ani "Opencode" však v logoch priamo nie sú uvedené — dicha sa len o "read-only režim" a "iný agenta s write permissions".
+
+---
+
+## User
+
+skús nájsť taký log, kde je výstup s veľkým množstvom riadkov, kde AI tvrdí, že ide programovať a potom povie, že nemôže, a tak stále dookola
+
+---
+
+## Assistant
+
+**Tool: bash**
+
+**Tool: grep**
+
+---
+
+## Assistant
+
+Let me examine the largest log file for the loop pattern where AI says it will program but then can't:
+
+
+**Tool: bash**
+
+**Tool: read**
+
+---
+
+## Assistant
+
+**Tool: read**
+
+**Tool: read**
+
+---
+
+## Assistant
+
+**Tool: read**
+
+---
+
+## Assistant
+
+**Tool: read**
+
+---
+
+## Assistant
+
+Po prehľadení všetkých logov v `ai-log/` som nájdené niekoľko prípadov, kde asistent slíbil niečo implementovať, ale potom odmietol s odkazom na **read-only režim**. Najzrejší vzor sa nachádza v najväčšom logu:
+
+---
+
+### `session-ses_e91c.md` (7 268 riadkov)
+
+Tento log obsahuje najdlhší a najopakovanejší vzor, ktorý popisujete. Asistent navrhuje implementáciu grafov z newyorskej burzy, detailne popisuje architektúru, kód, zmeny v súboroch, ale vždy končí tým, že je v **plan mode — read-only** a nemôže nič implementovať.
+
+**Kľúčové pasáže:**
+
+- **Riadok 6039**: `Plan mode active — read-only, propose a plan/approach.` — AI navrhuje riešenie grafov (Lightweight Charts, Stooq dáta, serverless proxy), ale nie je to implementácia, len plán.
+- **Riadok 6905**: `The user is asking me to propose a way to add charts... I'm in plan mode — read-only.` — znova dlhý technický plán (700+ riadkov) s architektúrou, súbormi, krokmi implementácie, ale bez skutočnej zmeny kódu.
+- **Riadok 7052–7194**: Kompletný implementačný plán s tabuľkou zmien súborov, kroky 1–8, riziká, metrika — všetko len v texte, žiadny súbor nebol upravený.
+- **Riadok 7193**: `S týmto plánom súhlasíš, alebo chceš niečo upraviť?` — AI čaká na schválenie plánu, ale sám ho nemôže realizovať.
+
+Tento vzor sa opakuje: AI vypíše veľký technický obsah (akoby chcel programovať), ale na konci vždy povie, že je v read-only móde a nemôže nič zmeniť.
+
+---
+
+### `session-ses_e7d0.md` (riadky 218–254)
+
+Jednoduchší ale jasný prípad:
+
+- Používateľ požiadal o zarovnanie textu v PDF doľava.
+- Asistent: `I'm in read-only mode, so I can't edit the file directly. Here's the fix you need to make:` — dá manuálny návod na úpravu.
+- Nakoniec: `If you'd like me to apply this edit, switch to an agent with write permissions (e.g., `kilo`).`
+
+---
+
+### `session-ses_e8d1.md` (viaceré miesta)
+
+- **Riadok 338**: `v read-only režime nemôžem upravovať súbory. Návrh nie je implementáciou, len konceptom...`
+- **Riadok 769**: `Nie som v režime, ktorý umožňuje spúšťať git príkazy... ja som momentálne v read-only režime.`
+
+---
+
+**Záver:** Názov "Kilocode" alebo "Opencode" v logoch priamo nie je uvedený (grep vrátil žiadne výsledky). Vzor, ktorý popisujete — dlhý výstup, kde AI tvrdí, že niečo programuje, ale nakoniec povie, že to nemôže — sa nachádza najprednejšie v `session-ses_e91c.md` (grafy, plánovanie, read-only) a `session-ses_e7d0.md` (úprava PDF, read-only, odkaz na agenta `kilo`).
+
+---
+
+## User
+
+skús ešte oprviť jednu vec -- keď si nechám vygenerovať pdf report, tak nadpis Checklist prvních kroků je vpravo a v dvoch riadkoch. nech má nastavený ľavý okraj presne taký veľký, ako ostatné prvky reportu. to asi spôsobuje aj jeho rozdelenie do dvoch riadkov
+
+---
+
+## Assistant
+
+---
+
+## User
+
+skús ešte oprviť jednu vec -- keď si nechám vygenerovať pdf report, tak nadpis Checklist prvních kroků je vpravo a v dvoch riadkoch. nech má nastavený ľavý okraj presne taký veľký, ako ostatné prvky reportu. to asi spôsobuje aj jeho rozdelenie do dvoch riadkov
+
+---
+
+## Assistant
+
+**Tool: read**
+
+---
+
+## Assistant
+
+The issue is in `sectionTitle()` at `lib/report-pdf.js:63-67`. After `renderTable()` positions text at specific X coordinates, `doc.x` is left at a non-margin position. When `renderList()` then calls `sectionTitle()`, the title starts at that leftover X position instead of the left margin, causing it to appear on the right and wrap to two lines.
+
+Fix: reset `doc.x = PAGE_MARGIN` at the start of `sectionTitle()` so every section title starts at the left margin.
+
+
+**Tool: edit**
+
+---
+
+## Assistant
+
+**Tool: bash**
+
+---
+
+## Assistant
+
+Syntax check passed. The fix adds `doc.x = PAGE_MARGIN;` at the start of `sectionTitle()` (`lib/report-pdf.js:64`), ensuring every section heading — including "Checklist prvních kroků" — starts at the left margin (50px) regardless of where a previous section left the cursor. This will also prevent the heading from wrapping into two lines since it now uses the full available width from the left edge.
+
+---
+
+## User
+
+| **PDF text zarovnaný vpravo (checklist)** | V `ses_e789` `renderList` používalo `continued: true` bez resetu `doc.x`; predchádzajúca `renderTable` nechala kurzor na x≈435, takže checklist bol v úzkej pravé štvrtine | V `lib/report-pdf.js:124` som pred každou položkou nastavil `doc.x = PAGE_MARGIN` a `align: "justify"` |
+
+túto časť README.md prepíš a povedz, že až táto posledná oprava fungovala
+
+---
+
+## Assistant
+
+**Tool: grep**
+
+---
+
+## Assistant
+
+**Tool: edit**
+
+---
+
+## Assistant
+
+Hotovo. Riadok v tabuľke chýb v `README.md` je aktualizovaný — popisuje pôvodný chybný stav (cursor na x≈435 po `renderTable`, checklist v pravé štvrtine) a potvrdzuje, že posledná oprava (`doc.x = PAGE_MARGIN` v `sectionTitle()` na `lib/report-pdf.js:64`) fungovala — nadpisy sekcií začínajú na ľavom okraji ako ostatné prvky a nerozdelujú sa do dvoch riadkov.
+
+---
+
+## User
+
+odosielanie e-mailov nefunguje, commit d402bd9 to ma urobene spravne, commit 007fa7c uz nie, ide asi o to, ze sa to pokazilo, ked som povedal, ze nechcem pdf base64 v databaze. prosim, uprav to tak, aby to fungovalo
+
+---
+
+## Assistant
+
+**Tool: read**
+
+---
+
+## Assistant
+
+The problem is scope: `pdfBase64` is declared with `const` inside the first `try` block (line 174), so it's not accessible in the second `try` block where the email attachment uses it at line 219. This would cause a `ReferenceError` when trying to send the email.
+
+Fix: declare `pdfBase64` before the first try block so it's in scope for both blocks.
+
+
+**Tool: edit**
+
+---
+
+## Assistant
+
+Wait, this generates PDF twice — once in the first try block (now unused since we removed `pdfBase64` from `saveReport`) and once in the second. Let me restructure to generate it once:
+
+
+
+**Tool: read**
+
+---
+
+## Assistant
+
+Let me restructure cleanly — generate PDF once, scope `pdfBase64` outside both try blocks:
+
+
+**Tool: edit**
+
+---
+
+## Assistant
+
+**Tool: bash**
+
+---
+
+## Assistant
+
+**Tool: bash**
+
+---
+
+## Assistant
+
+Syntax check passes. Let me verify the final state of the critical section:
+
+
+**Tool: read**
+
+---
+
+## Assistant
+
+Hotovo. Problém bol v rozsahu premennej `pdfBase64`:
+
+- Predtým bola deklarovaná s `const` **vnútri prvého `try` bloku** (riadok 174), takže bola nedostupná v druhom `try` bloku, kde sa používala v `attachments: [{ content: pdfBase64 }]` (citalo sa z `attachments` pri odosielaní e-mailu).
+- Toto spôsobovalo `ReferenceError` pri každom pokuse o odoslanie e-mailu, ktorý bol zachytený v `catch` bloku a vracal sa ako `mode: "resend_failed"` — email teda nikdy neodosielal.
+
+**Oprava:** `let pdfBase64;` je teraz deklarované mimo obe `try` bloky (riadok 172), PDF sa vygeneruje raz (riadok 174) a `pdfBase64` je použitý v prílohe e-mailu (riadok ~221). PDF sa už neukladá do Redis (iba `model`), ale generuje sa pre e-mailovú prílohu.
+
+Syntax kontrola (`node --check`) prešla bez chýb.
 
 ---
 

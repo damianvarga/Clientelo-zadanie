@@ -55,7 +55,7 @@ function getReport(id) {
   return reportHandler(req, res).then(() => res);
 }
 
-test("lead endpoint: prijme calc+portfolio+tax, uloží 1 PDF a vráti reportId", async () => {
+test("lead endpoint: prijme calc+portfolio+tax, uloží model a vráti reportId", async () => {
   delete process.env.RESEND_API_KEY;
   const redis = makeFakeRedis();
   _setRedisForTests(redis);
@@ -90,7 +90,7 @@ test("lead endpoint: prijme calc+portfolio+tax, uloží 1 PDF a vráti reportId"
 
   const entry = await loadReport(redis, res.body.reportId);
   assert.ok(entry, "report musí byť uložený v Redis");
-  assert.ok(entry.pdfBase64 && entry.pdfBase64.length > 5000, "uložený PDF musí byť ne prázdny");
+  assert.ok(entry.model && typeof entry.model === "object", "uložený záznam musí obsahovať model");
   assert.equal(entry.model.calc.finalValue, 5541000);
   assert.equal(entry.model.portfolio.weightedTer, 0.03);
   assert.equal(entry.model.tax.annualDividend, 24000);
@@ -116,7 +116,7 @@ test("lead endpoint: prázdne kalkulačky → PDF bez personalizovaných sekcií
   assert.equal(entry.model.tax, null);
 });
 
-test("report endpoint: web aj e-mail používajú identický uložený PDF súbor", async () => {
+test("report endpoint: servíruje platné PDF vygenerované z uloženého modelu", async () => {
   delete process.env.RESEND_API_KEY;
   const redis = makeFakeRedis();
   _setRedisForTests(redis);
@@ -131,14 +131,12 @@ test("report endpoint: web aj e-mail používajú identický uložený PDF súbo
   });
   assert.equal(leadRes.statusCode, 200);
 
-  const entry = await loadReport(redis, leadRes.body.reportId);
-  const emailAttachment = Buffer.from(entry.pdfBase64, "base64");
-
   const res = await getReport(leadRes.body.reportId);
   assert.equal(res.statusCode, 200);
   assert.equal(res.headers["Content-Type"], "application/pdf");
   assert.ok(Buffer.isBuffer(res.body), "endpoint musí servírovať binárny PDF buffer");
-  assert.ok(Buffer.compare(res.body, emailAttachment) === 0, "PDF z /api/report musí byť identické s e-mailovou prílohou");
+  assert.ok(res.body.subarray(0, 5).toString() === "%PDF-", "odpoveď musí byť PDF");
+  assert.ok(res.body.length > 5000, "PDF nesmie byť prázdne");
   assert.equal(res.headers["Cache-Control"], "private, no-store");
 });
 

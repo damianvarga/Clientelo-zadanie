@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { buildReportModel, formatCzk, formatTer, formatRate } from "../lib/report.js";
 import { generateReportPdf } from "../lib/report-pdf.js";
 import { getRedis, saveReport, isValidReportId } from "../lib/store.js";
+import { signToken } from "../lib/unsubscribe.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -194,26 +195,41 @@ export default async function handler(req, res) {
     const from = process.env.RESEND_FROM || "ETF Clientelo <onboarding@resend.dev>";
     const replyTo = process.env.REPLY_TO || undefined;
     const reportUrl = origin + "/thank-you.html?id=" + reportId;
+    const unsubToken = signToken(record.email);
+    const unsubUrl = unsubToken ? origin + "/api/unsubscribe?token=" + unsubToken : null;
+
+    const emailHeaders = {};
+    if (unsubUrl) {
+      emailHeaders["List-Unsubscribe"] = "<" + unsubUrl + ">";
+      emailHeaders["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
+    }
+
+    const textLines = [
+      "Děkujeme za váš zájem.",
+      "",
+      reportText(model),
+      "V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.",
+      "V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).",
+      "Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.",
+      "",
+      "Report: " + reportUrl,
+      ""
+    ];
+    if (unsubUrl) {
+      textLines.push("Odhlásit: " + unsubUrl);
+    }
+    textLines.push(
+      "Pro odhlášení můžete také odpovědět na tento e-mail se slovem ODHLASIT (zpracujeme ručně).",
+      "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
+    );
 
     await sendWithResend(apiKey, {
       from: from,
       to: [record.email],
       reply_to: replyTo,
+      headers: emailHeaders,
       subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
-      text: [
-        "Děkujeme za váš zájem.",
-        "",
-        reportText(model),
-        "V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.",
-        "V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).",
-        "Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.",
-        "",
-        "Report: " + reportUrl,
-        "",
-        "--",
-        "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-        "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
-      ].join("\n"),
+      text: textLines.join("\n"),
       attachments: [
         {
           filename: "ETF_osobni_report.pdf",
