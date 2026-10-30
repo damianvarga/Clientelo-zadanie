@@ -160,7 +160,7 @@ alebo: nahrajte repo ako projekt na vercel.com (framework: Other, build command:
 | Variable | Hodnota |
 |---|---|
 | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady ukladajú do Redis a vracia sa `mode: "log_only"`, e-mail sa nepošle) |
-| `RESEND_FROM` | napr. `ETF Clientelo <report@clientelo.cz>` (voliteľné) |
+| `RESEND_FROM` | napr. `ETF Clientelo  <onboarding@resend.dev>` (voliteľné) |
 | `REPLY_TO` | e-mail na odpovede (voliteľné) |
 | `UPSTASH_REDIS_REST_URL` | REST URL z Upstash (**potrebné pre fungujúci flow** – bez neho endpoint vracia `503 db_not_configured` a formulár pre používateľa zlyhá) |
 | `UPSTASH_REDIS_REST_TOKEN` | REST token z Upstash (rovnako potrebné) |
@@ -190,8 +190,7 @@ s telom `{ "error": "db_not_configured" }`.
 ### 4) Overenie
 - `POST /api/lead` s validným telom a nakonfigurovaným Redis → `{"ok":true, "stored":true, "reportId":"…"}` (bez Redis → `503 db_not_configured`)
 - odoslanie formulára → presmerovanie na `/thank-you.html?id=…`
-- v dashboarde Vercel → Deployments → fungovanie → Logs → riadky `[lead]`
-  s `email + utm + sections` (boolean, nie hodnoty kalkulačky)
+- v dashboarde Vercel → Deployments → fungovanie → Logs → riadky `[lead]` s `email + utm + sections` (boolean, nie hodnoty kalkulačky)
 
 ### Lokálny vývoj
 ```bash
@@ -210,10 +209,10 @@ Celý flow (odoslanie → uložený model → regenerované PDF → zobrazenie v
 ## 9. Štruktúra súborov
 
 ```
-index.html            – landing page (hero → fakta → tabulka → grafy → daň →
-                        portfolio → kalkulačka → formulár → FAQ → finální CTA)
+index.html            – landing page (hero → fakty → tabuľka → grafy → daň →
+                        portfólio → kalkulačka → formulár → FAQ → finálne CTA)
 thank-you.html        – stránka s reportom (iframe cez /api/report?id=…)
-soukromi.html         – zásady ochrany osobních údajov (vrátane zoznamu
+soukromi.html         – zásady ochrany osobných údajov (vrátane zoznamu
                         spracovateľov: Resend, Upstash, Vercel)
 assets/css/style.css  – dizajn (editorial fintech, mobil-first)
 assets/data/          – statické dáta (napr. voo-history.json pre graf)
@@ -226,7 +225,7 @@ assets/js/tax-calculator.js – kalkulačka dane z dividend (W-8BEN)
 assets/js/charts.js   – grafy (cena VOO + modelový dopad poplatkov)
 lib/report.js          – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu
 lib/report-pdf.js      – PDF generátor (pdfkit + DejaVu, česká diakritika)
-lib/store.js           – ukladanie/načítanie **modelov** reportov v Upstash Redis
+lib/store.js           – ukladanie/načítanie modelov reportov v Upstash Redis
                         (kľúč report:<id>, TTL 30 dní; PDF sa neukladá)
 api/lead.js            – serverless endpoint: validácia → uloženie leadu → 1 PDF
                         (len na prílohu e-mailu) → model do Redis → Resend → reportId
@@ -271,7 +270,8 @@ Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi so
 | **Dva nezávislé PDF generátory** | V `ses_e78e` existovali dva rozdielne PDF generátory, jeden pre PDF na stránke, druhý pre PDF v e-maili, každý s vlastnou štruktúrou dát. | Generátory som zjednotil do jedného, ktorý generuje jedno spoločné PDF. |
 | **Tlačidlo W-8BEN neposúvalo na sekciu e-mailu** | Opravované viacnásobne, bez výsledku | Nakoniec som danú časť nechal AI zmazať a urobiť nanovo |
 | **E-mailový formulár sa nedalo odoslať na localhoste** | Endpoint `/api/lead` nie je dostupný bez Vercela | Testoval som až po commite/deployi, ako je uvedené na začiatku tejto časti |
-| **Nefungujúce odosielanie e-mailov po prerobení DB** | Po tom, čo som implementoval pomocou AI to, aby sa už base64 PDF súbora neukladalo do databázy, sa prestali odosielať e-maily | deklarovanú konštantu sme presunuli mimo try block, keďže to spôsobovalo chybu pri pokuse o odoslanie prílohy.
+| **Nefungujúce odosielanie e-mailov po prerobení DB** | Po tom, čo som implementoval pomocou AI to, aby sa už base64 PDF súbora neukladalo do databázy, sa prestali odosielať e-maily | Deklarovanú konštantu som presunul mimo try block, keďže to spôsobovalo chybu pri pokuse o odoslanie prílohy.
+| **Nepochopenie požiadavky** | Namiesto úpravy README.md podľa stavu stránky začal agent opravovať stránku podľa README.md. | Požiadal som agenta, aby vrátil stránku do predošlého stavu a upresnil som požiadavku.
 
 ## 12. Možnosti pokračovania vývoja
 
