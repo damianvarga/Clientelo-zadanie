@@ -228,7 +228,7 @@
     feeSvg.appendChild(svgEl("circle", { cx: pad.l + 12, cy: pad.t - 12, r: 4, fill: GREEN }));
     feeSvg.appendChild(textEl(pad.l + 22, pad.t - 12, "Levné ETF (TER 0,03 %)", { size: "11px", fill: INK, weight: "600" }));
     feeSvg.appendChild(svgEl("circle", { cx: pad.l + 160, cy: pad.t - 12, r: 4, fill: ORANGE }));
-    feeSvg.appendChild(textEl(pad.l + 170, pad.t - 12, "Priemerný fond (TER 0,41 %)", { size: "11px", fill: INK, weight: "600" }));
+    feeSvg.appendChild(textEl(pad.l + 170, pad.t - 12, "Průměrný fond (TER 0,41 %)", { size: "11px", fill: INK, weight: "600" }));
 
     for (var g = 0; g < 5; g++) {
       var vy = yMax * (g / 4);
@@ -286,7 +286,7 @@
     feeCompactSvg.appendChild(svgEl("circle", { cx: pad.l + 12, cy: pad.t - 10, r: 3.5, fill: GREEN }));
     feeCompactSvg.appendChild(textEl(pad.l + 20, pad.t - 10, "Levné ETF (0,03 %)", { size: "10px", fill: INK, weight: "600" }));
     feeCompactSvg.appendChild(svgEl("circle", { cx: pad.l + 150, cy: pad.t - 10, r: 3.5, fill: ORANGE }));
-    feeCompactSvg.appendChild(textEl(pad.l + 162, pad.t - 10, "Priemerný fond (0,41 %)", { size: "10px", fill: INK, weight: "600" }));
+    feeCompactSvg.appendChild(textEl(pad.l + 162, pad.t - 10, "Průměrný fond (0,41 %)", { size: "10px", fill: INK, weight: "600" }));
 
     for (var g = 0; g < 4; g++) {
       var vy = yMax * (g / 3);
@@ -302,7 +302,7 @@
     });
 
     var gap = exp[YEARS] - cheap[YEARS];
-    feeCompactSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 32, "Rozdiel po 25 rokoch: " + czk(gap) + " Kč", { anchor: "end", size: "10px", fill: ORANGE, weight: "700" }));
+    feeCompactSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 32, "Rozdíl po 25 letech: " + czk(gap) + " Kč", { anchor: "end", size: "10px", fill: ORANGE, weight: "700" }));
   }
 
   function drawFeeHeroChart() {
@@ -345,7 +345,7 @@
     heroSvg.appendChild(svgEl("circle", { cx: pad.l + 8, cy: pad.t - 12, r: 3, fill: GREEN }));
     heroSvg.appendChild(textEl(pad.l + 14, pad.t - 12, "Levné ETF (0,03 %)", { size: "10px", fill: INK, weight: "600" }));
     heroSvg.appendChild(svgEl("circle", { cx: pad.l + 118, cy: pad.t - 12, r: 3, fill: ORANGE }));
-    heroSvg.appendChild(textEl(pad.l + 124, pad.t - 12, "Priemerný fond (0,41 %)", { size: "10px", fill: INK, weight: "600" }));
+    heroSvg.appendChild(textEl(pad.l + 124, pad.t - 12, "Průměrný fond (0,41 %)", { size: "10px", fill: INK, weight: "600" }));
 
     for (var g = 0; g < 4; g++) {
       var vy = yMax * (g / 3);

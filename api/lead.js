@@ -192,7 +192,7 @@ export default async function handler(req, res) {
     }
 
     const origin = "https://" + (req.headers.host || "etf-poplatky.vercel.app");
-    const from = process.env.RESEND_FROM || "ETF Poplatky <onboarding@resend.dev>";
+    const from = process.env.RESEND_FROM || "ETF Clientelo <onboarding@resend.dev>";
     const replyTo = process.env.REPLY_TO || undefined;
     const reportUrl = origin + "/thank-you.html?id=" + reportId;
 

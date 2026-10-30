@@ -2,7 +2,7 @@
 
 **Session ID:** ses_e7b50366fffe2DzsaIbvadWtaW
 **Created:** 10/28/2026, 11:44:35 PM
-**Updated:** 10/29/2026, 8:34:33 AM
+**Updated:** 10/29/2026, 10:20:00 PM
 
 ---
 
@@ -529,6 +529,92 @@ PDF v e-maili už obsahuje len tie sekcie, ktoré používateľ skutočne vyplni
 Vše tieto stavy sa odosielajú v telu požiadavky (`main.js:133-135`) a backend ich vloží do PDF iba ak existujú. Hlavička, porovnanie šiest ETF, checklist a upozornenie sa zobrazujú vždy (sú obecné informácie, nie vyplnené dáta).
 
 Ak vo vašom testovacom maile chýbajú osobné údaje, znamená to, že pred odoslaním formulára nebol vyplnený žiadny z troch kalkulačných nástrojov. Vyskúšajte vyplniť napríklad kalkulačku a odoslať znova — sekcia „Kalkulacka poplatku" sa v PDF objaví.
+
+---
+
+## User
+
+https://clientelo-zadanie-man9k6edv-damianvarga.vercel.app/
+skus otestovat tuto stranku tak, ze vyplnis len nejake kalkulacky a zadas email, aby si si nechal vygenerovat pdf, ktore si vies zobrazit/stiahnut na stranke po zadani emailu. otestuj to, ci ked vyplnis len jednu kalkulacku (vyskusaj to na kazdu z nich), ci ten report bude obsahovat vystupy len z tej jednej kalkulacky + Porovnáni 6 ETF + Checklist prvních kroků. Ak to bude inak, je to zle.
+
+---
+
+## Assistant
+
+**Tool: webfetch**
+
+---
+
+## Assistant
+
+Nedá sa to otestovať priamo, pretože:
+
+1. **URL je za Vercel loginom** – po otvorení sa zobrazí iba prihlasovacia stránka Vercelu, nie samotná landing page.
+2. **Nemám browser automatizáciu** – nedokážem vyplniť formuláre ani odoslať e-mail naživo.
+
+**Ale kódova logika je správna:**
+
+V `api/lead.js`, funkcia `generateReportPdf()` (`api/lead.js:39-143`) obsahuje tri podmienené bloky:
+
+- `if (calc)` — sekcia kalkulačky sa prida **iba ak existuje** `record.calc` (naplnené z `calculator.js:71`, keď používateľ hýbe kalkulačkou)
+- `if (portfolio)` — sekcia portfólia sa prida **iba ak existuje** `record.portfolio` (naplnené z `portfolio.js:179`, len pri súčte 100 %)
+- `if (tax)` — sekcia dane sa prida **iba ak existuje** `record.tax` (naplnené z `tax-calculator.js:43`, keď používateľ hýbe daňovou kalkulačkou)
+
+Tieto stavy sa odosielajú v tele požiadavky (`main.js:133-135`).
+
+Čo sa v PDF vždy zobrazí (staticke, nie vyplnené dáta):
+- Hlavička „Osobní report: dopad poplatku ETF"
+- Porovnanie 6 ETF (VOO, IVV, VTI, SCHD, SPY, QQQ)
+- Checklist prvních kroků
+- Upozornenie na rizika
+
+**Ak vyplníte len jednu kalkuláciu (napr. len hlavnú kalkulačku poplatkov), v PDF bude iba tá jedna sekcia + Porovnanie 6 ETF + Checklist.** Ostatné dve sekcie (portfólio, daň) tam nebudú, lebo `record.portfolio` resp. `record.tax` budú `null`.
+
+Ak chcete overiť naživo, treba sa najprv prihlásiť do Vercelu alebo stránku odovoliť verejnosti, potom vyplniť len jednu kalkulačku, zadať e-mail a skontrolovať prílohu PDF.
+
+---
+
+## User
+
+je nieco, co by si na stranke upravil, alebo tam pridal?
+
+---
+
+## Assistant
+
+Prečítal som si celý kódový základ. Tu sú moje technické odporúčania, čo by sa dalo ešte upraviť alebo pridať:
+
+### 1. Tlačidlo „Pošlete mi portfólio e-mailem“ je zavádzajúce
+V `portfolio.js:203` klik na toto tlačidlo len skroluje do sekcie `#report`. Užívateľ čaká, že mu portfólio príde priamo e-mailom, ale miesto toho sa dostane do formulára, kde musí znova zadať e-mail. Navrhujem buď:
+- premenovať tlačidlo na „Pokračovať k e-mailovému reportu“, alebo
+- priamo predvyplniť e-mailový formulár údajmi z portfólia po kliknutí.
+
+### 2. PDF nie je k dispozícii na thank-you stránke
+Užívateľ dostane PDF len v e-maile. Na `/thank-you.html` je len tlačidlo „Vytisknout / uložit jako PDF“ (browser print). Ak chceš, aby si PDF mohol stiahnuť aj priamo zo stránky, potreboval by sa generovať klient-side (napr. knižnicou `jspdf`) alebo endpoint `/api/lead` by mal vrátiť PDF direktne.
+
+### 3. Rate-limiting v `api/lead.js` nefunguje na Verceli
+`hits` je `Map` v pamäti serverless funkcie. Na Verceli sa každý request obslúži v inej inštancii, takže limit 5 emailov/minútu za IP nebudú fungovať. Navrhujem buď rate-limitovať cez Upstash Redis, alebo odstrániť túto logiku, lebo je nefunkčná.
+
+### 4. E-mail obsahuje len `text`, žiaden `html`
+V `api/lead.js:308-331` sa odosielajú iba `text` a `attachments`. Resend podporuje `html` – pridaním HTML verzie by e-mail vyzeral profesionalnejšie (odrážky, tučné nadpisy, odkaz na online report).
+
+### 5. Jazyková nekonzistencia (česky vs. slovensky)
+V `README.md:225` sa to priamo spomína. V kóde sa mixinguje:
+- `portfolio.js`: „Portfólio je kompletné“, „Presahuje 100 %“ (slovenčina)
+- `calculator.js`, `main.js`, `api/lead.js`: čeština („Váš výpočet“, „Odesílám…“, „Děkujeme“)
+
+Odporúčam jednotliviť na jednom jazyku (podľa cieľovej skupiny – čeština pre `.cz` doménu).
+
+### 6. Žiadna validácia odoslania portfólia bez e-mailu
+Ak používateľ vyplní portfólio a klikne na tlačidlo, dostane sa do formulára, ale údaje z portfólia sa nenabindujú do formulára automaticky. Musí ich znova zadávať alebo doufať, že `window.etfPortfolioState` ešte existuje (v `sessionStorage` sa ukladá až pri odoslaní formulára, nie pri kliknutí na tlačidlo portfólia).
+
+### 7. Chýbajúci fallback ak Resend zlyhá
+V `api/lead.js:341-343` pri chybe Resendu sa vracia `200 OK` s `mode: "resend_failed"`, ale užívateľovi sa tvári, že email bol odoslaný. Navrhujem vraciať skutočnú chybu alebo aspoň informovať užívateľa na frontende.
+
+### 8. Žiadna ochrana proti duplikátnym odoslaniam
+Ak používateľ odšle formulár 2× s tým istým e-mailom, vytvorí sa druhý záznam v Redis a pošle sa druhý email. Mohlo by sa pridať idempotency klúč (napr. hash emailu + časového okna) alebo aspoň upozornenie na frontende.
+
+Chceš, aby som niektorú z týchto zmien implementoval? Prepni späť do code módu a môžeme začať.
 
 ---
 

@@ -58,7 +58,7 @@
         "<div class=\"portfolio-row__controls\">" +
           "<input type=\"range\" min=\"0\" max=\"100\" step=\"1\" value=\"" + w + "\" data-ticker=\"" + f.ticker + "\" aria-label=\"Váha " + f.ticker + " – posuvník\">" +
           "<div class=\"portfolio-row__numbox\">" +
-            "<input type=\"number\" min=\"0\" max=\"100\" step=\"1\" value=\"" + w + "\" data-ticker=\"" + f.ticker + "\" class=\"portfolio-row__num\" aria-label=\"Váha " + f.ticker + " v percentách\">" +
+            "<input type=\"number\" min=\"0\" max=\"100\" step=\"1\" value=\"" + w + "\" data-ticker=\"" + f.ticker + "\" class=\"portfolio-row__num\" aria-label=\"Váha " + f.ticker + " v procentech\">" +
             "<span class=\"portfolio-row__unit\">%</span>" +
           "</div>" +
         "</div>" +
@@ -114,13 +114,13 @@
 
     if (totalHintEl) {
       if (isComplete) {
-        totalHintEl.textContent = "Portfólio je kompletné.";
+        totalHintEl.textContent = "Portfolio je kompletní.";
         totalHintEl.className = "portfolio-total__hint is-ok";
       } else if (total > 100) {
-        totalHintEl.textContent = "Presahuje 100 % o " + (total - 100) + " percentových bodov.";
+        totalHintEl.textContent = "Přesahuje 100 % o " + (total - 100) + " procentových bodů.";
         totalHintEl.className = "portfolio-total__hint is-err";
       } else {
-        totalHintEl.textContent = "Chýbajú " + (100 - total) + " percentové body do 100 %.";
+        totalHintEl.textContent = "Chybí " + (100 - total) + " procentové body do 100 %.";
         totalHintEl.className = "portfolio-total__hint is-err";
       }
     }
@@ -144,33 +144,33 @@
       var gapVsAvg = avgFv - yourFv;
 
       resultEl.innerHTML = "" +
-        "<h3 class=\"portfolio-result__title\">Modelový výsledok po " + YEARS + " rokoch</h3>" +
+        "<h3 class=\"portfolio-result__title\">Modelový výsledek po " + YEARS + " letech</h3>" +
         "<div class=\"portfolio-result__grid\">" +
           "<div class=\"portfolio-result__item\">" +
-            "<p class=\"portfolio-result__label\">Váhované TER portfólia</p>" +
+            "<p class=\"portfolio-result__label\">Váhované TER portfolia</p>" +
             "<p class=\"portfolio-result__value num\">" + fmtTer(weightedTer) + "</p>" +
           "</div>" +
           "<div class=\"portfolio-result__item portfolio-result--yours\">" +
-            "<p class=\"portfolio-result__label\">Vaše portfólio – koncová hodnota</p>" +
+            "<p class=\"portfolio-result__label\">Vaše portfolio – koncová hodnota</p>" +
             "<p class=\"portfolio-result__value num\">" + fmtCzk(yourFv) + " Kč</p>" +
             "<p class=\"portfolio-result__note\">Odvodené poplatky: " + fmtCzk(yourFees) + " Kč</p>" +
           "</div>" +
           "<div class=\"portfolio-result__item portfolio-result--cheap\">" +
-            "<p class=\"portfolio-result__label\">Najlacnejšie ETF (0,03 %)</p>" +
+            "<p class=\"portfolio-result__label\">Nejlevnější ETF (0,03 %)</p>" +
             "<p class=\"portfolio-result__value num\">" + fmtCzk(cheapFv) + " Kč</p>" +
             "<p class=\"portfolio-result__note\">Odvodené poplatky: " + fmtCzk(cheapFees) + " Kč</p>" +
           "</div>" +
           "<div class=\"portfolio-result__item portfolio-result--avg\">" +
-            "<p class=\"portfolio-result__label\">Priemerný fond (0,41 %)</p>" +
+            "<p class=\"portfolio-result__label\">Průměrný fond (0,41 %)</p>" +
             "<p class=\"portfolio-result__value num\">" + fmtCzk(avgFv) + " Kč</p>" +
             "<p class=\"portfolio-result__note\">Odvodené poplatky: " + fmtCzk(avgFees) + " Kč</p>" +
           "</div>" +
         "</div>" +
         (gapVsCheap > 1
-          ? "<p class=\"portfolio-result__gap down\">O " + fmtCzk(gapVsCheap) + " Kč menej než pri najlevnom ETF (0,03 %)</p>"
-          : "<p class=\"portfolio-result__gap up\">Ste na úrovni najlevnejšieho ETF.</p>") +
+          ? "<p class=\"portfolio-result__gap down\">O " + fmtCzk(gapVsCheap) + " Kč méně než při nejlevnějším ETF (0,03 %)</p>"
+          : "<p class=\"portfolio-result__gap up\">Jste na úrovni nejlevnějšího ETF.</p>") +
         (gapVsAvg > 1
-          ? "<p class=\"portfolio-result__gap up\">O " + fmtCzk(gapVsAvg) + " Kč viac než pri priemernom fonde (0,41 %)</p>"
+          ? "<p class=\"portfolio-result__gap up\">O " + fmtCzk(gapVsAvg) + " Kč více než při průměrném fondu (0,41 %)</p>"
           : "");
 
       resultEl.hidden = false;
