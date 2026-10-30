@@ -224,14 +224,14 @@ export default async function handler(req, res) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
       const reportHtml = model.calc || model.portfolio || model.tax
-        ? "<pre style=\"font:14px/1.5 monospace;white-space:pre-wrap;margin:0 0 16px\">" + esc(reportText(model)) + "</pre>"
+        ? "<div style=\"white-space:pre-wrap;margin:0 0 16px\">" + esc(reportText(model)) + "</div>"
         : "";
       html =
-        "<div style=\"font:15px/1.5 system-ui,sans-serif;color:#1a1a1a;max-width:520px\">" +
-        "<p>Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>" +
+        "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;color:#1a1a1a;max-width:520px\">" +
+        "<p style=\"margin:0 0 16px\">Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>" +
         reportHtml +
-        "<p><a href=\"" + esc(reportUrl) + "\">Otevřít report online</a></p>" +
-        "<p style=\"font-size:12px;color:#666;margin-top:24px\">" +
+        "<p style=\"margin:0 0 16px\"><a href=\"" + esc(reportUrl) + "\">Otevřít report online</a></p>" +
+        "<p style=\"font-size:12px;color:#666;margin:24px 0 0\">" +
         "<a href=\"" + esc(unsubUrl) + "\">Odhlásit se z odběru</a><br>" +
         "Údaje slouží pouze ke zaslání reportu a tipů (GDPR)." +
         "</p></div>";
