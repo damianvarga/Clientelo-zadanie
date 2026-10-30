@@ -49,7 +49,7 @@
     var ter = state.ter !== null ? state.ter : CHEAPEST_TER;
     var r = compute(ter);
     var cheap = compute(CHEAPEST_TER);
-    var gap = r.netFv - cheap.netFv;
+    var gap = cheap.netFv - r.netFv;
 
     els.yearsOut.textContent = r.years + " let";
     els.final.textContent = fmtCzk(r.netFv);
