@@ -280,3 +280,4 @@ Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi so
 - vylepšiť dizajn stránky tak, aby vyzeral profesionálnejšie (napr. pridaním ilustračných obrázkov)
 - rozdelenie obsahu hlavnej stránky na podstránky
 - pridanie ďalších investičných kalkulačiek a nástrojov
+- nepodarilo sa mi uchovať všetky AI logy, keďže počas toho, ako som robil na zadaní, bol môj počítač na chvíľu v oprave
