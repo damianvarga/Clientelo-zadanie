@@ -3,6 +3,10 @@
 
   var UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "gclid", "fbclid"];
 
+  function consentGranted() {
+    return !!(window.etfConsent && window.etfConsent.granted && window.etfConsent.granted());
+  }
+
   function captureUtm() {
     var params = new URLSearchParams(window.location.search);
     var stored = {};
@@ -11,9 +15,11 @@
       var v = params.get(k);
       if (v) { stored[k] = v; changed = true; }
     });
-    if (changed) {
+    if (changed && consentGranted()) {
       try { localStorage.setItem("etf_utm", JSON.stringify(stored)); } catch (e) {}
     }
+    if (changed) return stored;
+    if (!consentGranted()) return {};
     try {
       return JSON.parse(localStorage.getItem("etf_utm") || "{}");
     } catch (e) { return {}; }
@@ -22,7 +28,7 @@
   function track(name, data) {
     var payload = Object.assign({ event: name }, data || {});
     if (Array.isArray(window.dataLayer)) { window.dataLayer.push(payload); }
-    if (typeof window.va === "function") {
+    if (consentGranted() && typeof window.va === "function") {
       try { window.va("track", name, payload); } catch (e) {}
     }
     if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {

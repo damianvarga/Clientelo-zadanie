@@ -45,9 +45,9 @@ Návštevník prichádza z mobilu na 5 sekúnd = rozhoduje prvá obrazovka a jed
 
 ## 3. Meranie celej cesty
 
-Udalosti (`assets/js/main.js` → `window.etfTrack`; `report_view` priamo v `thank-you.html`):
+Udalosti (`assets/js/main.js` → `window.etfTrack`):
 
-> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) je vložený v `index.html` a `thank-you.html`. Custom eventy z `window.etfTrack()` idú cez `window.va('track')` – treba mať Web Analytics **zapnuté** vo Vercel dashboard (Project → Web Analytics). `dataLayer` (GTM) stránka stále neinicializuje; bez GTM kontajneru sa eventy do `dataLayer` neposielajú. Na localhoste sa eventy logujú len do konzole (`console.debug`).
+> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) sa načíta **až po súhlase** v cookie lište (`consent.js`; `localStorage` kľúč `etf_consent`). Custom eventy z `window.etfTrack()` idú cez `window.va('track')` len ak je súhlas udelený a Web Analytics zapnuté vo Vercel dashboarde. UTM z URL sa pre aktuálnu návštevu použijú v lead payloade vždy; ukladanie do `localStorage` (`etf_utm`) len so súhlasom. `dataLayer` (GTM) stránka neinicializuje. Na localhoste sa eventy logujú len do konzole. **`report_view` sa nemerá** – `thank-you.html` ho pushuje len do (neinicializovaného) `dataLayer` a do konzole.
 
 | Event | Kedy | Čo meria |
 |---|---|---|
@@ -55,10 +55,12 @@ Udalosti (`assets/js/main.js` → `window.etfTrack`; `report_view` priamo v `tha
 | `cta_click` (hero / tabuľka / kalkulačka / sticky / finálny) | kliknutie na CTA | záujem o pokračovanie |
 | `table_sort` | triedenie tabuľky | zapojenie do obsahu |
 | `calc_change` | zmena fondu v kalkulačke | osobné zapojenie |
+| `portfolio_complete` | vyplnené váhy portfólia (súčet 100 %) | dokončenie kalkulačky portfólia |
+| `faq_open` | rozbalenie otázky v FAQ | čo návštevníka zaujíma |
 | `form_view` | formulár vo viewportu 40 % | dosiahnutie zóny konverzie |
 | `form_error` | nevalidný e-mail / súhlas / sieť | kde sa stratia leady |
 | `form_submit` | úspešné odoslanie | **konverzia** |
-| `report_view` | zobrazenie thank-you | dokončenie cesty |
+| `report_view` | zobrazenie thank-you | **len lokálne v konzole** – do analytiky sa neposiela |
 
 **Atribúcia:** UTM parametre z URL sa ukladajú do `localStorage`
 (`etf_utm`) a odosielajú sa spolu s leadom. V logu Vercel funkcie `[lead]`
@@ -118,7 +120,7 @@ mesačné zložené úročenie. Rozdiel konečnej hodnoty pri TER 0,41 % vs 0,03
 
 ### Verzia B – jednoduchosť
 - **Headline:** První kroky s ETF bez zbytečných poplatků: osobní report + checklist.
-- **Text:** Nevíte, který broker si vybrat? Porovnali sme 6 fondů na NYSE, přepočitali dopad poplatků a připravili checklist prvních kroků (W-8BEN, broker, první nákup). Zadejte e-mail a dostanete osobní report.
+- **Text:** Nevíte, který broker si vybrat? Porovnali jsme 6 fondů na NYSE, přepočitali dopad poplatků a připravili checklist prvních kroků (W-8BEN, broker, první nákup). Zadejte e-mail a dostanete osobní report.
 
 - **CTA:** Zjistit více
 
@@ -170,8 +172,7 @@ alebo: nahrajte repo ako projekt na vercel.com (framework: Other, build command:
 ### Odhlásenie (unsubscribe)
 Každý odoslaný e-mail obsahuje odkaz `/api/unsubscribe?token=…` (HMAC-podpísaný e-mail) a hlavičky
 `List-Unsubscribe` + `List-Unsubscribe-Post` (one-click, RFC 8058). Kliknutie alebo POST z e-mailového
-klienta zmaže lead z Redis (`newsletter:lead:<email>` + `newsletter:emails`). Odpoveď slovom
-`ODHLASIT` ostáva ako manuálny fallback (spracuje sa ručne cez REPLY_TO). Endpoint vracia
+klienta zmaže lead z Redis (`newsletter:lead:<email>` + `newsletter:emails`). Endpoint vracia
 `400` bez tokenu, `401` pri zlom podpise, `503` bez Redis.
 
 ### Upstash Redis (databáza leadov)
@@ -217,6 +218,7 @@ soukromi.html         – zásady ochrany osobních údajov (vrátane zoznamu
 assets/css/style.css  – dizajn (editorial fintech, mobil-first)
 assets/data/          – statické dáta (napr. voo-history.json pre graf)
 assets/js/main.js     – UTM, eventy, sticky lišta, odoslanie formulára (presmerovanie na ?id=)
+assets/js/consent.js  – cookie lišta; Vercel Analytics a UTM localStorage len po súhlase
 assets/js/table.js    – porovnávacia tabuľka (radenie, dáta + zdroje)
 assets/js/calculator.js – výpočet erózie poplatkov (8 % p.a., mesačné zložené úročenie)
 assets/js/portfolio.js – kalkulačka váh portfólia
@@ -240,13 +242,9 @@ tests/                 – node --test (model, PDF, endpointy, regenerácia PDF
 
 ## 10. Právne / compliance
 - Disclaimer na stránke i v pätičke: nie je investičné poradenstvo.
-- GDPR: účel spracovania = e-mail na zaslanie reportu (+ súvisiace tipy), súhlas
-  checkboxom, odhlásenie odkazom v e-maile (one-click) alebo odpoveďou „ODHLASIT"
-  (manuálny fallback).
-  **Spracovatelia (tretie strany):** Resend (odosielanie), Upstash Redis
-  (ukladanie: e-mail, čas súhlasu, IP, UTM, stránka, referrer), Vercel
-  (hosting + serverless), Google Fonts (písma). Zoznam je aj v
-  `soukromi.html` – tvrdenie „žiadne tretie strany" by bolo nepravdivé.
+- GDPR: účel spracovania = e-mail na zaslanie reportu (+ súvisiace tipy), súhlas checkboxom, odhlásenie odkazom v e-maile (one-click).
+  **Spracovatelia (tretie strany):** Resend (odosielanie), Upstash Redis (ukladanie: e-mail, čas súhlasu, IP, UTM, stránka, referrer), Vercel (hosting + serverless), Google Fonts (písma). Zoznam je aj v `soukromi.html` – tvrdenie „žiadne tretie strany" by bolo nepravdivé.
+  **Cookies:** cookie lišta (`consent.js`) – Vercel Analytics a `localStorage` (`etf_utm`) len po súhlase; bez súhlasu sa meranie nespúšťa.
 - Všetky čísla so zdrojom; výnosný predpoklad 8 % p.a. je zrejmý pri kalkulačke.
 
 ## 11. Práca s AI agentmi
@@ -268,7 +266,7 @@ Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi so
 | Chyba | Kontext | Ako som to opravil |
 |---|---|---|
 | **Miešanie češtiny a slovenčiny** | UI texty v kóde boli česko-slovensky | Preložil som texty do češtiny. |
-| **HTML nesting bug – skrytá celá stránka** | V `ses_e839` bolo otvorené `<section id="dan" hidden>` bez uzatváracieho tagu, čo schovalo celý obsah pod ním (kalkulačka, portfólio, tabuľka atď.) | Odstránil som zatváraciu zatvorku a nechal sekcie viditeľné |
+| **HTML nesting bug – skrytá celá stránka** | V `ses_e839` bolo otvorené `<section id="dan" hidden>` bez uzatváracieho tagu, čo schovalo celý obsah pod ním (kalkulačka, portfólio, tabuľka atď.) | Odstránil som neuzavretú sekciu #dan. |
 | **PDF text zarovnaný vpravo (checklist)** | Predchádzajúca inštrukcia nechala kurzor na pravej strane suboru, takže checklist bol v úzkej pravej štvrtine | Opravené – pridané `doc.x = PAGE_MARGIN` na začiatok `sectionTitle()` (`lib/report-pdf.js:64`), takže každý nadpis sekcie (vrátane checklistu) začína na ľavom okraji ako ostatné prvky; posledná oprava fungovala |
 | **Dva nezávislé PDF generátory** | V `ses_e78e` existovali dva rozdielne PDF generátory, jeden pre PDF na stránke, druhý pre PDF v e-maili, každý s vlastnou štruktúrou dát. | Generátory som zjednotil do jedného, ktorý generuje jedno spoločné PDF. |
 | **Tlačidlo W-8BEN neposúvalo na sekciu e-mailu** | Opravované viacnásobne, bez výsledku | Nakoniec som danú časť nechal AI zmazať a urobiť nanovo |

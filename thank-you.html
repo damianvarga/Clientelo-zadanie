@@ -10,7 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
-  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -115,5 +114,18 @@
     }
   })();
   </script>
+
+  <div class="cookie-bar" id="cookie-bar" role="dialog" aria-label="Soubory cookie a měření" hidden>
+    <p>
+      Web používá nezbytné úložiště (session) a – pouze s vaším souhlasem – měření návštěvnosti
+      (Vercel Analytics) a ukládání UTM parametrů z reklam.
+      <a href="/soukromi.html">Více v zásadách ochrany osobních údajů</a>.
+    </p>
+    <div class="cookie-bar__actions">
+      <button type="button" class="btn btn--accent" data-cookie-accept>Souhlasím</button>
+      <button type="button" class="btn btn--ghost" data-cookie-deny>Odmítnout</button>
+    </div>
+  </div>
+  <script src="/assets/js/consent.js"></script>
 </body>
 </html>

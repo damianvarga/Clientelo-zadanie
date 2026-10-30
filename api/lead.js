@@ -219,7 +219,6 @@ export default async function handler(req, res) {
       textLines.push("Odhlásit: " + unsubUrl);
     }
     textLines.push(
-      "Pro odhlášení můžete také odpovědět na tento e-mail se slovem ODHLASIT (zpracujeme ručně).",
       "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
     );
 
