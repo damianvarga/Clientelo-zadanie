@@ -218,12 +218,31 @@ tests/                 – node --test (model, PDF, endpointy, identita PDF pre 
 
 ## 10. Právne / compliance
 - Disclaimer na stránke i v pätičke: nie je investičné poradenstvo.
-- GDPR: jediné spracovanie = e-mail na zaslanie reportu, súhlas checkboxom,
-  odhlásenie v každom e-maile, žiadne tretie strany.
+- GDPR: jediné spracovanie = e-mail na zaslanie reportu, súhlas checkboxom, odhlásenie v každom e-maile, žiadne tretie strany.
 - Všetky čísla so zdrojom; výnosný predpoklad 8 % p.a. je zrejmý pri kalkulačke.
 
 ## 11. Práca s AI agentmi
 
-Výstup AI agentov som kontroloval manuálne tak, že som naprogramoval napr. jednu väčšiu, alebo 2-3 menšie funkcie, ktoré som potom otestoval. Ak išlo len o vizuálne opravy, kontrola bola jednoduchá a okamžitá. 
+### Ako som dával pokyny agentom
 
-Najčastejšou chybou AI agentov bolo miešanie češtiny a slovenčiny, ktorú som si všimol až uprostred vývoja projektu. Medzi ďalšie chyby patrilo napr. vykresľovanie prvkov častí stránky tak, že už presahovali hranice časti stránky, pre ktorú patrili, čo napr. pri grafoch znamenalo, že ich nebolo vidieť, ďalej to, že tlačidlo pre W-8BEN formulár nechcelo po kliknutí používateľa presunúť na sekciu s e-mailom (a to ani po opakovaných opravách, nakoniec som nechal AI danú časť zmazať a urobiť nanovo).
+- **Rozdelenie dlhých zadaní** – ak to bolo potrebné, zadania som rozdelil na kroky. Najkmplexnejšie úlohy som nechával analyzovať ChatGPT, ktorý vedel vytvoriť prompty pre tieto úlohy pre iných AI agentov, príp. ich rozdeliť na menšie časti.
+- **Presné a štruktúrované zadania** – buď som rozdelil zadania, ako opísané v predchádzajúcom bode, alebo som sa snažil odovzdávať agentom pokyny tak, aby riešili len jednu jednoduchú opravu, kým danú vec neurobili. 
+- **Overenie pred ukončením** – niekedy som požiadal aj samotného AI agenta o overenie výstupu, no implementované funkcie som otestoval aj manuálne.
+
+### Ako som kontroloval výstup
+
+Výstup AI agentov som kontroloval manuálne tak, že som zadal agentovi napr. jednu väčšiu, alebo 2-3 menšie funkcie, ktoré mal implementovať, a ktoré som potom otestoval. Ak išlo len o vizuálne opravy, kontrola bola jednoduchá a okamžitá. Po tom, čo už bol funkčný e-mailový formulár, som už ale testoval funkcie až po commite/deployi, keďže mi na localhoste nefungovalo odosielanie e-mailov.
+
+Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi som to oznámil a povedal mu, aby to opravil. To som robil dovtedy, kým daná funkcia nebola správne naprogrovaná. Raz sa ale stalo aj to, že som musel zmeniť samotný nástroj na AI (z KiloCode na OpenCode), lebo KiloCode sa zasekol a odmietol naprogramovať danú funkciu.
+
+### Kde sa agenti pomýlili
+
+| Chyba | Kontext | Ako som to opravil |
+|---|---|---|
+| **Miešanie češtiny a slovenčiny** | UI texty v kóde boli česko-slovensky | Preložil som texty do češtiny. |
+| **HTML nesting bug – skrytá celá stránka** | V `ses_e839` bolo otvorené `<section id="dan" hidden>` bez uzatváracieho tagu, čo schovalo celý obsah pod ním (kalkulačka, portfólio, tabuľka atď.) | Odstránil som zatváraciu zatvorku a nechal sekcie viditeľné |
+| **PDF text zarovnaný vpravo (checklist)** | V `ses_e789` `renderList` používalo `continued: true` bez resetu `doc.x`; predchádzajúca `renderTable` nechala kurzor na x≈435, takže checklist bol v úzkej pravé štvrtine | V `lib/report-pdf.js:124` som pred každou položkou nastavil `doc.x = PAGE_MARGIN` a `align: "justify"` |
+| **Dva nezávislé PDF generátory** | V `ses_e78e` existovali dva rozdielne PDF generátory, jeden pre PDF na stránke, druhý pre PDF v e-maili, každý s vlastnou štruktúrou dát. | Generátory som zjednotil do jedného, ktorý generuje jedno spoločné PDF. |
+| **Tlačidlo W-8BEN neposúvalo na sekciu e-mailu** | Opravované viacnásobne, bez výsledku | Nakoniec som danú časť nechal AI zmazať a urobiť nanovo |
+| **E-mailový formulár sa nedalo odoslať na localhoste** | Endpoint `/api/lead` nie je dostupný bez Vercela | Testoval som až po commite/deployi, ako je uvedené na začiatku tejto časti |
+
