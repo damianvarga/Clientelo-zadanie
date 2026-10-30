@@ -2,2221 +2,7 @@
 
 **Session ID:** ses_e71fc90d7ffeHNPJ6e1KipCoEH
 **Created:** 30. 10. 2026 19:12:32
-**Updated:** 30. 10. 2026 21:28:43
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 29.8s)
-
-_Thinking:_
-
-Continue with:
-- Upstash section: "Lead sa uloží iba keď..." is correct, but "Bez premenných UPSTASH endpoint vracia HTTP 503" - that's already correct at the end of Upstash section.
-- §8 Overenie - POST returns more than {ok:true}
-- §8 local dev typo premmenné
-- §9 structure
-- §10 GDPR
-- .env.example
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "### 4) Overenie\n- `POST /api/lead` s validným telom a nakonfigurovaným Redis → `{\"ok\":true, \"stored\":true, \"reportId\":\"…\"}` (bez Redis → `503 db_not_configured`)\n- odoslanie formulára → presmerovanie na `/thank-you.html?id=…`\n- v dashboarde Vercel → Deployments → fungovanie → Logs → riadky `[lead]`\n  s `email + utm + sections` (boolean, nie hodnoty kalkulačky)\n\n### Lokálny vývoj\n```bash\nnpm test             # testy modelu, PDF a endpointov (bez siete)\n                     # POZN.: 2 z 19 testov ešte čakajú staré ukladanie PDF\n                     # v Redis (entry.pdfBase64) a padajú – viz §9\nnpx serve .          # IBA statický náhľad – formulár sa lokálne NEODOŠLE\n                     # (žiadne /api), zobrazí sa jasná chybová hláška\nnpx vercel dev       # plný beh vrátane /api/lead a /api/report\n                     # (vyžaduje vercel login + UPSTASH env premenné;\n                     #  RESEND voliteľný – bez neho log_only)\n```",
-  "oldString": "### 4) Overenie\n- `POST /api/lead` s validným telom → `{\"ok\":true}`\n- odoslanie formulára → presmerovanie na `/thank-you.html` s číslami\n- v dashboarde Vercel → Deployments → fungovanie → Logs → riadky `[lead]`\n  s `email + utm + calc`\n\n### Lokálny vývoj\n```bash\nnpm test             # testy modelu, PDF a endpointov (bez siete)\nnpx serve .          # IBA statický náhľad – formulár sa lokálne NEODOŠLE\n                     # (žiadne /api), zobrazí sa jasná chybová hláška\nnpx vercel dev       # plný beh vrátane /api/lead a /api/report\n                     # (vyžaduje vercel login + UPSTASH/RESEND env premmenné)\n```"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "## 9. Štruktúra súborov\n\n```\nindex.html            – landing page (hero → fakta → tabulka → grafy → daň →\n                        portfolio → kalkulačka → formulár → FAQ → finální CTA)\nthank-you.html        – stránka s reportom (iframe cez /api/report?id=…)\nsoukromi.html         – zásady ochrany osobních údajů (vrátane zoznamu\n                        spracovateľov: Resend, Upstash, Vercel)\nassets/css/style.css  – dizajn (editorial fintech, mobil-first)\nassets/data/          – statické dáta (napr. voo-history.json pre graf)\nassets/js/main.js     – UTM, eventy, sticky lišta, odoslanie formulára (presmerovanie na ?id=)\nassets/js/table.js    – porovnávacia tabuľka (radenie, dáta + zdroje)\nassets/js/calculator.js – výpočet erózie poplatkov (8 % p.a., mesačné zložené úročenie)\nassets/js/portfolio.js – kalkulačka váh portfólia\nassets/js/tax-calculator.js – kalkulačka dane z dividend (W-8BEN)\nassets/js/charts.js   – grafy (cena VOO + modelový dopad poplatkov)\nlib/report.js          – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu\nlib/report-pdf.js      – PDF generátor (pdfkit + DejaVu, česká diakritika)\nlib/store.js           – ukladanie/načítanie **modelov** reportov v Upstash Redis\n                        (kľúč report:<id>, TTL 30 dní; PDF sa neukladá)\napi/lead.js            – serverless endpoint: validácia → uloženie leadu → 1 PDF\n                        (len na prílohu e-mailu) → model do Redis → Resend → reportId\napi/report.js          – servírovanie PDF vygenerovaného z uloženého modelu\n                        (zhodný obsah ako e-mailová príloha)\nscripts/fetch-voo.cjs  – načítanie histórie cien VOO do assets/data\ntests/                 – node --test (model, PDF, endpointy, identita PDF)\n                         POZN.: 2 endpoint testy (api.test.js) ešte čakajú\n                         entry.pdfBase64 v Redis (stará architektúra) a padajú\n.env.example           – popis premenných\n```",
-  "oldString": "## 9. Štruktúra súborov\n\n```\nindex.html            – landing page (hero → fakta → tabulka → kalkulačka → formulár → FAQ)\nthank-you.html        – stránka s reportom (zobrazuje PDF vygenerované z uloženého modelu cez /api/report)\nassets/css/style.css  – dizajn (editorial fintech, mobil-first)\nassets/js/main.js     – UTM, eventy, sticky lišta, odoslanie formulára (presmerovanie na ?id=)\nassets/js/table.js    – porovnávacia tabuľka (radenie, dáta + zdroje)\nassets/js/calculator.js – výpočet erózie poplatkov (8 % p.a., mesačné zložené úročenie)\nlib/report.js          – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu\nlib/report-pdf.js      – PDF generátor (pdfkit + DejaVu, česká diakritika)\nlib/store.js           – ukladanie/načítanie PDF reportov v Upstash Redis\napi/lead.js            – serverless endpoint: validácia → 1 PDF → Redis → Resend → reportId\napi/report.js          – servírovanie uloženého PDF (ten istý súbor ako e-mailová príloha)\ntests/                 – node --test (model, PDF, endpointy, identita PDF pre web/e-mail)\n.env.example           – popis premenných\n```"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "## 10. Právne / compliance\n- Disclaimer na stránke i v pätičke: nie je investičné poradenstvo.\n- GDPR: účel spracovania = e-mail na zaslanie reportu (+ súvisiace tipy), súhlas\n  checkboxom, odhlásenie odpoveďou „ODHLASIT\" v každom e-maile.\n  **Spracovatelia (tretie strany):** Resend (odosielanie), Upstash Redis\n  (ukladanie: e-mail, čas súhlasu, IP, UTM, stránka, referrer), Vercel\n  (hosting + serverless), Google Fonts (písma). Zoznam je aj v\n  `soukromi.html` – tvrdenie „žiadne tretie strany\" by bolo nepravdivé.\n- Všetky čísla so zdrojom; výnosný predpoklad 8 % p.a. je zrejmý pri kalkulačke.",
-  "oldString": "## 10. Právne / compliance\n- Disclaimer na stránke i v pätičke: nie je investičné poradenstvo.\n- GDPR: jediné spracovanie = e-mail na zaslanie reportu, súhlas checkboxom, odhlásenie v každom e-maile, žiadne tretie strany.\n- Všetky čísla so zdrojom; výnosný predpoklad 8 % p.a. je zrejmý pri kalkulačke."
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 20.4s)
-
-_Thinking:_
-
-Now fix .env.example with the same false claims.
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\.env.example",
-  "newString": "# Povinné pre plný konverzný flow: UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN\n# (bez nich endpoint vracia 503 db_not_configured a formulár pre používateľa zlyhá).\n# RESEND_API_KEY je voliteľný: bez neho sa lead uloží do Redis a vracia sa\n# mode: \"log_only\" (e-mail s reportom sa nepošle).\n\n# Voliteľné – Resend API kľúč (https://resend.com/api-keys)\nRESEND_API_KEY=re_xxxxxxxx\n\n# Voliteľné – odosielateľ (bez vlastnej domény nechajte default)\nRESEND_FROM=ETF Clientelo <onboarding@resend.dev>\n\n# Voliteľné – kam chodia odpovede\nREPLY_TO=vuj@email.cz\n\n# Potrebné – Upstash Redis (https://console.upstash.com → Create database)\n# Bez nich sa lead neuloží; endpoint vracia HTTP 503 { \"error\": \"db_not_configured\" }.\nUPSTASH_REDIS_REST_URL=https://xxx.upstash.io\nUPSTASH_REDIS_REST_TOKEN=xxxxxxx",
-  "oldString": "# Povinné: žiadne. Bez všetkých premenných stránka funguje\n# a leady sa zapisujú do function logov (mode: \"log_only\").\n\n# Voliteľné – Resend API kľúč (https://resend.com/api-keys)\nRESEND_API_KEY=re_xxxxxxxx\n\n# Voliteľné – odosielateľ (bez vlastnej domény nechajte default)\nRESEND_FROM=ETF Clientelo <onboarding@resend.dev>\n\n# Voliteľné – kam chodia odpovede\nREPLY_TO=vuj@email.cz\n\n# Voliteľné – Upstash Redis (https://console.upstash.com → Create database)\n# Bez nich sa leady neukladajú do databázy (vracia sa \"stored\": false).\nUPSTASH_REDIS_REST_URL=https://xxx.upstash.io\nUPSTASH_REDIS_REST_TOKEN=xxxxxxx"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 53.5s)
-
-_Thinking:_
-
-Let me also check §7 which mentions events list - it says events are connected to dataLayer via etfTrack which is partially true as code. And §1 says "Polia formulária" etc. Let me re-read the full README to verify consistency of my changes, and also check if there are any remaining false claims I missed (e.g., §8 Upstash section about "Každý záznam obsahuje..." - that's true; "Lead sa uloží iba keď..." true).
-
-Also §1 line about hero "235 000 Kč" (vypočítané, viz §5) - true.
-
-Also §8 "Celý flow ... funguje až v prostredí..." - correct.
-
-Let me read the updated file to verify.
-
-Prečítam upravený README na kontrolu konzistencie:
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md"
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md</path>
-<type>file</type>
-<content>
-1: # ETF Clientelo – konverzná landing page (Zadanie B)
-2: 
-3: Lead magnet pre českého drobného investora: porovnanie 6 ETF obchodovaných na NYSE
-4: (VOO, IVV, SPY, QQQ, VTI, SCHD) + kalkulačka dopadu poplatkov. Návštevník dostáva
-5: osobný report výměnou za e-mail.
-6: 
-7: **Stack:** čisté HTML + CSS + vanilla JS, bez build kroku. Nasadenie: Vercel
-8: (statické súbory + serverless funkcie `api/lead.js`).
-9: 
-10: ---
-11: 
-12: ## 1. Cieľová skupina a mechanika konverzie
-13: 
-14: | Otázka | Odpoveď |
-15: |---|---|
-16: | Kto | Čech/Češka 25–45 rokov, mobil, začiatočník/pokročilý, mesačne odkladá, zvažuje brokera (Fio, Trading 212, DEGIRO, Portu), bojí sa poplatkov a dane z dividend |
-17: | Odkiaľ | Meta / Google Ads, studený traffic, ~5 s pozornosti |
-18: | Čo dostanete výmenou | **Osobný report**: vlastný prepočet straty na poplatkoch (číslo z kalkulačky) + rozbor 6 ETF + checklist prvých krokov (W-8BEN, broker, prvý nákup) |
-19: | Kedy žiadame kontakt | Až po voľne prístupných prvkoch – porovnávacia tabuľka, grafy a kalkulačky. Formulár je logický ďalší krok, nie skok |
-20: | Polia formulára | **1 pole (e-mail)** + GDPR checkbox + honeypot |
-21: | Čo nasleduje po odoslaní | okamžitá `thank-you.html?id=…` zobrazujúca PDF zhodné s prílohou e-mailu. Do Redis sa ukladá **len model** vstupov; PDF sa z neho vygeneruje znova cez `/api/report`. |
-22: 
-23: Hodnota je zrejmá pred vyplnením: tabuľka i kalkulačka sú funkčné bez e-mailu. E-mail je potrebný na uloženie/odoslanie reportu.
-24: 
-25: ---
-26: 
-27: ## 2. Dôvod poradia sekcií
-28: 
-29: Návštevník prichádza z mobilu na 5 sekúnd = rozhoduje prvá obrazovka a jeden sľub.
-30: 
-31: 1. **Hero (1. obrazovka)** – zrkadlo reklamy (message match). Číselný hák „235 000 Kč" (vypočítané, viz §5) + jasný prísľub „spočítajte si to za 30 sekúnd". Dve CTA: primárna vedie na kalkulačku (okamžitá hodnota), sekundárna na tabuľku. Úmyselne **nevedie priamo na formulár** – studený návštevník nie je pripravený dať e-mail.
-32: 2. **Tri fakty** – rýchle „bolesti" číslami so zdrojmi (0,03 % vs 0,41 %; 3× dráž SPY; daň 15 % vs 30 %). Dôvera cez zdroje, nie cez logá klientov, ktoré nemáme.
-33: 3. **Porovnávacia tabuľka (voľná)** – prvá skutočná hodnota. Návštevník si odnáša odpoveď bez registrácie → dôvera → ochota pokračovať.
-34: 4. **Grafy (voľné)** – historický vývoj VOO + modelový dopad poplatkov (sekcia `#grafy`).
-35: 5. **Kalkulačka dane z dividend / W-8BEN (voľná)** – sekcia `#dan`.
-36: 6. **Kalkulačka portfólia (voľná)** – sekcia `#portfolio`.
-37: 7. **Kalkulačka poplatkov (voľná, interaktívna)** – emocionálny motor: osobné číslo. Tu sa mení správanie z „zaujímavé" na „to sa týka mňa". Teprv pod ňou…
-38: 8. **Formulár** – žiadosť o kontakt v momente, keď návštevník vidí svoju stratu. Presne pravidlo: hodnota zrejmé → potom formulár.
-39: 9. **Ako to funguje (3 kroky)** – odstraňuje strach zo záväzku a z „predaja".
-40: 10. **FAQ** – posledné námietky (dane, broker, „nie je to odporúčanie") až po formulári, pretože ľudia čítajú FAQ skôr po rozhodnutí než pred ním.
-41: 11. **Záverečné CTA** – pre tých, čo prešli celú stránku.
-42: 12. **Sticky mobilná lišta** – po opustení hero je CTA neustále na dosah palca; zmizne vnútri sekcie formulára, aby neprekážala.
-43: 
-44: ---
-45: 
-46: ## 3. Meranie celej cesty
-47: 
-48: Udalosti (`assets/js/main.js` → `window.etfTrack`; `report_view` priamo v `thank-you.html`):
-49: 
-50: > **Upozornenie (aktuálny stav):** kód posiela eventy do `window.dataLayer` a `window.va('track')`, ale stránka **neinicializuje GTM ani skript Vercel Analytics** (`/_vercel/insights/script.js`). Bez týchto skriptov sa eventy v produkcií **nikam neodosielajú** – na localhoste ich uvidíte len v konzole (`console.debug`). Pre reálne meranie treba dohodiť skript Vercel Analytics a/alebo GTM.
-51: 
-52: | Event | Kedy | Čo meria |
-53: |---|---|---|
-54: | `page_view` | načítanie | 100 % návštev |
-55: | `cta_click` (hero / tabuľka / kalkulačka / sticky / finálny) | kliknutie na CTA | záujem o pokračovanie |
-56: | `table_sort` | triedenie tabuľky | zapojenie do obsahu |
-57: | `calc_change` | zmena fondu v kalkulačke | osobné zapojenie |
-58: | `form_view` | formulár vo viewportu 40 % | dosiahnutie zóny konverzie |
-59: | `form_error` | nevalidný e-mail / súhlas / sieť | kde sa stratia leady |
-60: | `form_submit` | úspešné odoslanie | **konverzia** |
-61: | `report_view` | zobrazenie thank-you | dokončenie cesty |
-62: 
-63: **Atribúcia:** UTM parametre z URL sa ukladajú do `localStorage`
-64: (`etf_utm`) a odosielajú sa spolu s leadom. V logu Vercel funkcie `[lead]`
-65: vidíte `email + utm` a **boolean prítomnosti sekcií**
-66: (`sections: {calc: true/false, portfolio: …, tax: …}`) – nie konkrétne vstupy
-67: kalkulačky (tie sú len v uloženom modeli v Redis). Cesta **teda** v kóde je
-68: úplná: **reklama → príchod → interakcia → formulár → odoslanie → report**,
-69: každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte
-70: napojiť (viď vyššie).
-71: 
-72: **Lievik (očakávanie na 100 návštev):** 100 page_view → 35–45 `form_view`
-73: → 8–12 `form_submit`. Overuje sa (až po zapnutí analytiky) v dashboarde +
-74: filtrovaním `[lead]` logov funkcie `api/lead`.
-75: 
-76: ---
-77: 
-78: ## 4. Očakávaná konverzia
-79: 
-80: **8–12 % lead CVR** (form_submit / unique page_view) na studenom mobilnom trafficu.
-81: 
-82: - dôvod optimizmu: lead magnet je číselne personalizovaný, formulár má 1 pole, hodnota je viditeľná pred formulárom, sticky CTA
-83: - dôvod opatrnosti: studený traffic, mobil, dôvera k finančnému obsahu
-84: - medzikroky: CTR z reklamy na stránku očakávame 1,2–2 %, bounce < 55 %, `form_view` rate 35–45 % z page_view
-85: 
-86: ---
-87: 
-88: ## 5. Reálne dáta a zdroje
-89: 
-90: | Údaj | Hodnota | Zdroj (overené 10/2026) |
-91: |---|---|---|
-92: | TER VOO | 0,03 % | Vanguard fact sheet, 30. 9. 2026 |
-93: | TER IVV | 0,03 % | iShares summary prospectus, 31. 7. 2026 |
-94: | TER SPY | 0,0945 % | State Street product listing, 9. 7. 2026 |
-95: | TER QQQ | 0,18 % | invesco.com (Invesco QQQ) |
-96: | TER VTI | 0,03 % | Vanguard fact sheet, 30. 9. 2026 |
-97: | TER SCHD | 0,060 % | schwabassetmanagement.com, 23. 10. 2026 |
-98: | Priemerný indexových fondov S&P 500 | 0,41 % | Vanguard fact sheet (31. 12. 2025) |
-99: | Výnos S&P 500 | ≈ 10 % p.a. od 1957 | Fidelity (2026); Damodaran, NYU Stern: 10,02 % 1928–2025 |
-100: | Daň z dividend USA | 30 % → 15 % s W-8BEN | Zmluva ČR–USA č. 32/1994 z.z., čl. 10 (MF ČR / IRS) |
-101: 
-102: **Výpočet hero čísla (235 000 Kč):** východiskový scénár kalkulačky
-103: 100 000 Kč vklad + 3 000 Kč/mesiac × 25 rokov, hrubý výnos 8 % p.a.,
-104: mesačné zložené úročenie. Rozdiel konečnej hodnoty pri TER 0,41 % vs 0,03 %
-105: = **234 728 Kč** (zaokruhlené). Kalkulačka používa rovnakú metódu
-106: (`assets/js/calculator.js`, funkcia `futureValue`).
-107: 
-108: ---
-109: 
-110: ## 6. Dve verzie reklamy
-111: 
-112: > Hero stránky je vyladený na **verzii A** (message match). Pri spustení verzie B upravte H1 + sub v `index.html` a `og:title` (hypotéza A/B č. 1).
-113: 
-114: ### Verzia A – strata (východisková, aktuálne nasadená)
-115: - **Headline (H1 v `index.html`):** Vaše ETF vás může připravit o 235 000 Kč. Aniž byste to zjistili.
-116: - **Sub:** Stejná indexová sledka, dva fondy, rozdílný poplatek. Porovnejte 6 ETF obchodovaných na NYSE a spočítejte si dopad poplatků na vaše peníze. Zabere to 30 sekund.
-117: - **CTA:** Spočítat moje ztracené peníze (primárna) + Rovnou porovnat ETF (sekundárna)
-118: 
-119: ### Verzia B – jednoduchosť
-120: - **Headline:** První kroky s ETF bez zbytečných poplatků: osobní report + checklist.
-121: - **Text:** Nevíte, který broker si vybrat? Porovnali sme 6 fondů na NYSE, přepočitali dopad poplatků a připravili checklist prvních kroků (W-8BEN, broker, první nákup). Zadejte e-mail a dostanete osobní report.
-122: 
-123: - **CTA:** Zjistit více
-124: 
-125: ---
-126: 
-127: ## 7. A/B hypotézy (zoradené podľa očakávaného dopadu)
-128: 
-129: | # | Hypotéza | Varianta A (kontrola) vs. B | Prečo práve toto poradie | Metrika |
-130: |---|---|---|---|---|
-131: | **1** | Číselný hook v hero poráža všeobecný headline | „Vaše ETF vás může připravit o 235 000 Kč" vs. „Srovnání ETF pro českého investora" | Headline je jediný text, ktorý studený mobilný návštevník stihne prečítať; ovplyvňuje bounce aj všetky ďalšie kroky naraz = najväčší multiplikátor | bounce rate + CTR z hero (30 sekúnd) |
-132: | **2** | Formulár s 1 poľom konvertuje viac ako e-mail + meno | len e-mail vs. e-mail + meno (meno zvyšuje personalizáciu e-mailu) | priamy vplyv na hlavnú metriku, nízke riziko, ľahko testovateľné | form_submit / form_view |
-133: | **3** | Voľná kalkulačka + formulár pod ňou poráža gate za e-mailom | výsledok viditeľný okamžite vs. výsledok až po zadaní e-mailu | gate môže zdvihnúť konverzný pomer, ale zabiť dôveru a zdieľanie – preto až tretí, vyššie riziko | form_submit / page_view; sekundárne bounce |
-134: 
-135: Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) sú napojené na `dataLayer` cez `window.etfTrack()`.
-136: 
-137: ---
-138: 
-139: ## 8. Spustenie (deploy na Vercel)
-140: 
-141: ### 1) Resend kľúč (e-maily)
-142: 1. Účet zdarma na <https://resend.com> (3 000 e-mailov/mesiac, 100/deň).
-143: 2. V dashboarde → **API Keys** → vytvoriť kľúč, skopírovať.
-144: 3. Overiť odosielateľa: bez vlastnej domény funguje len
-145:    `ETF Clientelo <onboarding@resend.dev>` na váš vlastný overený e-mail
-146:    (vo free pláne stačí). Pred reálnou kampaňou pridajte vlastnú doménu
-147:    (SPF/DKIM) a nastavte `RESEND_FROM`.
-148: 
-149: ### 2) Deploy
-150: ```bash
-151: # z tohoto adresára
-152: npx vercel          # prvýkrát – prihlásenie + výber projektu (Hobby, zdarma)
-153: npx vercel --prod   # produkcia
-154: ```
-155: alebo: nahrajte repo ako projekt na vercel.com (framework: **Other**,
-156: build command: prázdny, output: prázdny – statické soubory sa nasadia samé).
-157: 
-158: ### 3) Premenné prostredia (Project → Settings → Environment Variables)
-159: | Variable | Hodnota |
-160: |---|---|
-161: | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady ukladajú do Redis a vracia sa `mode: "log_only"`, e-mail sa nepošle) |
-162: | `RESEND_FROM` | napr. `ETF Clientelo <report@clientelo.cz>` (voliteľné) |
-163: | `REPLY_TO` | e-mail na odpovede (voliteľné) |
-164: | `UPSTASH_REDIS_REST_URL` | REST URL z Upstash (**potrebné pre fungujúci flow** – bez neho endpoint vracia `503 db_not_configured` a formulár pre používateľa zlyhá) |
-165: | `UPSTASH_REDIS_REST_TOKEN` | REST token z Upstash (rovnako potrebné) |
-166: 
-167: **Bez `RESEND_API_KEY`** (s nakonfigurovaným Redis) endpoint vracia `200` a loguje `mode: "log_only"` – lead je uložený, reportId vrátené, e-mail neodíde.
-168: **Bez `UPSTASH_*`** endpoint vracia `503` s telom `{ "error": "db_not_configured" }` – konverzný flow **nefunguje**.
-169: 
-170: ### Upstash Redis (databáza leadov)
-171: 1. Účet zdarma na <https://upstash.com> → **Create database** (free tier).
-172: 2. V sekcii **REST API** skopírovať `UPSTASH_REDIS_REST_URL` a `UPSTASH_REDIS_REST_TOKEN`.
-173: 3. Pridať ako environment variables (vyššie) a redeploy.
-174: 
-175: Lead sa uloží **iba keď používateľ zaškrtol súhlas** (overené aj serverom –
-176: bez `consent: true` vracia endpoint `422 consent_required` a neuloží nič).
-177: Každý záznam obsahuje e-mail, čas súhlasu, IP, UTM, stránku a referrer
-178: (klúč `newsletter:lead:<email>` + index `newsletter:emails`). Bez premenných
-179: (`UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`) endpoint vracia HTTP 503
-180: s telom `{ "error": "db_not_configured" }`.
-181: 
-182: ### 4) Overenie
-183: - `POST /api/lead` s validným telom a nakonfigurovaným Redis → `{"ok":true, "stored":true, "reportId":"…"}` (bez Redis → `503 db_not_configured`)
-184: - odoslanie formulára → presmerovanie na `/thank-you.html?id=…`
-185: - v dashboarde Vercel → Deployments → fungovanie → Logs → riadky `[lead]`
-186:   s `email + utm + sections` (boolean, nie hodnoty kalkulačky)
-187: 
-188: ### Lokálny vývoj
-189: ```bash
-190: npm test             # testy modelu, PDF a endpointov (bez siete)
-191:                      # POZN.: 2 z 19 testov ešte čakajú staré ukladanie PDF
-192:                      # v Redis (entry.pdfBase64) a padajú – viz §9
-193: npx serve .          # IBA statický náhľad – formulár sa lokálne NEODOŠLE
-194:                      # (žiadne /api), zobrazí sa jasná chybová hláška
-195: npx vercel dev       # plný beh vrátane /api/lead a /api/report
-196:                      # (vyžaduje vercel login + UPSTASH env premenné;
-197:                      #  RESEND voliteľný – bez neho log_only)
-198: ```
-199: 
-200: Celý flow (odoslanie → uložený model → regenerované PDF → zobrazenie v `thank-you.html?id=…` → e-mail) funguje až v prostredí, ktoré má serverless funkcie – teda na Vercel deployi, alebo lokálne cez `npx vercel dev`. PDF sa neukladá do Redis trvalo; ukladá sa len model (vstupy kalkulačky/portfóla/dane) a PDF sa z neho vygeneruje znova pri každom načítaní `thank-you.html?id=…` cez endpoint `/api/report`. E-mail dostane PDF ako prílohu priamo počas odosielania formulára.
-201: 
-202: ---
-203: 
-204: ## 9. Štruktúra súborov
-205: 
-206: ```
-207: index.html            – landing page (hero → fakta → tabulka → grafy → daň →
-208:                         portfolio → kalkulačka → formulár → FAQ → finální CTA)
-209: thank-you.html        – stránka s reportom (iframe cez /api/report?id=…)
-210: soukromi.html         – zásady ochrany osobních údajů (vrátane zoznamu
-211:                         spracovateľov: Resend, Upstash, Vercel)
-212: assets/css/style.css  – dizajn (editorial fintech, mobil-first)
-213: assets/data/          – statické dáta (napr. voo-history.json pre graf)
-214: assets/js/main.js     – UTM, eventy, sticky lišta, odoslanie formulára (presmerovanie na ?id=)
-215: assets/js/table.js    – porovnávacia tabuľka (radenie, dáta + zdroje)
-216: assets/js/calculator.js – výpočet erózie poplatkov (8 % p.a., mesačné zložené úročenie)
-217: assets/js/portfolio.js – kalkulačka váh portfólia
-218: assets/js/tax-calculator.js – kalkulačka dane z dividend (W-8BEN)
-219: assets/js/charts.js   – grafy (cena VOO + modelový dopad poplatkov)
-220: lib/report.js          – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu
-221: lib/report-pdf.js      – PDF generátor (pdfkit + DejaVu, česká diakritika)
-222: lib/store.js           – ukladanie/načítanie **modelov** reportov v Upstash Redis
-223:                         (kľúč report:<id>, TTL 30 dní; PDF sa neukladá)
-224: api/lead.js            – serverless endpoint: validácia → uloženie leadu → 1 PDF
-225:                         (len na prílohu e-mailu) → model do Redis → Resend → reportId
-226: api/report.js          – servírovanie PDF vygenerovaného z uloženého modelu
-227:                         (zhodný obsah ako e-mailová príloha)
-228: scripts/fetch-voo.cjs  – načítanie histórie cien VOO do assets/data
-229: tests/                 – node --test (model, PDF, endpointy, identita PDF)
-230:                          POZN.: 2 endpoint testy (api.test.js) ešte čakajú
-231:                          entry.pdfBase64 v Redis (stará architektúra) a padajú
-232: .env.example           – popis premenných
-233: ```
-234: 
-235: ## 10. Právne / compliance
-236: - Disclaimer na stránke i v pätičke: nie je investičné poradenstvo.
-237: - GDPR: účel spracovania = e-mail na zaslanie reportu (+ súvisiace tipy), súhlas
-238:   checkboxom, odhlásenie odpoveďou „ODHLASIT" v každom e-maile.
-239:   **Spracovatelia (tretie strany):** Resend (odosielanie), Upstash Redis
-240:   (ukladanie: e-mail, čas súhlasu, IP, UTM, stránka, referrer), Vercel
-241:   (hosting + serverless), Google Fonts (písma). Zoznam je aj v
-242:   `soukromi.html` – tvrdenie „žiadne tretie strany" by bolo nepravdivé.
-243: - Všetky čísla so zdrojom; výnosný predpoklad 8 % p.a. je zrejmý pri kalkulačke.
-244: 
-245: ## 11. Práca s AI agentmi
-246: 
-247: ### Ako som dával pokyny agentom
-248: 
-249: - **Rozdelenie dlhých zadaní** – ak to bolo potrebné, zadania som rozdelil na kroky. Najkmplexnejšie úlohy som nechával analyzovať ChatGPT, ktorý vedel vytvoriť prompty pre tieto úlohy pre iných AI agentov, príp. ich rozdeliť na menšie časti.
-250: - **Presné a štruktúrované zadania** – buď som rozdelil zadania, ako opísané v predchádzajúcom bode, alebo som sa snažil odovzdávať agentom pokyny tak, aby riešili len jednu jednoduchú opravu, kým danú vec neurobili. 
-251: - **Overenie pred ukončením** – niekedy som požiadal aj samotného AI agenta o overenie výstupu, no implementované funkcie som otestoval aj manuálne.
-252: 
-253: ### Ako som kontroloval výstup
-254: 
-255: Výstup AI agentov som kontroloval manuálne tak, že som zadal agentovi napr. jednu väčšiu, alebo 2-3 menšie funkcie, ktoré mal implementovať, a ktoré som potom otestoval. Ak išlo len o vizuálne opravy, kontrola bola jednoduchá a okamžitá. Po tom, čo už bol funkčný e-mailový formulár, som už ale testoval funkcie až po commite/deployi, keďže mi na localhoste nefungovalo odosielanie e-mailov.
-256: 
-257: Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi som to oznámil a povedal mu, aby to opravil. To som robil dovtedy, kým daná funkcia nebola správne naprogrovaná. Raz sa ale stalo aj to, že som musel zmeniť samotný nástroj na AI (z KiloCode na OpenCode), lebo KiloCode sa zasekol a odmietol naprogramovať danú funkciu.
-258: 
-259: ### Kde sa agenti pomýlili
-260: 
-261: | Chyba | Kontext | Ako som to opravil |
-262: |---|---|---|
-263: | **Miešanie češtiny a slovenčiny** | UI texty v kóde boli česko-slovensky | Preložil som texty do češtiny. |
-264: | **HTML nesting bug – skrytá celá stránka** | V `ses_e839` bolo otvorené `<section id="dan" hidden>` bez uzatváracieho tagu, čo schovalo celý obsah pod ním (kalkulačka, portfólio, tabuľka atď.) | Odstránil som zatváraciu zatvorku a nechal sekcie viditeľné |
-265: | **PDF text zarovnaný vpravo (checklist)** | Predchádzajúca inštrukcia nechala kurzor na pravej strane suboru, takže checklist bol v úzkej pravej štvrtine | Opravené – pridané `doc.x = PAGE_MARGIN` na začiatok `sectionTitle()` (`lib/report-pdf.js:64`), takže každý nadpis sekcie (vrátane checklistu) začína na ľavom okraji ako ostatné prvky; posledná oprava fungovala |
-266: | **Dva nezávislé PDF generátory** | V `ses_e78e` existovali dva rozdielne PDF generátory, jeden pre PDF na stránke, druhý pre PDF v e-maili, každý s vlastnou štruktúrou dát. | Generátory som zjednotil do jedného, ktorý generuje jedno spoločné PDF. |
-267: | **Tlačidlo W-8BEN neposúvalo na sekciu e-mailu** | Opravované viacnásobne, bez výsledku | Nakoniec som danú časť nechal AI zmazať a urobiť nanovo |
-268: | **E-mailový formulár sa nedalo odoslať na localhoste** | Endpoint `/api/lead` nie je dostupný bez Vercela | Testoval som až po commite/deployi, ako je uvedené na začiatku tejto časti |
-269: | **Nefungujúce odosielanie e-mailov po prerobení DB** | Po tom, čo som implementoval pomocou AI to, aby sa už base64 PDF súbora neukladalo do databázy, sa prestali odosielať e-maily | deklarovanú konštantu sme presunuli mimo try block, keďže to spôsobovalo chybu pri pokuse o odoslanie prílohy.
-270: 
-271: ## 12. Možnosti pokračovania vývoja
-272: 
-273: - doplniť logiku, ktorá podľa `?v=A`/`?v=B` bude vedieť urobiť A/B testovanie,
-274: - vylepšiť dizajn stránky tak, aby vyzeral profesionálnejšie (napr. pridaním ilustračných obrázkov)
-275: - rozdelenie obsahu hlavnej stránky na podstránky
-276: - pridanie ďalších investičných kalkulačiek a nástrojov
-
-(End of file - total 276 lines)
-</content>
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 10.8s)
-
-_Thinking:_
-
-One remaining issue: §7 line 135 says "Eventy ... sú napojené na `dataLayer` cez `window.etfTrack()`" - this is partially misleading given the analytics warning in §3. Let me fix that sentence to be consistent.
-
-Also §1 line 19 mentions "porovnávacia tabuľka, grafy a kalkulačky" - fine.
-
-Fix §7 last sentence.
-
-Doplním ešte nekonzistentnú vetu v §7 (eventy „napojené na dataLayer"):
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) volá `window.etfTrack()`; do `dataLayer`/Vercel Analytics sa reálne dostanú až po pridaní príslušných skriptov (viď §3).",
-  "oldString": "Realizácia: `utm_campaign` (a ostatné UTM) sa zachytí z URL, uloží do `localStorage` (`etf_utm`) a pošle spolu s leadom na `/api/lead`. Oddelené URL varianty (`?v=B`) a dynamická zmena obsahu podľa varianty **nie sú ešte implementované** — treba pridať logiku, ktorá podľa `?v=A`/`?v=B` zmení H1/sub v hero. Eventy (`page_view`, `cta_click`, `table_sort`, `form_view`, `form_submit`, `form_error`) sú napojené na `dataLayer` cez `window.etfTrack()`."
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 12.5s)
-
-_Thinking:_
-
-The README is fixed. Let me provide a concise summary of what was changed. The user asked to fix the false parts of README - done. I also fixed .env.example which had the same false claims.
-
-Should I mention that tests are still failing (2/19)? Yes - I noted it in README but the tests themselves are still stale. The user only asked to fix README, not the tests. I'll mention that as optional follow-up.
-
-Hotovo. Opravil som `README.md` a `.env.example` podľa overenej reality:
-
-**README.md:**
-- **§1** – PDF sa neukladá do Redis, ukladá sa len model; PDF sa regeneruje cez `/api/report`
-- **§2** – doplnené chýbajúce sekcie (grafy, daň/W-8BEN, portfólio), presné poradie
-- **§3** – pridané upozornenie, že analytics skripty (GTM/Vercel Analytics) **nie sú na stránke**, takže eventy v produkcií nebehajú; logy `[lead]` obsahujú len boolean sekcií, nie vstupy kalkulačky
-- **§6** – verzia A zladená s reálnym H1/CTA v `index.html`
-- **§7** – eventy len „volané", nie reálne napojené na dashboard
-- **§8** – UPSTASH označené ako **potrebné** (503 `db_not_configured`), RESEND voliteľný (`log_only`); opravený výstup `POST /api/lead` a typo `premmenné`
-- **§9** – kompletná štruktúra (`portfolio.js`, `tax-calculator.js`, `charts.js`, `soukromi.html`, `scripts/`…); `store.js` = modely, nie PDF; poznámka o **2 padajúcich testoch**
-- **§10** – GDPR opravené: spracovatelia Resend/Upstash/Vercel/Google Fonts uvedení namiesto „žiadne tretie strany"
-
-**.env.example:** rovnaké opravy – bez UPSTASH flow nefunguje (503), nie „všetko je voliteľné".
-
-Poznámka: samotné testy (`tests/api.test.js`) stále čakajú na starú architektúru s `entry.pdfBase64` a 2 z 19 padajú – ak chceš, viem ich opraviť podľa aktuálneho kódu.
-
----
-
-## User
-
-super, je ešte niečo, čo treba opraviť?
-
----
-
-## Assistant (Plan · MiMo-V2.6-Flash Free · 30.6s)
-
-_Thinking:_
-
-The user asks if there's anything else that needs fixing. I'm in plan mode (read-only). I should survey remaining issues found during the audit and any other issues in the project, then present a plan of what could be fixed - without making edits.
-
-Let me think about what's still outstanding:
-
-1. **Tests failing (2/19)** - `tests/api.test.js` expects `entry.pdfBase64` in Redis (old architecture). Should be updated to match current code (only model stored).
-
-2. **Analytics not initialized** - No Vercel Analytics script or GTM in index.html, so events don't go anywhere. Could add `/_vercel/insights/script.js`.
-
-3. **soukromi.html issues** (found during audit):
-   - Claims "kliknutím na odkaz pro odhlášení v patičce e-mailu" but email only says reply with ODHLASIT (no unsubscribe link)
-   - Says "Upstash Redis – dočasné uložení PDF reportu" but only model is stored (PDF not stored) - actually it says "dočasné uložení PDF reportu a evidence souhlasu" - partially wrong (model not PDF)
-   - Claims calculator data "žádná data z nich neodesíláme" - but calc/portfolio/tax states ARE sent with the lead form
-   - Doesn't mention Google Fonts as processor
-
-4. **index.html form note**: "Žádné předávání třetím stranám" - false (same GDPR issue as README had)
-
-5. **FAQ**: "odhlásit se můžete jedním klikem" - false, email only has reply-with-ODHLASIT
-
-6. **Rate limiting** undocumented (minor omission, not falsehood)
-
-7. **test-list2.mjs** and **session-ses_e839-2.md** - junk files at root of project (cleanup?)
-
-8. **README §11** typo "Najkmplexnejšie" - minor typo9. **README §5** - "Priemerný indexových fondov S&P 5000,41% | Vanguard fact sheet (31. 12. 2025)" - we verified 0.41% appears on Vanguard fact sheet as of Sep 30 2026; date might be slightly off but Lipper was 0.405% as of 12/31/2025 - close enough, not clearly false.
-
-10. **Charts source claim**: "Zdroj: Yahoo Finance chart API, denní zavřené ceny (upravené o dividendy)" - data is actually static in assets/data/voo-history.json fetched by scripts/fetch-voo.cjs - so "Yahoo Finance chart API" as live source might be misleading - it's fetched offline and baked in. Let me check charts.js and fetch-voo.cjs quickly... Actually I'm in plan mode, I can read.
-
-11. **tax email button / portfolio email button** - hidden buttons "Pošlete mi návod k W-8BEN e-mailem" - are they functional? They're `hidden` - maybe shown when calc dirty? Would need to check tax-calculator.js and portfolio.js.
-
-Let me do a quick read-only exploration of remaining issues to give a solid plan. I should check:
-- soukromi.html claims vs reality (already read - have the content)
-- index.html "Žádné předávání třetím stranám" (line 411 - already have)
-- FAQ one-click unsubscribe (line 478 - already have)
-- charts.js / fetch-voo.cjs - is chart data static?
-- test-list2.mjs - what is it?
-- Are there other issues in README I missed?
-
-Also maybe check if `og:title` matches version A note - og:title is "Vaše ETF vás může připravit o 235 000 Kč. Spočítejte si to za 30 sekund." which is a hybrid - README §6 says adjust og:title for version B - fine.
-
-Let me quickly inspect remaining files read-only, then present a plan with prioritized items and ask user what they want to fix.
-
-Prečítam zvyšné podozrivé miesta (súkromie, formulár, grafy, odpadky v repozitári), aby som mal kompletný zoznam.
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\assets\\js\\charts.js",
-  "limit": 60
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\charts.js</path>
-<type>file</type>
-<content>
-1: (function () {
-2:   "use strict";
-3: 
-4:   var GREEN = "#0F6B4C";
-5:   var ORANGE = "#B53D22";
-6:   var ORANGE_LIGHT = "#B53D22";
-7:   var INK = "#1A1A1A";
-8:   var INK_SOFT = "#555555";
-9:   var GRID = "#DDD6C8";
-10: 
-11:   var GROSS = 0.08;
-12:   var CHEAP_TER = 0.03;
-13:   var EXPENSIVE_TER = 0.41;
-14:   var INITIAL = 100000;
-15:   var MONTHLY = 3000;
-16:   var YEARS = 25;
-17: 
-18:   var priceSvg = document.getElementById("price-chart");
-19:   var feeSvg = document.getElementById("fee-chart");
-20:   var feeCompactSvg = document.getElementById("fee-compact-chart");
-21:   var priceNote = document.getElementById("price-note");
-22:   var fetchedEl = document.getElementById("chart-fetched");
-23:   var tabs = document.querySelectorAll(".chart-tab");
-24: 
-25:   if (!priceSvg || !feeSvg) return;
-26: 
-27:   function futureValue(principal, monthly, years, rate) {
-28:     var r = rate / 12;
-29:     var n = years * 12;
-30:     if (r === 0) return principal + monthly * n;
-31:     var growth = Math.pow(1 + r, n);
-32:     return principal * growth + monthly * ((growth - 1) / r);
-33:   }
-34: 
-35:   function czk(v) {
-36:     return Math.round(v).toLocaleString("cs-CZ").replace(/\u00a0/g, " ");
-37:   }
-38: 
-39:   function fmtDate(iso) {
-40:     return new Date(iso + "T00:00:00").toLocaleDateString("cs-CZ", { year: "numeric", month: "short", day: "numeric" });
-41:   }
-42: 
-43:   function clearSvg(svg) {
-44:     while (svg.firstChild) svg.removeChild(svg.firstChild);
-45:   }
-46: 
-47:   function svgEl(tag, attrs) {
-48:     var node = document.createElementNS("http://www.w3.org/2000/svg", tag);
-49:     for (var k in attrs) node.setAttribute(k, attrs[k]);
-50:     return node;
-51:   }
-52: 
-53:   function textEl(x, y, text, opts) {
-54:     opts = opts || {};
-55:     var t = svgEl("text", {
-56:       x: x,
-57:       y: y,
-58:       fill: opts.fill || INK_SOFT,
-59:       "font-size": opts.size || "11px",
-60:       "font-family": "Inter, sans-serif",
-
-(Showing lines 1-60 of 370. Use offset=61 to continue.)
-</content>
-```
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\test-list2.mjs",
-  "limit": 40
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\test-list2.mjs</path>
-<type>file</type>
-<content>
-1: import PDFDocument from "pdfkit";
-2: import fs from "node:fs";
-3: 
-4: const PAGE_MARGIN = 50;
-5: const REGULAR = fs.readFileSync("C:/Users/BigON/Desktop/kopiaClientelo/Clientelo-zadanie/node_modules/dejavu-fonts-ttf/ttf/DejaVuSans.ttf");
-6: const BOLD = fs.readFileSync("C:/Users/BigON/Desktop/kopiaClientelo/Clientelo-zadanie/node_modules/dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf");
-7: 
-8: const doc = new PDFDocument({ size: "A4", margin: PAGE_MARGIN, bufferPages: false });
-9: doc.registerFont("Body", REGULAR);
-10: doc.registerFont("BodyBold", BOLD);
-11: 
-12: const pageWidth = doc.page.width - PAGE_MARGIN * 2;
-13: 
-14: function sectionTitle(doc, title) {
-15:   doc.moveDown(0.8);
-16:   doc.font("BodyBold").fontSize(14).fillColor("#0F3D2E").text(title);
-17:   doc.moveDown(0.4);
-18: }
-19: 
-20: // Simulate renderTable ending with right-aligned column
-21: doc.font("BodyBold").fontSize(14).text("Porovnání šesti ETF");
-22: doc.moveDown(0.4);
-23: doc.font("Body").fontSize(10);
-24: doc.text("ETF", PAGE_MARGIN + 0, doc.y, { width: 60 });
-25: doc.text("Sledovaný index", PAGE_MARGIN + 70, doc.y, { width: pageWidth - 180 });
-26: doc.text("TER %", PAGE_MARGIN + pageWidth - 110, doc.y, { width: 110, align: "right" });
-27: doc.y = doc.y + 20;
-28: console.log("AFTER TABLE x=", doc.x, "y=", doc.y);
-29: 
-30: // Now renderList
-31: function renderList(doc, section) {
-32:   sectionTitle(doc, section.title);
-33:   doc.font("Body").fontSize(10).fillColor("#1A1A1A");
-34:   section.items.forEach(function (item, i) {
-35:     console.log("BEFORE item", i, "x=", doc.x, "y=", doc.y);
-36:     doc.font("BodyBold").text((i + 1) + ". ", { continued: true }).font("Body").text(item);
-37:     console.log("AFTER item", i, "x=", doc.x, "y=", doc.y);
-38:     doc.moveDown(0.25);
-39:   });
-40: }
-
-(Showing lines 1-40 of 47. Use offset=41 to continue.)
-</content>
-```
-
-**Tool: grep**
-
-**Input:**
-```json
-{
-  "include": "*.{html,js}",
-  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie",
-  "pattern": "třetím stran|jedním klik|odehlášení v patičce|žádná data z nich|odosíláme"
-}
-```
-
-**Output:**
-```
-Found 3 matches
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\soukromi.html:
-  Line 46:           <p>Zpracováváme pouze vaši e-mailovou adresu, čas udělení souhlasu, vaši IP adresu a informační zdroj (UTM parametry z reklamy, pokud jste přišli z reklamní kampaně). Žádné jiné osobní údaje nesbíráme. Kalkulačka a další interaktivní prvky běží výhradně ve vašem prohlížeči a žádná data z nich neodesíláme.</p>
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\index.html:
-  Line 411:             <p class="lead-form__note">Odesláním souhlasíte se zpracováním e-mailu (GDPR). Žádné předávání třetím stranám.</p>
-
-  Line 478:             <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete jedním klikem. Podrobnosti o zpracování vašeho e-mailu najdete v <a href="/soukromi.html">Zásadách ochrany osobních údajů</a>.</p>
-
-```
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "git status --short; git log --oneline -5",
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
- M .env.example
- M README.md
- M ai-log/session-ses_e7b5.md
- M index.html
-?? soukromi.html
-12844ba pdf fix - nechodilo emailom
-d50dd42 readme + ai-log + pdf fix
-007fa7c pdfBase64 sa už neukladá do DB
-d402bd9 oprava reklamy a názvu značky
-2a3892b reklamy
-
-```
-
----
-
-## Assistant (Plan · MiMo-V2.6-Flash Free · 7.6s)
-
-_Thinking:_
-
-Interesting - git status shows `M index.html` and `M ai-log/session-ses_e7b5.md` were already modified (not by me - I didn't edit index.html). And soukromi.html is untracked. The index.html was already modified before my session? Or maybe from a previous session. Let me check what changed in index.html with git diff - read-only is fine.
-
-Actually wait - I should check git diff for index.html to see if there are uncommitted changes that are problematic. Also ai-log modified.
-
-Let me check git diff briefly and also check how charts.js loads data (static vs API) - grep for voo-history or fetch.
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "git diff --stat; git diff index.html | Select-Object -First 80",
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
-warning: LF will be replaced by CRLF in README.md.
-The file will have its original line endings in your working directory
- .env.example               |  10 +-
- README.md                  | 168 +++++++++--------
- ai-log/session-ses_e7b5.md | 437 ++++++++++++++++++++++++++++++++++++++++++++-
- index.html                 |   7 +-
- 4 files changed, 544 insertions(+), 78 deletions(-)
-warning: LF will be replaced by CRLF in ai-log/session-ses_e7b5.md.
-The file will have its original line endings in your working directory
-diff --git a/index.html b/index.html
-index f6ee7b0..5ec1277 100644
---- a/index.html
-+++ b/index.html
-@@ -402,7 +402,7 @@
-             </div>
-             <label class="checkbox">
-               <input type="checkbox" id="lf-consent" name="consent" required>
--              <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="#soukromi">Zásady ochrany osobních údajů</a></span>
-+              <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="/soukromi.html">Zásady ochrany osobních údajů</a></span>
-             </label>
-             <input type="text" name="company" id="lf-company" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-             <button type="submit" class="btn btn--lg btn--block" id="lf-submit" data-cta="form-submit">
-@@ -475,7 +475,7 @@
-           </details>
-           <details class="faq__item">
-             <summary>Co přesně mi přijde e-mailem?</summary>
--            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete jedním klikem.</p>
-+            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete jedním klikem. Podrobnosti o zpracování vašeho e-mailu najdete v <a href="/soukromi.html">Zásadách ochrany osobních údajů</a>.</p>
-           </details>
-         </div>
-       </div>
-@@ -492,7 +492,7 @@
- 
-   </main>
- 
--  <footer class="footer" id="soukromi">
-+  <footer class="footer">
-     <div class="wrap">
-       <div class="footer__top">
-         <span class="brand"><span class="brand__mark">ETF</span> <span class="brand__name">Clientelo.cz</span></span>
-@@ -500,6 +500,7 @@
-           <a href="#srovnani">Srovnání</a>
-           <a href="#kalkulacka">Kalkulačka</a>
-           <a href="#faq">FAQ</a>
-+          <a href="/soukromi.html">Zásady ochrany osobních údajů</a>
-         </p>
-       </div>
-       <p class="footer__disclaimer">
-
-```
-
-**Tool: grep**
-
-**Input:**
-```json
-{
-  "include": "*.{js,html,cjs}",
-  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie",
-  "pattern": "voo-history|fetch\\(|chart-fetched|Yahoo"
-}
-```
-
-**Output:**
-```
-Found 12 matches
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js:
-  Line 60:   const res = await fetch("https://api.resend.com/emails", {
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\index.html:
-  Line 161:               Zdroj: Yahoo Finance chart API, denní zavřené ceny (upravené o dividendy).
-
-  Line 162:               Aktualizováno <strong id="chart-fetched">–</strong>. Data jsou poskytnuta pro
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\main.js:
-  Line 144:     fetch("/api/lead", {
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\charts.js:
-  Line 22:   var fetchedEl = document.getElementById("chart-fetched");
-
-  Line 174:   fetch("/assets/data/voo-history.json")
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\scripts\fetch-voo.cjs:
-  Line 1: // Fetch VOO 5y daily history from Yahoo Finance chart API and write a compact JSON snapshot.
-
-  Line 3: // Source: Yahoo Finance chart endpoint (query2.finance.yahoo.com) – public, no auth required.
-
-  Line 5: // License/usage note: Yahoo Finance data is provided for informational purposes.
-
-  Line 6: // Update cadence: re-run weekly before a live campaign to refresh assets/data/voo-history.json.
-
-  Line 49:         source: "Yahoo Finance chart API (query2.finance.yahoo.com)",
-
-  Line 53:       const file = path.join(dir, "voo-history.json");
-
-```
-
----
-
-## Assistant (Plan · MiMo-V2.6-Flash Free · 40.6s)
-
-_Thinking:_
-
-Good picture now. Remaining issues to present as a plan:
-
-**A. Nepravdivé tvrdenia v HTML (rovnaká GDPR téma ako README):**
-1. `index.html:411` – "Žádné předávání třetím stranám" → nepravdivé (Resend, Upstash, Vercel, Google Fonts)
-2. `index.html:478` – FAQ "odhlásit se můžete jedním klikem" → e-mail má len reply "ODHLASIT", žiadny one-click link
-3. `soukromi.html:46` – "žádná data z nich neodesíláme" (o kalkulačke) → nepravdivé: calc/portfolio/tax stav sa odosiela s leadom (`main.js` body)
-4. `soukromi.html:49` – "kliknutím na odkaz pro odhlášení v patičce e-mailu" → taký link v e-maile nie je
-5. `soukromi.html:56` – "Upstash Redis – dočasné uložení PDF reportu" → ukladá sa model, nie PDF; navyše IP/UTM/referrer sa tiež ukladá (v §46 to priznáva čiastočne, ale "PDF reportu" je nepresné; §50 hovorí "Osobní report (PDF) se ukládá" – nepresnosť)
-6. `soukromi.html` nezmieňuje Google Fonts ako spracovateľa
-
-**B. Meranie/nefunkčná analytika:**
-- Chýba skript Vercel Analytics v `index.html` (a/alebo GTM) → eventy nebehajú. Oprava: pridať `<script src="/_vercel/insights/script.js" defer></script>`.
-
-**C. Testy:**
-- 2 z 19 testov padajú (`api.test.js:93,135` – čakajú `entry.pdfBase64`). Opraviť testy podľa aktuálnej architektúry (len model).
-
-**D. Drobnejšie nepresnosti:**
-- `index.html:161` zdroj grafu: "Yahoo Finance chart API, denní zavřené ceny (upravené o dividendy)" – dáta sú statický snapshot v `assets/data/voo-history.json` (fetch-voo.cjs), neaktuálne naživo; text "Aktualizováno –" sa plní z JSON. Môže byť zavádzajúce, ale nie úplne klamstvo (dáta z Yahoo, ale nie "API" naživo). Fetch-voo.cjs hovorí "upravené o dividendy"? treba overiť - index hovorí "upravené o dividendy" - yahoo adjclose? Možno. Slabý bod.
-- README §11 typo "Najkmplexnejšie"
-- test-list2.mjs – debug odpadok s absolute pathmi (nechať/odstrániť?)
-- session-ses_e839-2.md v koreni + ai-log modifications – neupravoval som ja- Git: necommitnuté zmeny (README, .env.example, index.html, ai-log) – commitovať?
-
-**E. Co je OK / netreba:**
-- Hero číslo, TER data, atď. už overené
-
-Also check: does soukromi say calculator data not sent - but when you submit form, calc state goes with it. The claim "Kalkulačka a další interaktivní prvky běží výhradně ve vašem prohlížeči a žádná data z nich neodesíláme" - partially true (calculation runs client-side), but "žádná data neodesíláme" is false because etfCalcState is sent with lead. Also portfolio and tax buttons "Pošlete mi ... e-mailem" - need to check if they scroll to form and prefill - they probably set state that gets sent. So the claim is false when user submits.
-
-Also honeypot: server checks `company` but client never sends it - honeypot only works client-side. Not documented as false in README (README doesn't claim server-side honeypot). Minor.
-
-Rate limit 5/min - undocumented, not false.
-
-I'm in plan mode - present plan, ask user what to fix.
-
-Áno – po audite zostalo ešte zopár vecí. Tu je kompletný zoznam zostávajúcich problémov:
-
-## A. Nepravdivé tvrdenia v HTML (GDPR/privacy – rovnaká téma ako README)
-
-| # | Súbor | Tvrdenie | Realita |
-|---|---|---|---|
-| 1 | `index.html:411` | „Žádné předávání třetím stranám" | Resend, Upstash, Vercel, Google Fonts – tretie strany sú |
-| 2 | `index.html:478` (FAQ) | „odhlásit se můžete **jedním klikem**" | E-mail má len odpoveď slovom `ODHLASIT`, žiadny unsubscribe link |
-| 3 | `soukromi.html:46` | o kalkulačke: „**žádná data z nich neodesíláme**" | Po odoslaní formulára sa posiela `calc`/`portfolio`/`tax` stav (`main.js:129-139`) |
-| 4 | `soukromi.html:49` | odhlásenie „**kliknutím na odkaz** v patičce e-mailu" | Taký link v e-maile nie je |
-| 5 | `soukromi.html:50,56` | „uložení **PDF** reportu" v Upstash | Ukladá sa **len model**, PDF sa regeneruje |
-| 6 | `soukromi.html` | zoznam spracovateľov | Chýba **Google Fonts** |
-
-## B. Nefunkčné meranie (nie text, ale chýbajúci kód)
-- V `index.html` **nie je skript Vercel Analytics** (`/_vercel/insights/script.js`) ani GTM → eventy z README §3 v produkcií nebehajú. Oprava = 1 riadok v `<head>`.
-
-## C. Padajúce testy
-- `tests/api.test.js:93,135` – 2 z 19 testov čakajú staré ukladanie `entry.pdfBase64` v Redis → **padajú** (overené). Treba prepísať na aktuálnu architektúru (len model).
-
-## D. Drobnosti
-- `index.html:161`: zdroj grafu uvádza „Yahoo Finance chart API" – v skutočnosti je to **statický snapshot** `assets/data/voo-history.json` (treba reštartovať `scripts/fetch-voo.cjs`)
-- `README.md` §11: preklep „Najkmplexnejšie"
-- `test-list2.mjs` – debug odpadok s absolutnými cestami (kandidát na zmazanie)
-- Necommitnuté zmeny: `README.md`, `.env.example`, `index.html`, `ai-log/…`
-
-## Navrhovaný plán (podľa priorít)
-
-1. **GDPR texty** – opraviť 6 tvrdení v `index.html` + `soukromi.html` (A1–A6)
-2. **Pridať skript Vercel Analytics** do `index.html` (B)
-3. **Opraviť 2 padajúce testy** v `api.test.js` (C)
-4. **Kozmetika** – preklep v README, zdroj grafu, zmazať `test-list2.mjs` (D)
-5. **Commit** všetkých necommitnutých zmien
-
-Ktoré body chceš urobiť? Môžem ísť postupne 1–5, alebo len niektoré.
-
----
-
-## User
-
-134
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 57.7s)
-
-_Thinking:_
-
-The user wants items 1, 3, and 4:
-1. GDPR texts - fix 6 claims in index.html + soukromi.html (A1-A6)
-3. Fix 2 failing tests in api.test.js (C)
-4. Cosmetics - typo in README, chart source, delete test-list2.mjs (D)
-
-Not2 (Vercel Analytics script) and not 5 (commit).
-
-Let me start working. Create a todo list and execute.
-
-For A1: index.html:411 "Žádné předávání třetím stranám" → something like "Spracovateľ: Resend, Upstash, Vercel (viď Zásady ochrany osobních údajů)" - but the site is in Czech, so Czech text.
-
-For A2: index.html:478 FAQ "odhlásit se můžete jedním klikem" → "odhlásit se můžete odpovědí na e-mail se slovem ODHLASIT"
-
-For A3: soukromi.html:46 - calculator data claim → "Výpočty běží ve vašem prohlížeči; při odeslání formuláře se s leadem odešlou pouze vyplněné vstupy kalkulačky/portfólia/dane (pokud jste je vyplnili), aby byly součástí reportu."
-
-For A4: soukromi.html:49 - "kliknutím na odkaz pro odhlášení v patičce e-mailu" → remove link claim, keep reply ODHLASIT
-
-For A5: soukromi.html:50,56 - PDF storage → model storage
-- Line 50: "Osobní report (PDF) se ukládá dočasně (maximálně 30 dnů)..." → "Model vašich vstupů pro generování PDF reportu se ukládá dočasně (maximálně 30 dnů)... PDF se z něj vygeneruje znova při zobrazení."
-- Line 56: "Upstash Redis – dočasné uložení PDF reportu a evidence souhlasu" → "Upstash Redis – dočasné uložení modelu reportu a evidence souhlasu (e-mail, čas, IP, UTM)"
-
-For A6: soukromi.html add Google Fonts to processors list
-
-For C: fix tests/api.test.js - remove pdfBase64 assertions, adapt to model-only storage:
-- Test 1: "uloží 1 PDF" → should check model stored, not pdfBase64. Rename test and remove pdfBase64 assert.
-- Test 3: "web aj e-mail používajú identický uložený PDF súbor" - this test relies on entry.pdfBase64. Since PDF isn't stored, email attachment is generated at send time and web PDF is regenerated - they're not stored, so can't compare stored ones. The test should be removed or rewritten to compare regeneration determinism (which test 4 already does). I'll rewrite test 3 to verify that /api/report returns a valid PDF generated from model (or remove it since test 4 covers fallback). Actually test 4 already covers regeneration identity. Test 3 could be deleted or changed to assert report endpoint returns PDF with correct headers from model-only storage. Let me rewrite it as "report endpoint: servíruje PDF vygenerované z modelu s Content-Type application/pdf".
-
-For D:
-- README typo "Najkmplexnejšie" → "Najkomplexnejšie"
-- index.html:161 chart source - change to reflect static snapshot: "Zdroj: Yahoo Finance (denní zavřené ceny, snapshot uložený v assets/data, aktualizace scripts/fetch-voo.cjs)" - need to check what fetch-voo.cjs stores (adjclose?). Let me read it quickly... I know enough: it fetches from Yahoo chart API and writes JSON. The index says "upravené o dividendy" (adjusted). I'll check the JSON/cjs briefly.
-- Delete test-list2.mjs
-
-Also README §9 structure mentions test-list2? No it doesn't. Good.
-
-Let me also check if README references test-list2 - no.
-
-For soukromi.html line 46 also says "Žádné jiné osobní údaje nesbíráme" - but they store page, referrer, IP, UTM - actually line 46 already lists IP and UTM. It doesn't mention page/referrer - minor. I could add them for accuracy while editing that paragraph.
-
-Also soukromi says "Kalkulačka a další interaktivní prvky běží výhradně ve vašem prohlížeči a žádná data z nich neodesíláme" - fix as planned.
-
-Let me also fix the "čas udělení souhlasu, vaši IP adresu a informační zdroj" - could add stránka a referrer for completeness since we're editing.
-
-For A1 index.html:411 - new text: "Odesláním souhlasíte se zpracováním e-mailu (GDPR). Pro odeslání a doručení reportu používáme: Resend, Upstash Redis a Vercel – podrobnosti v Zásadách ochrany osobních údajů."
-
-Actually keep it short to fit the note style: "Odesláním souhlasíte se zpracováním e-mailu (GDPR). Zpracovatelé: Resend, Upstash, Vercel – viz Zásady ochrany osobních údajů."
-
-For A2: "Dále maximálně pár praktických tipů; odhlásit se můžete odpovědí na e-mail se slovem ODHLASIT."
-
-For tests - careful rewrite:
-
-Test 1 (line 58):
-```
-test("lead endpoint: prijme calc+portfolio+tax, uloží model a vráti reportId", async () => {
-  ...
-  const entry = await loadReport(redis, res.body.reportId);
-  assert.ok(entry, "report musí byť uložený v Redis");
-  assert.ok(entry.model, "musí byť uložený model");
-  assert.equal(entry.model.calc.finalValue, 5541000);
-  ...
-});
-```
-Remove `assert.ok(entry.pdfBase64 && ...)`.
-
-Test 3 (line 119): rewrite to:
-```
-test("report endpoint: servíruje PDF vygenerované z uloženého modelu", async () => {
-  ...
-  const res = await getReport(leadRes.body.reportId);
-  assert.equal(res.statusCode, 200);
-  assert.equal(res.headers["Content-Type"], "application/pdf");
-  assert.ok(Buffer.isBuffer(res.body), "endpoint musí servírovať binárny PDF buffer");
-  assert.ok(res.body.subarray(0, 5).toString() === "%PDF-");
-  assert.ok(res.body.length > 5000);
-  assert.equal(res.headers["Cache-Control"], "private, no-store");
-});
-```
-
-Test 4 already does identity of regeneration - fine.
-
-Actually test 4 does `delete entry.pdfBase64` - that still works (deleting non-existent key is fine with delete operator). Could leave it or clean up. I'll leave test 4 as is since it passes, or clean the dead pdfBase64 lines for clarity. Cleaning is better: just store entry back without delete... Actually the test's purpose was to verify fallback when pdfBase64 missing - now pdfBase64 is never stored, so the delete is vestigial. The test still passes. I could simplify but minimal change: leave test 4 alone (it passes) or remove the vestigial delete lines. I'll simplify test 4 slightly by removing the pdfBase64 delete dance since it's meaningless now - actually that changes test semantics. Minimal: leave test 4 as is.
-
-Wait - test 4 name: "fallback regenerácia z uloženého modelu dáva ten istý obsah" - with no pdfBase64 ever, it just tests regeneration determinism. Fine.
-
-Chart source fix in index.html:161:
-Current: "Zdroj: Yahoo Finance chart API, denní zavřené ceny (upravené o dividendy). Aktualizováno <strong id="chart-fetched">–</strong>."
-New: "Zdroj: Yahoo Finance (denní zavřené ceny) – statický snapshot v assets/data/voo-history.json, obnova: scripts/fetch-voo.cjs. Aktualizováno <strong id="chart-fetched">–</strong>."
-
-Let me check what chart-fetched shows - from the JSON meta probably. And whether "upravené o dividendy" is accurate - check fetch-voo.cjs for adjclose.
-
-Also README §11 typo.
-
-Delete test-list2.mjs.
-
-Let me also check README structure section mentions test-list2 - no.
-
-Execute now with todos.
-
-**Tool: todowrite**
-
-**Input:**
-```json
-{
-  "todos": [
-    {
-      "content": "Opraviť GDPR tvrdenia v index.html a soukromi.html (A1–A6)",
-      "status": "in_progress",
-      "priority": "high"
-    },
-    {
-      "content": "Opraviť 2 padajúce testy v tests/api.test.js",
-      "status": "pending",
-      "priority": "high"
-    },
-    {
-      "content": "Kozmetika: preklep README, zdroj grafu, zmazať test-list2.mjs",
-      "status": "pending",
-      "priority": "medium"
-    },
-    {
-      "content": "Spustiť testy na overenie",
-      "status": "pending",
-      "priority": "high"
-    }
-  ]
-}
-```
-
-**Output:**
-```
-[
-  {
-    "content": "Opraviť GDPR tvrdenia v index.html a soukromi.html (A1–A6)",
-    "status": "in_progress",
-    "priority": "high"
-  },
-  {
-    "content": "Opraviť 2 padajúce testy v tests/api.test.js",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "content": "Kozmetika: preklep README, zdroj grafu, zmazať test-list2.mjs",
-    "status": "pending",
-    "priority": "medium"
-  },
-  {
-    "content": "Spustiť testy na overenie",
-    "status": "pending",
-    "priority": "high"
-  }
-]
-```
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\scripts\\fetch-voo.cjs"
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\scripts\fetch-voo.cjs</path>
-<type>file</type>
-<content>
-1: // Fetch VOO 5y daily history from Yahoo Finance chart API and write a compact JSON snapshot.
-2: // Run: node scripts/fetch-voo.js
-3: // Source: Yahoo Finance chart endpoint (query2.finance.yahoo.com) – public, no auth required.
-4: // Data: adjusted daily close prices for VOO (Vanguard S&P 500 ETF).
-5: // License/usage note: Yahoo Finance data is provided for informational purposes.
-6: // Update cadence: re-run weekly before a live campaign to refresh assets/data/voo-history.json.
-7: 
-8: const https = require("https");
-9: const fs = require("fs");
-10: const path = require("path");
-11: 
-12: const url = "https://query2.finance.yahoo.com/v8/finance/chart/VOO?range=5y&interval=1d";
-13: 
-14: function toISODate(unixSeconds) {
-15:   const d = new Date(unixSeconds * 1000);
-16:   const y = d.getUTCFullYear();
-17:   const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-18:   const day = String(d.getUTCDate()).padStart(2, "0");
-19:   return `${y}-${m}-${day}`;
-20: }
-21: 
-22: https.get(url, {
-23:   headers: {
-24:     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
-25:   }
-26: }, (res) => {
-27:   let body = "";
-28:   res.on("data", (chunk) => { body += chunk; });
-29:   res.on("end", () => {
-30:     try {
-31:       const parsed = JSON.parse(body);
-32:       const result = parsed?.chart?.result?.[0];
-33:       if (!result) throw new Error("no chart result");
-34:       const timestamps = result.timestamp || [];
-35:       const adj = result.indicators?.adjclose?.[0]?.adjclose || [];
-36:       const rows = [];
-37:       for (let i = 0; i < timestamps.length; i++) {
-38:         if (adj[i] == null) continue;
-39:         rows.push({ date: toISODate(timestamps[i]), close: Math.round(adj[i] * 100) / 100 });
-40:       }
-41:       if (rows.length < 100) throw new Error("too few rows: " + rows.length);
-42: 
-43:       const dir = path.join(__dirname, "..", "assets", "data");
-44:       fs.mkdirSync(dir, { recursive: true });
-45:       const out = {
-46:         ticker: "VOO",
-47:         name: "Vanguard S&P 500 ETF",
-48:         currency: "USD",
-49:         source: "Yahoo Finance chart API (query2.finance.yahoo.com)",
-50:         fetchedAt: new Date().toISOString().slice(0, 10),
-51:         rows: rows
-52:       };
-53:       const file = path.join(dir, "voo-history.json");
-54:       fs.writeFileSync(file, JSON.stringify(out), "utf8");
-55:       console.log(`Wrote ${rows.length} rows to ${file}`);
-56:       console.log(`First: ${rows[0].date} = ${rows[0].close} | Last: ${rows[rows.length - 1].date} = ${rows[rows.length - 1].close}`);
-57:     } catch (e) {
-58:       console.error("Failed:", e.message);
-59:       process.exit(1);
-60:     }
-61:   });
-62: }).on("error", (e) => { console.error("Request error:", e.message); process.exit(1); });
-
-(End of file - total 62 lines)
-</content>
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 13.5s)
-
-_Thinking:_
-
-Now make the GDPR edits to index.html and soukromi.html.
-
-Opravujem GDPR tvrdenia v oboch HTML súboroch:
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\index.html",
-  "newString": "            <p class=\"lead-form__note\">Odesláním souhlasíte se zpracováním e-mailu (GDPR). Zpracovatelé: Resend, Upstash, Vercel – viz <a href=\"/soukromi.html\">Zásady ochrany osobních údajů</a>.</p>",
-  "oldString": "            <p class=\"lead-form__note\">Odesláním souhlasíte se zpracováním e-mailu (GDPR). Žádné předávání třetím stranám.</p>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\index.html",
-  "newString": "            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete odpovědí na e-mail se slovem ODHLASIT. Podrobnosti o zpracování vašeho e-mailu najdete v <a href=\"/soukromi.html\">Zásadách ochrany osobních údajů</a>.</p>",
-  "oldString": "            <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete jedním klikem. Podrobnosti o zpracování vašeho e-mailu najdete v <a href=\"/soukromi.html\">Zásadách ochrany osobních údajů</a>.</p>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\index.html",
-  "newString": "              Zdroj: Yahoo Finance (denní zavřené ceny, upravené o dividendy) –\n              statický snapshot <code>assets/data/voo-history.json</code>, obnova\n              přes <code>scripts/fetch-voo.cjs</code>.\n              Aktualizováno <strong id=\"chart-fetched\">–</strong>. Data jsou poskytnuta pro",
-  "oldString": "              Zdroj: Yahoo Finance chart API, denní zavřené ceny (upravené o dividendy).\n              Aktualizováno <strong id=\"chart-fetched\">–</strong>. Data jsou poskytnuta pro"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 23.3s)
-
-_Thinking:_
-
-Now soukromi.html edits - A3, A4, A5, A6.
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\soukromi.html",
-  "newString": "          <p>Zpracováváme vaši e-mailovou adresu, čas udělení souhlasu, vaši IP adresu, informační zdroj (UTM parametry z reklamy, pokud jste přišli z reklamní kampaně), adresu stránky a referrer. Kalkulačky a další interaktivní prvky běží ve vašem prohlížeči; při odeslání formuláře se s leadem odešlou pouze vyplněné vstupy (kalkulačka, portfólio, daň – pokud jste je vyplnili), aby byly součástí osobního reportu.</p>",
-  "oldString": "          <p>Zpracováváme pouze vaši e-mailovou adresu, čas udělení souhlasu, vaši IP adresu a informační zdroj (UTM parametry z reklamy, pokud jste přišli z reklamní kampaně). Žádné jiné osobní údaje nesbíráme. Kalkulačka a další interaktivní prvky běží výhradně ve vašem prohlížeči a žádná data z nich neodesíláme.</p>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\soukromi.html",
-  "newString": "          <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat odpovědí na libovolný e-mail od nás se slovem „ODHLASIT\". Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>\n          <p>Model vstupů pro generování osobního PDF reportu se ukládá dočasně (maximálně 30 dnů) za účelem jeho opakovaného zobrazení na stránce poděkování a následně se automaticky smaže; PDF se z modelu vygeneruje znova při každém zobrazení.</p>",
-  "oldString": "          <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat odpovědí na libovolný e-mail od nás se slovem „ODHLASIT“ nebo kliknutím na odkaz pro odhlášení v patičce e-mailu. Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>\n          <p>Osobní report (PDF) se ukládá dočasně (maximálně 30 dnů) za účelem jeho opakovaného zobrazení na stránce poděkování a následně se automaticky smaže.</p>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\soukromi.html",
-  "newString": "          <p>Vaše údaje neposkytujeme žádné třetí straně pro marketingové účely. Používáme následující zpracovatele výhradně pro technické zajištění služby:</p>\n          <ul class=\"lead-card__list\">\n            <li><span class=\"check\" aria-hidden=\"true\"></span> <strong>Resend</strong> – odesílání transakčních e-mailů s reportem,</li>\n            <li><span class=\"check\" aria-hidden=\"true\"></span> <strong>Upstash Redis</strong> – dočasné uložení modelu reportu (vstupy) a evidence souhlasu (e-mail, čas, IP, UTM, stránka, referrer),</li>\n            <li><span class=\"check\" aria-hidden=\"true\"></span> <strong>Vercel</strong> – hostování webu a serverless funkcí,</li>\n            <li><span class=\"check\" aria-hidden=\"true\"></span> <strong>Google Fonts</strong> – načítání písem (při načtení stránky se předává IP adresa).</li>\n          </ul>",
-  "oldString": "          <p>Vaše údaje neposkytujeme žádné třetí straně pro marketingové účely. Používáme následující zpracovatele výhradně pro technické zajištění služby:</p>\n          <ul class=\"lead-card__list\">\n            <li><span class=\"check\" aria-hidden=\"true\"></span> <strong>Resend</strong> – odesílání transakčních e-mailů s reportem,</li>\n            <li><span class=\"check\" aria-hidden=\"true\"></span> <strong>Upstash Redis</strong> – dočasné uložení PDF reportu a evidence souhlasu,</li>\n            <li><span class=\"check\" aria-hidden=\"true\"></span> <strong>Vercel</strong> – hostování webu a serverless funkcí.</li>\n          </ul>"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 25.1s)
-
-_Thinking:_
-
-A1-A6 done. Now fix tests (task 2).
-
-GDPR texty hotové. Opravujem padajúce testy:
-
-**Tool: todowrite**
-
-**Input:**
-```json
-{
-  "todos": [
-    {
-      "content": "Opraviť GDPR tvrdenia v index.html a soukromi.html (A1–A6)",
-      "priority": "high",
-      "status": "completed"
-    },
-    {
-      "content": "Opraviť 2 padajúce testy v tests/api.test.js",
-      "priority": "high",
-      "status": "in_progress"
-    },
-    {
-      "content": "Kozmetika: preklep README, zdroj grafu, zmazať test-list2.mjs",
-      "priority": "medium",
-      "status": "pending"
-    },
-    {
-      "content": "Spustiť testy na overenie",
-      "priority": "high",
-      "status": "pending"
-    }
-  ]
-}
-```
-
-**Output:**
-```
-[
-  {
-    "content": "Opraviť GDPR tvrdenia v index.html a soukromi.html (A1–A6)",
-    "status": "completed",
-    "priority": "high"
-  },
-  {
-    "content": "Opraviť 2 padajúce testy v tests/api.test.js",
-    "status": "in_progress",
-    "priority": "high"
-  },
-  {
-    "content": "Kozmetika: preklep README, zdroj grafu, zmazať test-list2.mjs",
-    "status": "pending",
-    "priority": "medium"
-  },
-  {
-    "content": "Spustiť testy na overenie",
-    "status": "pending",
-    "priority": "high"
-  }
-]
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\tests\\api.test.js",
-  "newString": "test(\"lead endpoint: prijme calc+portfolio+tax, uloží model a vráti reportId\", async () => {\n  delete process.env.RESEND_API_KEY;\n  const redis = makeFakeRedis();\n  _setRedisForTests(redis);\n\n  const res = await postLead({\n    email: \"Test@Example.COM\",\n    consent: true,\n    calc: {\n      initial: 100000, monthly: 3000, years: 25, ter: 0.0945, fund: \"SPY\",\n      finalValue: 5541000, feesPaid: 420000, gapVsCheapest: 234728\n    },\n    portfolio: {\n      allocations: { VOO: 60, IVV: 40 },\n      weightedTer: 0.03,\n      yourFinalValue: 5775728,\n      cheapFinalValue: 5775728,\n      avgFinalValue: 5000000,\n      gapVsCheapest: 0,\n      gapVsAverage: 775728,\n      years: 25, initial: 100000, monthly: 3000\n    },\n    tax: {\n      annualDividend: 24000, hasW8ben: true, taxRate: 0.15,\n      taxWithheld: 3600, netAmount: 20400,\n      annualSavings: 3600, savings10yr: 36000, savings20yr: 72000\n    }\n  });\n\n  assert.equal(res.statusCode, 200);\n  assert.equal(res.body.ok, true);\n  assert.match(res.body.reportId, /^[a-f0-9]{32}$/);\n\n  const entry = await loadReport(redis, res.body.reportId);\n  assert.ok(entry, \"report musí byť uložený v Redis\");\n  assert.ok(entry.model && typeof entry.model === \"object\", \"uložený záznam musí obsahovať model\");\n  assert.equal(entry.model.calc.finalValue, 5541000);\n  assert.equal(entry.model.portfolio.weightedTer, 0.03);\n  assert.equal(entry.model.tax.annualDividend, 24000);\n\n  const ids = buildReportContent(entry.model).sections.map((s) => s.id);\n  assert.deepEqual(ids, [\"calc\", \"portfolio\", \"tax\", \"etf-comparison\", \"checklist\", \"risk-warning\"]);\n});",
-  "oldString": "test(\"lead endpoint: prijme calc+portfolio+tax, uloží 1 PDF a vráti reportId\", async () => {\n  delete process.env.RESEND_API_KEY;\n  const redis = makeFakeRedis();\n  _setRedisForTests(redis);\n\n  const res = await postLead({\n    email: \"Test@Example.COM\",\n    consent: true,\n    calc: {\n      initial: 100000, monthly: 3000, years: 25, ter: 0.0945, fund: \"SPY\",\n      finalValue: 5541000, feesPaid: 420000, gapVsCheapest: 234728\n    },\n    portfolio: {\n      allocations: { VOO: 60, IVV: 40 },\n      weightedTer: 0.03,\n      yourFinalValue: 5775728,\n      cheapFinalValue: 5775728,\n      avgFinalValue: 5000000,\n      gapVsCheapest: 0,\n      gapVsAverage: 775728,\n      years: 25, initial: 100000, monthly: 3000\n    },\n    tax: {\n      annualDividend: 24000, hasW8ben: true, taxRate: 0.15,\n      taxWithheld: 3600, netAmount: 20400,\n      annualSavings: 3600, savings10yr: 36000, savings20yr: 72000\n    }\n  });\n\n  assert.equal(res.statusCode, 200);\n  assert.equal(res.body.ok, true);\n  assert.match(res.body.reportId, /^[a-f0-9]{32}$/);\n\n  const entry = await loadReport(redis, res.body.reportId);\n  assert.ok(entry, \"report musí byť uložený v Redis\");\n  assert.ok(entry.pdfBase64 && entry.pdfBase64.length > 5000, \"uložený PDF musí byť ne prázdny\");\n  assert.equal(entry.model.calc.finalValue, 5541000);\n  assert.equal(entry.model.portfolio.weightedTer, 0.03);\n  assert.equal(entry.model.tax.annualDividend, 24000);\n\n  const ids = buildReportContent(entry.model).sections.map((s) => s.id);\n  assert.deepEqual(ids, [\"calc\", \"portfolio\", \"tax\", \"etf-comparison\", \"checklist\", \"risk-warning\"]);\n});"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\tests\\api.test.js",
-  "newString": "test(\"report endpoint: servíruje platné PDF vygenerované z uloženého modelu\", async () => {\n  delete process.env.RESEND_API_KEY;\n  const redis = makeFakeRedis();\n  _setRedisForTests(redis);\n\n  const leadRes = await postLead({\n    email: \"identical@example.com\",\n    consent: true,\n    calc: {\n      initial: 50000, monthly: 1000, years: 15, ter: 0.18, fund: \"QQQ\",\n      finalValue: 1234567, feesPaid: 89000, gapVsCheapest: 45000\n    }\n  });\n  assert.equal(leadRes.statusCode, 200);\n\n  const res = await getReport(leadRes.body.reportId);\n  assert.equal(res.statusCode, 200);\n  assert.equal(res.headers[\"Content-Type\"], \"application/pdf\");\n  assert.ok(Buffer.isBuffer(res.body), \"endpoint musí servírovať binárny PDF buffer\");\n  assert.ok(res.body.subarray(0, 5).toString() === \"%PDF-\", \"odpoveď musí byť PDF\");\n  assert.ok(res.body.length > 5000, \"PDF nesmie byť prázdne\");\n  assert.equal(res.headers[\"Cache-Control\"], \"private, no-store\");\n});",
-  "oldString": "test(\"report endpoint: web aj e-mail používajú identický uložený PDF súbor\", async () => {\n  delete process.env.RESEND_API_KEY;\n  const redis = makeFakeRedis();\n  _setRedisForTests(redis);\n\n  const leadRes = await postLead({\n    email: \"identical@example.com\",\n    consent: true,\n    calc: {\n      initial: 50000, monthly: 1000, years: 15, ter: 0.18, fund: \"QQQ\",\n      finalValue: 1234567, feesPaid: 89000, gapVsCheapest: 45000\n    }\n  });\n  assert.equal(leadRes.statusCode, 200);\n\n  const entry = await loadReport(redis, leadRes.body.reportId);\n  const emailAttachment = Buffer.from(entry.pdfBase64, \"base64\");\n\n  const res = await getReport(leadRes.body.reportId);\n  assert.equal(res.statusCode, 200);\n  assert.equal(res.headers[\"Content-Type\"], \"application/pdf\");\n  assert.ok(Buffer.isBuffer(res.body), \"endpoint musí servírovať binárny PDF buffer\");\n  assert.ok(Buffer.compare(res.body, emailAttachment) === 0, \"PDF z /api/report musí byť identické s e-mailovou prílohou\");\n  assert.equal(res.headers[\"Cache-Control\"], \"private, no-store\");\n});"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 19.7s)
-
-_Thinking:_
-
-Also clean up test 4's vestigial pdfBase64 delete? It still passes - the delete of non-existent property is harmless. For clarity I could simplify but it's fine. Actually the test name says "fallback regenerácia" and it deletes pdfBase64 to simulate the fallback - now that pdfBase64 is never there, the delete is a no-op. Leave it - it still validates determinism.
-
-Now cosmetics:
-1. README typo "Najkmplexnejšie" → "Najkomplexnejšie"
-2. Delete test-list2.mjs
-3. Chart source - already done in index.html
-
-Also update README §9 tests note - now tests should pass, so remove the "2 endpoint testy padajú" notes from README (lines about POZN in §8 and §9)!
-
-Important: README says tests fail - after my fix they should pass, so I need to update README §8 and §9 to remove those notes.
-
-Doplním kozmetiku a aktualizujem poznámky o testoch v README (po oprave už nepadajú):
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "- **Rozdelenie dlhých zadaní** – ak to bolo potrebné, zadania som rozdelil na kroky. Najkomplexnejšie úlohy som nechával analyzovať ChatGPT, ktorý vedel vytvoriť prompty pre tieto úlohy pre iných AI agentov, príp. ich rozdeliť na menšie časti.",
-  "oldString": "- **Rozdelenie dlhých zadaní** – ak to bolo potrebné, zadania som rozdelil na kroky. Najkmplexnejšie úlohy som nechával analyzovať ChatGPT, ktorý vedel vytvoriť prompty pre tieto úlohy pre iných AI agentov, príp. ich rozdeliť na menšie časti."
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "```bash\nnpm test             # testy modelu, PDF a endpointov (bez siete)\nnpx serve .          # IBA statický náhľad – formulár sa lokálne NEODOŠLE\n                     # (žiadne /api), zobrazí sa jasná chybová hláška\nnpx vercel dev       # plný beh vrátane /api/lead a /api/report\n                     # (vyžaduje vercel login + UPSTASH env premenné;\n                     #  RESEND voliteľný – bez neho log_only)\n```",
-  "oldString": "```bash\nnpm test             # testy modelu, PDF a endpointov (bez siete)\n                     # POZN.: 2 z 19 testov ešte čakajú staré ukladanie PDF\n                     # v Redis (entry.pdfBase64) a padajú – viz §9\nnpx serve .          # IBA statický náhľad – formulár sa lokálne NEODOŠLE\n                     # (žiadne /api), zobrazí sa jasná chybová hláška\nnpx vercel dev       # plný beh vrátane /api/lead a /api/report\n                     # (vyžaduje vercel login + UPSTASH env premenné;\n                     #  RESEND voliteľný – bez neho log_only)\n```"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\README.md",
-  "newString": "tests/                 – node --test (model, PDF, endpointy, regenerácia PDF\n                         z modelu, validácia vstupov)",
-  "oldString": "tests/                 – node --test (model, PDF, endpointy, identita PDF)\n                         POZN.: 2 endpoint testy (api.test.js) ešte čakajú\n                         entry.pdfBase64 v Redis (stará architektúra) a padajú"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "Remove-Item -LiteralPath \"test-list2.mjs\"",
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
-(no output)
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 11.0s)
-
-_Thinking:_
-
-Now run the tests to verify everything passes.
-
-Spúšťam testy na overenie:
-
-**Tool: bash**
-
-**Input:**
-```json
-{
-  "command": "node --test \"tests/*.test.js\" 2>&1 | Select-String -Pattern \"^(not ok|ok [0-9]|# (tests|pass|fail))\"",
-  "timeout": 120000,
-  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
-}
-```
-
-**Output:**
-```
-
-ok 1 - lead endpoint: prijme calc+portfolio+tax, uloží model a vráti reportId
-ok 2 - lead endpoint: prázdne kalkulačky → PDF bez personalizovaných sekcií, s povinnými sekciami
-ok 3 - report endpoint: servíruje platné PDF vygenerované z uloženého modelu
-ok 4 - report endpoint: fallback regenerácia z uloženého modelu dáva ten istý obsah
-ok 5 - report endpoint: neplatné ID → 400, neznáme ID → 404
-ok 6 - lead endpoint: odmietne nevalidný e-mail a chýbajúci súhlas
-ok 7 - formatovanie českých čísel a mien
-ok 8 - sanitizeCalc: prázdny/neúplný vstup → null (žiadne predvolené hodnoty)
-ok 9 - sanitizeCalc: vyplnený vstup sa zachová (vrátane zaokrúhlenia)
-ok 10 - sanitizePortfolio: neúplné váhy (súčet ≠ 100) → null
-ok 11 - sanitizePortfolio: súčet 100 → sekcia je vyplnená
-ok 12 - sanitizeTax: nulový alebo chýbajúci príjem → null
-ok 13 - sanitizeTax: vyplnený vstup sa zachová
-ok 14 - buildReportModel: prázdny body → všetky voliteľné sekcie null
-ok 15 - buildReportContent: povinné sekcie sú vždy prítomné a presné
-ok 16 - buildReportContent: nevyplnené sekcie sa nezobrazia (žiadne pomlčky/nuly)
-ok 17 - buildReportContent: vyplnené sekcie obsahujú aktuálne hodnoty kalkulačiek
-ok 18 - PDF: generátor vytvorí jeden platný, deterministický súbor
-ok 19 - PDF: česká diakritika je zakódovaná v embedded fonte (nie transliterovaná)
-# tests 19
-# pass 19
-# fail 0
-
-
-
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 5.5s)
-
-_Thinking:_
-
-All 19 tests pass. Mark todos complete and give a summary.
-
-**Tool: todowrite**
-
-**Input:**
-```json
-{
-  "todos": [
-    {
-      "content": "Opraviť GDPR tvrdenia v index.html a soukromi.html (A1–A6)",
-      "priority": "high",
-      "status": "completed"
-    },
-    {
-      "content": "Opraviť 2 padajúce testy v tests/api.test.js",
-      "priority": "high",
-      "status": "completed"
-    },
-    {
-      "content": "Kozmetika: preklep README, zdroj grafu, zmazať test-list2.mjs",
-      "priority": "medium",
-      "status": "completed"
-    },
-    {
-      "content": "Spustiť testy na overenie",
-      "priority": "high",
-      "status": "completed"
-    }
-  ]
-}
-```
-
-**Output:**
-```
-[
-  {
-    "content": "Opraviť GDPR tvrdenia v index.html a soukromi.html (A1–A6)",
-    "status": "completed",
-    "priority": "high"
-  },
-  {
-    "content": "Opraviť 2 padajúce testy v tests/api.test.js",
-    "status": "completed",
-    "priority": "high"
-  },
-  {
-    "content": "Kozmetika: preklep README, zdroj grafu, zmazať test-list2.mjs",
-    "status": "completed",
-    "priority": "medium"
-  },
-  {
-    "content": "Spustiť testy na overenie",
-    "status": "completed",
-    "priority": "high"
-  }
-]
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 10.5s)
-
-_Thinking:_
-
-All done. Summarize concisely.
-
-Hotovo, **19/19 testov prechádza**. Zmenené:
-
-**1. GDPR texty (A1–A6)**
-- `index.html` – poznámka pod formulárom: zpracovatelé Resend/Upstash/Vercel namiesto „žádné předávání třetím stranám"; FAQ „jedním klikem" → odpoveď slovom `ODHLASIT`
-- `soukromi.html` – priznané odoslanie vstupov kalkulačky s leadom; odhlásenie bez neexistujúceho odkazu; ukladanie **modelu**, nie PDF; pridaný **Google Fonts** do spracovateľov + doplnené stránka/referrer
-
-**3. Testy**
-- `tests/api.test.js` – prepísané na architektúru „len model" (žiadne `entry.pdfBase64`); endpoint test teraz overuje platné PDF z modelu
-
-**4. Kozmetika**
-- README: preklep „Najkomplexnejšie", odstránené poznámky o padajúcich testoch (už neplatia)
-- `index.html` – zdroj grafu: statický snapshot + `scripts/fetch-voo.cjs`
-- zmazaný `test-list2.mjs` (debug odpadok)
-
-Neostalo nič z plánu okrem bodov 2 (skript Vercel Analytics) a 5 (commit) – tie si nechcel.
-
----
-
-## User
-
-134
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 3.9s)
-
-_Thinking:_
-
-The user sent "
-
----
-
-## User
-
-čo treba implementovať, aby fungoalo odhlásenie pomocou ODHLASIT
-
----
-
-## Assistant (Plan · MiMo-V2.6-Flash Free · 14.7s)
-
-_Thinking:_
-
-The user is asking what needs to be implemented to make unsubscribe via "ODHLASIT" work. I'm in plan mode - read only. I need to research the current state of the code (email sending, store, API) and design a plan for implementing unsubscribe.
-
-Let me think about what's needed:
-1. Currently email says "Pro odhlásit odpovězte na tento e-mail se slovem ODHLASIT"
-2. To actually process replies, you'd need an inbound email webhook (Resend inbound webhooks) or similar
-3. Alternative: add an unsubscribe link/token in the email that hits an API endpoint which marks the lead as unsubscribed/deleted in Redis
-
-Let me research Resend's capabilities and current code structure to make a proper plan.
-
-Preskúmam aktuálny stav (odosielanie e-mailov, Redis, Resend) a možnosti, aby som navrhol plán.
-
-**Tool: grep**
-
-**Input:**
-```json
-{
-  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie",
-  "pattern": "ODHLASIT|odhlás|unsubscribe|reply_to|RESEND"
-}
-```
-
-**Output:**
-```
-Found 100 matches (more matches available)
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\index.html:
-  Line 407:               <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="/soukromi.html">Zásady ochrany osobních údajů</a></span>
-
-  Line 480:             <p>Jeden e-mail s vaším přepočtem z kalkulačky, přehledem šesti ETF a checklistem prvních kroků (W-8BEN, broker, první nákup). Dále maximálně pár praktických tipů; odhlásit se můžete odpovědí na e-mail se slovem ODHLASIT. Podrobnosti o zpracování vašeho e-mailu najdete v <a href="/soukromi.html">Zásadách ochrany osobních údajů</a>.</p>
-
-  Line 513:         E-mail zpracováváme za účelem zaslání reportu a souvisejících tipů, odhlásit lze
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js:
-  Line 187:     const apiKey = process.env.RESEND_API_KEY;
-
-  Line 194:     const from = process.env.RESEND_FROM || "ETF Clientelo <onboarding@resend.dev>";
-
-  Line 201:       reply_to: replyTo,
-
-  Line 214:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\tests\api.test.js:
-  Line 59:   delete process.env.RESEND_API_KEY;
-
-  Line 103:   delete process.env.RESEND_API_KEY;
-
-  Line 120:   delete process.env.RESEND_API_KEY;
-
-  Line 144:   delete process.env.RESEND_API_KEY;
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\README.md:
-  Line 147:    (SPF/DKIM) a nastavte `RESEND_FROM`.
-
-  Line 160: | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady ukladajú do Redis a vracia sa `mode: "log_only"`, e-mail sa nepošle) |
-
-  Line 161: | `RESEND_FROM` | napr. `ETF Clientelo <report@clientelo.cz>` (voliteľné) |
-
-  Line 166: **Bez `RESEND_API_KEY`** (s nakonfigurovaným Redis) endpoint vracia `200` a loguje `mode: "log_only"` – lead je uložený, reportId vrátené, e-mail neodíde.
-
-  Line 194:                      #  RESEND voliteľný – bez neho log_only)
-
-  Line 234:   checkboxom, odhlásenie odpoveďou „ODHLASIT" v každom e-maile.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e91c.md:
-  Line 261: Deployment: vercel CLI or git-connected; vercel.json; env vars RESEND_API_KEY, LEADS_WEBHOOK_URL (optional), NEXT_PUBLIC_GA4_ID optional.
-
-  Line 341: Nasadenie: git push → Vercel (Hobby, zdarma), env: RESEND_API_KEY,
-
-  Line 479: Timeline/verification: open page via local server, test calculator math, test API endpoint with mock (no key →503 fallback logs lead to console/file? On Vercel without key, return 200 with queue mode? Better: if no RESEND_API_KEY, still accept and log payload to console (visible in Vercel function logs) - prevents broken UX during demo).
-
-  Line 503: .env.example            – RESEND_API_KEY, LEADS_WEBHOOK_URL, REPLY_TO
-
-  Line 2497: Resend: fetch('https://api.resend.com/emails', {headers: Authorization: Bearer KEY}) with from "ETF Report <onboarding@resend.dev>" (only works to own verified email on free tier without domain; README notes adding own domain). reply_to env REPLY_TO.
-
-  Line 2660:   "content": "<!DOCTYPE html>\n<html lang=\"cs\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>ETF na NYSE: kolik vás stojí poplatky? | Srovnání VOO, IVV, SPY a dalších</title>\n  <meta name=\"description\" content=\"Porovnejte 6 nejpopulárnějších ETF obchodovaných na NYSE a spočítejte si, kolik vás během let připraví poplatky. Osobní report do e-mailu za 30 sekund.\">\n  <meta property=\"og:title\" content=\"Vaše ETF vás může připravit o 237 000 Kč. Spočítejte si to za 30 sekund.\">\n  <meta property=\"og:description\" content=\"Srovnání poplatků (TER) u ETF VOO, IVV, SPY, QQQ, VTI a SCHD s kalkulačkou dopadu na vaše portfólio. Zdarma, bez registrace.\">\n  <meta property=\"og:type\" content=\"website\">\n  <meta property=\"og:locale\" content=\"cs_CZ\">\n  <meta name=\"theme-color\" content=\"#0F3D2E\">\n  <link rel=\"icon\" href=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230F3D2E'/%3E%3Ctext x='16' y='22' font-family='Georgia' font-size='16' fill='%23FAF7F2' text-anchor='middle'%3E%E2%82%AC%3C/text%3E%3C/svg%3E\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"/assets/css/style.css\">\n</head>\n<body>\n\n  <header class=\"topbar\">\n    <div class=\"wrap topbar__inner\">\n      <a href=\"/\" class=\"brand\" aria-label=\"ETF Poplatky – domů\">\n        <span class=\"brand__mark\">ETF</span>\n        <span class=\"brand__name\">Poplatky.cz</span>\n      </a>\n      <nav class=\"topbar__nav\">\n        <a href=\"#srovnani\" class=\"topbar__link\">Srovnání</a>\n        <a href=\"#kalkulacka\" class=\"...
-  Line 2774:   "content": "const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/;\n\nconst hits = globalThis.__leadRateLimit || (globalThis.__leadRateLimit = new Map());\n\nfunction rateLimited(key) {\n  const now = Date.now();\n  const win = 60 * 1000;\n  const arr = (hits.get(key) || []).filter((t) => now - t < win);\n  if (arr.length >= 5) {\n    hits.set(key, arr);\n    return true;\n  }\n  arr.push(now);\n  hits.set(key, arr);\n  return false;\n}\n\nfunction czk(v) {\n  return Math.round(Number(v) || 0).toLocaleString(\"cs-CZ\").replace(/\\u00a0/g, \" \") + \" Kč\";\n}\n\nfunction reportText(calc) {\n  if (!calc || !calc.years) {\n    return \"Report najdete na strance /thank-you.html – srovnani sesti ETF a checklist prvniho nakupu.\";\n  }\n  return [\n    \"Vas vypocet z kalkulacky:\",\n    \"- Vklad: \" + czk(calc.initial) + \", mesicne \" + czk(calc.monthly) + \", \" + calc.years + \" let\",\n    \"- Model: hruby vynos 8 % p.a., poplatek TER \" + String(calc.ter).replace(\".\", \",\") + \" % (\" + calc.fund + \")\",\n    \"- Konecna hodnota portfolia: \" + czk(calc.finalValue),\n    \"- Zaplacene poplatky celkem: \" + czk(calc.feesPaid),\n    \"- Rozdil proti nejlevnejsimu ETF (0,03 %): \" + czk(calc.gapVsCheapest),\n    \"\",\n    \"Celý report a checklist si otevrete na strance /thank-you.html (odkaz naleznete i v tomto e-mailu).\"\n  ].join(\"\\n\");\n}\n\nasync function sendWithResend(key, payload) {\n  const res = await fetch(\"https://api.resend.com/emails\", {\n    method: \"POST\",\n    headers: {\n      Authorization: \"Bearer \" + key,\n      \"Content-Type\": \"application/json\"\n    },\n    body: JSON.stringify(payload)\n  });\n  if (!res.ok) {\n    const body = await res.text();\n    throw new Error(\"Resend \" + res.status + \": \" + body);\n  }\n  return res.json();\n}\n\nexport default async function handler(req, res) {\n  res.setHeader(\"Access-Control-Allow-Origin\", \"*\");\n  res.setHeader(\"Access-Control-Allow-Methods\", \"POST, OPTIONS\");\n  res....
-  Line 2800:   "oldString": "    await sendWithResend(apiKey, {\n      from: from,\n      to [record.email],\n      reply_to: replyTo,\n      subject: \"Checklist: W-8BEN, broker, první nákup\",\n      text: \"Pokračování reportu najdete na stránce \" + origin + \"/thank-you.html#checklist\"\n    }).catch((e) => console.error(\"[lead] secondary email failed\", e.message));",
-
-  Line 2801:   "newString": "    await sendWithResend(apiKey, {\n      from: from,\n      to: [record.email],\n      reply_to: replyTo,\n      subject: \"Checklist: W-8BEN, broker, první nákup\",\n      text: \"Pokračování reportu najdete na stránce \" + origin + \"/thank-you.html#checklist\"\n    }).catch((e) => console.error(\"[lead] secondary email failed\", e.message));"
-
-  Line 3273:   "content": "# ETF Poplatky – konverzní landing page (Zadanie B)\n\nLead magnet pre českého drobného investora: srovnání 6 ETF obchodovaných na NYSE\n(VOO, IVV, SPY, QQQ, VTI, SCHD) + kalkulačka dopadu poplatků. Návštěvník dostává\nosobní report výměnou za e-mail.\n\n**Stack:** čisté HTML + CSS + vanilla JS, bez build kroku. Nasazení: Vercel\n(statické soubory + serverless funkce `api/lead.js`).\n\n---\n\n## 1. Cílová skupina a mechanika konverze\n\n| Otázka | Odpověď |\n|---|---|\n| Kdo | Čech 25–45 let, mobil, začátečník/mírně pokročilý, měsíčně spoří, zvažuje brokera (Fio, Trading 212, DEGIRO, Portu), bojí se poplatků a daní z dividend |\n| Odkud | Meta / Google Ads, studený traffic, ~5 s pozornosti |\n| Co dostane výměnou | **Osobní report**: vlastní přepočet ztráty na poplatcích (číslo z kalkulačky) + rozbor 6 ETF + checklist prvních kroků (W-8BEN, broker, první nákup) |\n| Kdy žádáme kontakt | **Až po dvou volně přístupných prvcích** – srovnávací tabulka a kalkulačka jsou zdarma, návštěvník už vidí své číslo. Formulář je logický další krok, ne skok |\n| Pole formuláře | **1 pole (e-mail)** + GDPR checkbox + honeypot |\n| Co následuje po odeslání | okamžitá `thank-you.html` s čísly a checklistem (tisknutelné), e-mail do 2 minut (Resend), další tipy jen na vyžádání/odhlašitelně |\n\nHodnota je zrejmá **před** vyplněním: tabulka i kalkulačka jsou kompletně\nfunkční bez e-mailu. E-mail je „jen\" pro uložení/odeslání reportu.\n\n---\n\n## 2. Proč v takovém pořadí sekce (odůvodnění)\n\nNávěštěvník přichází z mobilu na 5 sekund = rozhoduje první obrazovka a jeden slib.\n\n1. **Hero (1. obrazovka)** – zrcadlo reklamy (message match). Číselný hook\n   „235 000 Kč\" (vypočteno, viz §5) + jasný příslib „spočítejte si to za 30 sekund\".\n   Dvě CTA: primární vede na kalkulačku (okamžitá hodnota), sekundární na tabulku.\n   Úmyslně **nevede přímo na formulář** – cold návštěvník není připraven dát e-mail.\n2. **Tři fakta** – rychlé „bolesti\" čísly se zdroji (0,03 % vs 0,4...
-  Line 3288:   "content": "# Povinné: žiadne. Bez všetkých premenných stránka funguje\n# a leady sa zapisujú do function logov (mode: \"log_only\").\n\n# Voliteľné – Resend API kľúč (https://resend.com/api-keys)\nRESEND_API_KEY=re_xxxxxxxx\n\n# Voliteľné – odosielateľ (bez vlastnej domény nechajte default)\nRESEND_FROM=ETF Poplatky <onboarding@resend.dev>\n\n# Voliteľné – kam chodia odpovede\nREPLY_TO=vuj@email.cz\n",
-
-  Line 3928: # potom v Settings → Environment Variables pridať RESEND_API_KEY (voliteľné)
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\soukromi.html:
-  Line 41:             <li><span class="check" aria-hidden="true"></span> zaslání gelegních praktických tipů k investování do ETF (můžete kdykoli odhlásit),</li>
-
-  Line 49:           <p>Zpracování je založeno na vašem souhlasu (čl. 6 odst. 1 písm. a) GDPR), který udělíte zaškrtnutím políčka v objednávkovém formuláři. Souhlas můžete kdykoli odvolat odpovědí na libovolný e-mail od nás se slovem „ODHLASIT". Po odvolání souhlasu vaši e-mailovou adresu smažeme.</p>
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\ai-log\session-ses_e8e1.md:
-  Line 131: - Email backend: Resend API (optional `RESEND_API_KEY`), with fallback to log-only mode.
-
-  Line 154: - `C:\Users\BigON\Desktop\clientelo\.env.example` — Optional env vars: `RESEND_API_KEY`, `RESEND_FROM`, `REPLY_TO`.
-
-
-C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\session-ses_e839-2.md:
-  Line 5875: 402:      <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="#soukromi">Zásady ochrany osobních údajů</a></span>
-
-  Line 6025: | Email API key | 96–99 | `process.env.RESEND_API_KEY`; if missing → `200 {ok:true, mode:"log_only"}` |
-
-  Line 6026: | Env | 101–103 | `origin` from host (default `https://etf-poplatky.vercel.app`), `RESEND_FROM`, `REPLY_TO` |
-
-  Line 6027: | Email 1 (report) | 106–122 | subject `"Váš osobní report: kolik vás stojí poplatky"`, includes unsubscribe line `"Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT."` (line 119) and GDPR line (line 120) |
-
-  Line 6051: 5: RESEND_API_KEY=re_xxxxxxxx
-
-  Line 6053: 8: RESEND_FROM=ETF Poplatky <onboarding@resend.dev>
-
-  Line 6094:   <span>Souhlasím se zpracováním e-mailu pro zaslání reportu a souvisejících tipů. Odběr kdykoli odhlásím. <a href="#soukromi">Zásady ochrany osobních údajů</a></span>
-
-  Line 6108: E-mail zpracováváme za účelem zaslání reportu a souvisejících tipů, odhlásit lze
-
-  Line 6115: - `index.html:475` (FAQ) — "Dále maximálně pár praktických tipů; odhlásit se můžete jedním klikem."
-
-  Line 6116: - `api/lead.js:119` — email footer: "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT."
-
-  Line 6131: ├── .env.example                  (11 lines – RESEND_API_KEY / RESEND_FROM / REPLY_TO)
-
-  Line 6406: 96:   const apiKey = process.env.RESEND_API_KEY;
-
-  Line 6412: 102:   const from = process.env.RESEND_FROM || "ETF Poplatky <onboarding@resend.dev>";
-
-  Line 6419: 109:       reply_to: replyTo,
-
-  Line 6429: 119:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-  Line 6437: 127:       reply_to: replyTo,
-
-  Line 6471: 5: RESEND_API_KEY=re_xxxxxxxx
-
-  Line 6474: 8: RESEND_FROM=ETF Poplatky <onboarding@resend.dev>
-
-  Line 6519:   "pattern": "RESEND|env|ENV|premenn"
-
-  Line 6529:   Line 5: RESEND_API_KEY=re_xxxxxxxx
-
-  Line 6531:   Line 8: RESEND_FROM=ETF Poplatky <onboarding@resend.dev>
-
-  Line 6535:   Line 156:    (SPF/DKIM) a nastavte `RESEND_FROM`.
-
-  Line 6537:   Line 170: | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady zapisujú do logov) |
-
-  Line 6539:   Line 171: | `RESEND_FROM` | napr. `ETF Poplatky <report@vasedomena.cz>` (voliteľné) |
-
-  Line 6559:   Line 593: Funkcia `api/lead.js` pošle e-mail **iba ak je nastavená premenná prostredia `RESEND_API_KEY`** v Vercel projekte. Ak chýba, endpoint vráti:
-
-  Line 6561:   Line 603: 1. **Vercel Dashboard → Project Settings → Environment Variables** — pridaj `RESEND_API_KEY` (z Resendu, bezplatný plán stačí na 3 000 e-mailov/mesačne). Voliteľne `RESEND_FROM` a `REPLY_TO`.
-
-  Line 6565:   Line 608: Ak chceš, aby e-maily chodili aj lokálne pri vývoji, musíš spustiť `npx vercel dev` (vyžaduje prihlásenie do Vercelu) alebo mať nastavený `RESEND_API_KEY` aj lokálne. Inak lokálne žiadny e-mail nepríde — to je bežné.
-
-  Line 6567:   Line 628: - `api/lead.js` posiela e-mail **iba ak je nastavená premenná prostredia `RESEND_API_KEY`**. Ak chýba, endpoint vráti `{ ok: true, mode: "log_only" }` — lead sa len zapíše do Vercel logov (`[lead]`), ale e-mail návštevníkovi **nepríde**.
-
-  Line 6569:   Line 633:    - `RESEND_API_KEY` — kľúč z [resend.com](https://resend.com) (bezplatný plán: 3 000 e-mailov/mesačne)
-
-  Line 6571:   Line 634:    - Voliteľne: `RESEND_FROM`, `REPLY_TO`
-
-  Line 6573:   Line 638: **Lokálne pre vývoj:** namiesto `npx serve .` použij `npx vercel dev` — potom beží aj `/api/lead` endpoint a e-maily budú odosielané (ak máš `RESEND_API_KEY` nastavený aj lokálne v `.env` alebo Vercel CLI).
-
-  Line 6585:   Line 131: - Email backend: Resend API (optional `RESEND_API_KEY`), with fallback to log-only mode.
-
-  Line 6591:   Line 154: - `C:\Users\BigON\Desktop\clientelo\.env.example` — Optional env vars: `RESEND_API_KEY`, `RESEND_FROM`, `REPLY_TO`.
-
-  Line 6611:   Line 261: Deployment: vercel CLI or git-connected; vercel.json; env vars RESEND_API_KEY, LEADS_WEBHOOK_URL (optional), NEXT_PUBLIC_GA4_ID optional.
-
-  Line 6613:   Line 341: Nasadenie: git push → Vercel (Hobby, zdarma), env: RESEND_API_KEY,
-
-  Line 6617:   Line 479: Timeline/verification: open page via local server, test calculator math, test API endpoint with mock (no key →503 fallback logs lead to console/file? On Vercel without key, return 200 with queue mode? Better: if no RESEND_API_KEY, still accept and log payload to console (visible in Vercel function logs) - prevents broken UX during demo).
-
-  Line 6619:   Line 503: .env.example            – RESEND_API_KEY, LEADS_WEBHOOK_URL, REPLY_TO
-
-  Line 6621:   Line 2497: Resend: fetch('https://api.resend.com/emails', {headers: Authorization: Bearer KEY}) with from "ETF Report <onboarding@resend.dev>" (only works to own verified email on free tier without domain; README notes adding own domain). reply_to env REPLY_TO.
-
-  Line 6634:   Line 3288:   "content": "# Povinné: žiadne. Bez všetkých premenných stránka funguje\n# a leady sa zapisujú do function logov (mode: \"log_only\").\n\n# Voliteľné – Resend API kľúč (https://resend.com/api-keys)\nRESEND_API_KEY=re_xxxxxxxx\n\n# Voliteľné – odosielateľ (bez vlastnej domény nechajte default)\nRESEND_FROM=ETF Poplatky <onboarding@resend.dev>\n\n# Voliteľné – kam chodia odpovede\nREPLY_TO=vuj@email.cz\n",
-
-  Line 6648:   Line 3928: # potom v Settings → Environment Variables pridať RESEND_API_KEY (voliteľné)
-
-  Line 6654:   Line 96:   const apiKey = process.env.RESEND_API_KEY;
-
-  Line 6656:   Line 102:   const from = process.env.RESEND_FROM || "ETF Poplatky <onboarding@resend.dev>";
-
-  Line 6733: 156:    (SPF/DKIM) a nastavte `RESEND_FROM`.
-
-  Line 6747: 170: | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady zapisujú do logov) |
-
-  Line 6748: 171: | `RESEND_FROM` | napr. `ETF Poplatky <report@vasedomena.cz>` (voliteľné) |
-
-  Line 6846: Now, should DB save happen even if RESEND_API_KEY missing? Yes — the point is to store emails in DB. Currently when no API key → returns `log_only` early at line 96-99. I should save to DB BEFORE that early return, so leads get stored even without Resend configured.
-
-  Line 7013: 207:   odhlásenie v každom e-maile, žiadne tretie strany.
-
-  Line 7130: Also important: DB write should happen even when RESEND_API_KEY missing (mode log_only) — currently the function returns early at line 96-99 if no apiKey. So the DB save must be before that return. Good — put it right after console.log.
-
-  Line 7284: Test 2: valid email, consent true, no env → expect 200 mode log_only, stored false, no fetch calls (patch globalThis.fetch to record calls and throw if called — but handler with no RESEND key doesn't fetch... saveLeadToDb returns false without fetch. So fetch should not be called).
-
-  Line 7381: 140:   const apiKey = process.env.RESEND_API_KEY;
-
-  Line 7387: 146:   const from = process.env.RESEND_FROM || "ETF Poplatky <onboarding@resend.dev>";
-
-  Line 7394: 153:       reply_to: replyTo,
-
-  Line 7404: 163:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-
-  Line 7412: 171:       reply_to: replyTo,
-
-  Line 7442:   "newString": "  const apiKey = process.env.RESEND_API_KEY;\n  if (!apiKey) {\n    return res.status(200).json({ ok: true, queued: false, mode: \"log_only\", stored: stored });\n  }",
-
-  Line 7443:   "oldString": "  const apiKey = process.env.RESEND_API_KEY;\n  if (!apiKey) {\n    return res.status(200).json({ ok: true, queued: false, mode: \"log_only\" });\n  }"
-
-  Line 7498:   "newString": "| `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady zapisujú do logov) |\n| `RESEND_FROM` | napr. `ETF Poplatky <report@vasedomena.cz>` (voliteľné) |\n| `REPLY_TO` | váš e-mail na odpovede (voliteľné) |\n| `UPSTASH_REDIS_REST_URL` | REST URL z Upstash (voliteľné – bez neho sa leady neukladajú do DB) |\n| `UPSTASH_REDIS_REST_TOKEN` | REST token z Upstash (voliteľné) |\n\nBez kľúča stránka **plne funguje** – endpoint vracia `200` a loguje `{\"mode\":\"log_only\"}`.\n\n### Upstash Redis (databáza leadov)\n1. Účet zdarma na <https://upstash.com> → **Create database** (free tier).\n2. V sekcii **REST API** skopírovať `UPSTASH_REDIS_REST_URL` a `UPSTASH_REDIS_REST_TOKEN`.\n3. Pridať ako environment variables (vyššie) a redeploy.\n\nLead sa uloží **iba keď používateľ zaškrtnul súhlas** (overené aj serverom –\nbez `consent: true` vracia endpoint `422 consent_required` a neuloží nič).\nKaždý záznam obsahuje e-mail, čas súhlasu, IP, UTM, stránku a referrer\n(klúč `lead:<email>` + index `leads:index`). Bez premenných je odpoveď\n`{\"ok\":true,\"stored\":false}`.",
-
-  Line 7499:   "oldString": "| `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady zapisujú do logov) |\n| `RESEND_FROM` | napr. `ETF Poplatky <report@vasedomena.cz>` (voliteľné) |\n| `REPLY_TO` | váš e-mail na odpovede (voliteľné) |\n\nBez kľúča stránka **plne funguje** – endpoint vracia `200` a loguje `{\"mode\":\"log_only\"}`."
-
-  Line 7547:   "content": "import handler from \"file:///C:/Users/BigON/Desktop/clientelo/api/lead.js\";\n\nfunction mockRes() {\n  const res = {\n    statusCode: null,\n    body: null,\n    headers: {},\n    setHeader(k, v) { this.headers[k] = v; },\n    status(c) { this.statusCode = c; return this; },\n    json(b) { this.body = b; return this; },\n    end() { return this; }\n  };\n  return res;\n}\n\nasync function run(name, body, env) {\n  // isolate env\n  const saved = { ...process.env };\n  delete process.env.UPSTASH_REDIS_REST_URL;\n  delete process.env.UPSTASH_REDIS_REST_TOKEN;\n  delete process.env.RESEND_API_KEY;\n  Object.assign(process.env, env || {});\n\n  // capture fetch\n  const calls = [];\n  const origFetch = globalThis.fetch;\n  globalThis.fetch = async (url, opts) => {\n    calls.push({ url: String(url), body: opts && opts.body });\n    return { ok: true, status: 200, json: async () => ({}), text: async () => \"\" };\n  };\n\n  const req = {\n    method: \"POST\",\n    headers: { \"x-forwarded-for\": \"1.2.3.4\", host: \"test.local\" },\n    body\n  };\n  const res = mockRes();\n  try {\n    await handler(req, res);\n  } finally {\n    globalThis.fetch = origFetch;\n    for (const k of Object.keys(process.env)) delete process.env[k];\n    Object.assign(process.env, saved);\n  }\n  console.log(\"== \" + name);\n  console.log(\"   status:\", res.statusCode, \"body:\", JSON.stringify(res.body));\n  console.log(\"   fetch calls:\", calls.length ? calls.map(c => c.url + \" :: \" + String(c.body).slice(0, 160)) : \"none\");\n}\n\nconst good = { email: \"Test@Example.COM\", consent: true, utm: { utm_source: \"x\" }, page: \"/\", referrer: null, ts: \"2026-01-01T00:00:00.000Z\" };\n\nawait run(\"1) consent=true, DB configured\", good, {\n  UPSTASH_REDIS_REST_URL: \"https://fake.upstash.io\",\n  UPSTASH_REDIS_REST_TOKEN: \"fake-token\"\n});\n\nawait run(\"2) consent missing -> 422, no DB write\", { email: \"a@b.cz\" }, {\n  UPSTASH_REDIS_REST_URL: \"https://fake.upsta...
-  Line 7605: Also note test 1: RESEND_API_KEY not set → mode log_only, but stored should be true. Good.
-
-  Line 7712: So actually the db_error line is from test 6, appearing out of order due to stderr/stdout buffering. And test 6 result: status 200, stored:false (because saveLeadToDb threw → stored stays false), fetch called (1 call, the HSET which failed). Test 6 output shows fetch calls with the HSET body — yes, fetch was called once (the DB call failed), no Resend call because RESEND_API_KEY unset.
-
-  Line 7898: 170: | `RESEND_API_KEY` | kľúč z kroku 1 (voliteľné – bez neho sa leady zapisujú do logov) |
-
-  Line 7899: 171: | `RESEND_FROM` | napr. `ETF Poplatky <report@vasedomena.cz>` (voliteľné) |
-
-  Line 8314: Hmm, what about checking response keys only: send valid email consent=true. If RESEND_API_KEY is set on the deployment, a real email gets sent to whatever address I use. I could use a fake domain like test@example.com — Resend would fail to deliver (invalid), and the function catches and returns log_fallback. That's acceptable — no real person gets emailed. example.com is reserved.
-
-  Line 8361: To confirm: POST with valid email + consent=true and see if response contains "stored" field. If no "stored" key → old code. To avoid sending real emails to real people, use a test@example.com address (reserved domain, Resend will bounce/fail, caught gracefully). Actually wait — if RESEND_API_KEY is set and valid, Resend API will accept the send request (queue it) and fail delivery later to example.com. That's fine, no real person.
-
-  Line 8397: Additionally `mode: log_fallback` means RESEND_API_KEY IS set on Vercel (it tried to send and failed — probably because example.com is not deliverable, or the from-domain isn't verified for that address; doesn't matter here).
-
-  Line 8420: Dodatočne: odpoveď `log_fallback` znamená, že `RESEND_API_KEY` na Verceli je nastavený (Resend sa pokúsil odoslať na example.com a padol – to je pri tomto teste OK).
-
-
-(Results truncated. Consider using a more specific path or pattern.)
-```
-
-**Tool: read**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
-  "offset": 186,
-  "limit": 45
-}
-```
-
-**Output:**
-```
-<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js</path>
-<type>file</type>
-<content>
-186:   try {
-187:     const apiKey = process.env.RESEND_API_KEY;
-188:     if (!apiKey) {
-189:       console.log("[lead] log_only – report ulozen, reportId=" + reportId);
-190:       return res.status(200).json({ ok: true, stored: true, queued: false, mode: "log_only", reportId: reportId });
-191:     }
-192: 
-193:     const origin = "https://" + (req.headers.host || "etf-poplatky.vercel.app");
-194:     const from = process.env.RESEND_FROM || "ETF Clientelo <onboarding@resend.dev>";
-195:     const replyTo = process.env.REPLY_TO || undefined;
-196:     const reportUrl = origin + "/thank-you.html?id=" + reportId;
-197: 
-198:     await sendWithResend(apiKey, {
-199:       from: from,
-200:       to: [record.email],
-201:       reply_to: replyTo,
-202:       subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
-203:       text: [
-204:         "Děkujeme za váš zájem.",
-205:         "",
-206:         reportText(model),
-207:         "V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.",
-208:         "V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).",
-209:         "Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.",
-210:         "",
-211:         "Report: " + reportUrl,
-212:         "",
-213:         "--",
-214:         "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.",
-215:         "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
-216:       ].join("\n"),
-217:       attachments: [
-218:         {
-219:           filename: "ETF_osobni_report.pdf",
-220:           content: pdfBase64
-221:         }
-222:       ]
-223:     });
-224: 
-225:     return res.status(200).json({ ok: true, stored: true, queued: true, reportId: reportId });
-226:   } catch (err) {
-227:     console.error("[lead] resend_error", String((err && err.message) || err).slice(0, 300));
-228:     return res.status(200).json({ ok: true, stored: true, queued: false, mode: "resend_failed", reportId: reportId });
-229:   }
-230: }
-
-(End of file - total 230 lines)
-</content>
-```
-
-**Tool: websearch**
-
-**Input:**
-```json
-{
-  "numResults": 5,
-  "query": "Resend inbound email webhook parse reply unsubscribe 2026"
-}
-```
-
-**Output:**
-```
-{
-  "search_id": "search_234f22d93219b4d4c31e9f1532b92745",
-  "results": [
-    {
-      "url": "https://resend.com/docs/dashboard/receiving/create-receiving-webhook",
-      "title": "Create a receiving Webhook",
-      "publish_date": null,
-      "excerpts": [
-        "```rust Rust theme={\"theme\":{\"light\":\"github-light\",\"dark\":\"vesper\"}}\n        Json(event).into_response()\n    } else {\n        Json(Empty {}).into_response()\n    }\n}\n```\n\nOnce you receive the email event, you can process the email body and attachments. You can also implement [webhook request verification](https://resend.com/docs/webhooks/verify-webhooks-requests.md) to secure your webhook endpoint.\n\n> [!TIP]\n>\n> Any email sent to any username at your receiving domain will be received\n> by Resend and forwarded to your webhook. You can intelligently route based\n> on the `to` field in the webhook event to create different workflows to\n> handle different inbound emails.\n\n**2. Go to the Webhooks page in your Resend Dashboard**\n\n**3. Click Add Webhook.**\n\n**4. Enter the URL of the route you created for your webhook endpoint.**\n\n**5. Select the event type `email.received`.**\n\n![Add Webhook for Receiving Emails](https://mintcdn.com/resend/1QlhxulUFE6jxYM_/images/inbound-webhook-setup.jpg?fit=max\\&auto=format\\&n=1QlhxulUFE6jxYM_\\&q=85\\&s=55ae3e35788d91065d59ff4ddebff7e6)\n\n**6. Click Add.**\n\n> [!TIP]\n>\n> For development, you can create a tunnel to your localhost server using a tool like\n\n...\n\nThese tools serve your local dev environment at a public URL you can use to test your local webhook endpoint.\n>\n> Example: `https://example123.ngrok.io/api/webhook`\n\nOnce you receive an email event, you can process the email body and attachments from the webhook payload.\n\n```json theme={\"theme\":{\"light\":\"github-light\",\"dark\":\"vesper\"}}\n{\n  \"type\": \"email.received\",\n  \"created_at\": \"2026-02-22T23:41:12.126Z\",\n  \"data\": {\n    \"email_id\": \"56761188-7520-42d8-8898-ff6fc54ce618\",\n    \"created_at\": \"2026-02-22T23:41:11.894Z\",\n    \"from\": \"onboarding@resend.dev\",\n    \"to\": [\"delivered@resend.dev\"],\n    \"bcc\": [],\n    \"cc\": [],\n    \"received_for\": [\"forwarded@example.com\"],\n    \"message_id\": \"<111-222-333@email.example.com>\",\n    \"subject\": \"Sending this example\",\n    \"attachments\": [\n      {\n        \"id\": \"2a0c9ce0-3112-4728-976e-47ddcd16a318\",\n        \"filename\": \"avatar.png\",\n        \"content_type\": \"image/png\",\n        \"content_disposition\": \"inline\",\n        \"content_id\": \"img001\"\n      }\n    ]\n  }\n}\n```\n\n> [!NOTE]\n>\n> Webhooks do not include the email body, headers, or attachments, only their\n> metadata. You must call the [Received emails\n\n...\n\n> API](https://resend.com/docs/api-reference/emails/list-received-email-attachments.md) to retrieve them."
-      ]
-    },
-    {
-      "url": "https://resend.com/blog/inbound-emails",
-      "title": "Inbound Emails",
-      "publish_date": null,
-      "excerpts": [
-        "---\ntitle: \"Inbound Emails\"\nslug: inbound-emails\ndescription: \"Receive emails using webhooks. Parse content and attachments. Reply to your users.\"\ncreated_at: \"2025-11-03\"\nupdated_at: \"2026-07-09\"\n\n...\n\ncategory: \"product\"\nfeatured: true\n---\n\nResend started by modernizing the way you **send emails**.\n\nToday, we're making it easy for you to **receive emails** as well.\n\nInbound unlocks entirely new use cases like:\n\n- Replying to in-app emails\n- Processing forwarded attachments\n- Receiving support emails from users\n\n<video\n  src=\"https://cdn.resend.com/posts/inbound-emails.mp4\"\n  poster=\"https://cdn.resend.com/posts/inbound-emails-cover.jpg\"\n  controls\n  className=\"extraWidth\"\n/>\n\n## How does it work?\n\n...\n\n- Use your team's default inbound domain (e.g. `<your-alias>@<id>.resend.app`)\n- [Set up a custom domain](/docs/dashboard/receiving/custom-domains) (e.g. `example.com`)\n\n![Diagram of how inbound emails work](https://cdn.resend.com/posts/inbound-emails-1.jpg)\n\nResend processes all incoming emails to the provided address and then:\n1. Parses the email content as JSON\n2. Stores the attachment file(s)\n3. Sends a JSON payload to an endpoint of your choice\n\n## Getting started\nHere's how to start receiving emails using Resend.\n\n### 1. Get your email address\n\n...\n\nSend emails to your inbound address and Resend will process them and send a JSON payload to your webhook.\n\n<Callout hideIcon>\nAlternatively, for a more branded experience, you can also [set up a custom domain](/docs/dashboard/receiving/custom-domains) to receive emails.\n</Callout>\n\n### 2. Configure webhook\n\nIn your application, create a new route that can accept `POST` requests.\n\nNext, [create a new webhook](/docs/dashboard/receiving/introduction#2-configure-webhooks) to receive events.\n\nEnter your endpoint URL and select the `email.received` event.\n\n<video\n  src=\"https://cdn.resend.com/posts/inbound-webhook.mp4\"\n  autoPlay\n\n...\n\n```json\n        \"content_type\": \"image/png\",\n        \"content_disposition\": \"inline\",\n        \"content_id\": \"img001\"\n      }\n    ]\n  }\n}\n```\n\n## View received emails\n\nAll inbound emails are visible on the [emails](/emails/receiving) page. Resend will store your emails even if you don't configure a webhook, or if your webhook endpoint is down.\n\nEmails can be filtered by their `to`, `from`, and `subject` fields.\n\n...\n\nThat API will return a list of attachments with their metadata and a `download_url` that you can use to download the actual content."
-      ]
-    },
-    {
-      "url": "https://resend.com/docs/webhooks/introduction",
-      "title": "Webhooks",
-      "publish_date": null,
-      "excerpts": [
-        "This allows you to receive real-time and actionable updates on the delivery, open, bounce, and click events of your emails.\nYou can create, update, observe, and retry webhooks from the dashboard or [via the API](https://resend.com/docs/api-reference/webhooks/create-webhook.md).\n\nWebhooks deliver a JSON payload with metadata like the from, to, and status of your email event that can be used by your application. Use webhook feeds for common workflows such as:\n\n* Automatically remove [bounced email addresses](https://resend.com/docs/webhooks/emails/bounced.md) from mailing lists.\n* Create alerts in your messaging or incident tools based on [event types](https://resend.com/docs/webhooks/event-types.md).\n* [Store all send events](https://resend.com/docs/webhooks/how-to-store-webhooks-data.md) in your own database for custom reporting/retention.\n* [Receive inbound emails](https://resend.com/docs/dashboard/receiving/introduction.md) from your application.\n\n## Webhook features\n\nWith Resend's webhook features, you can:\n\n* [Replay any webhook event](https://resend.com/docs/webhooks/retries-and-replays.md). This is useful when your endpoint missed an event, or when you want to reprocess events with updated handler code.\n* [Verify webhook requests](https://resend.com/docs/webhooks/verify-webhooks-requests.md) to ensure their authenticity.\n\n...\n\nTo build workflows to manage and respond to email events from your application, you can use a variety of tools:\n\n...\n\n> **[Self-host the Resend Webhook Ingester](https://resend.com/docs/webhooks/ingester.md)**\n\n> **[Webhook events reference](https://resend.com/docs/webhooks/emails/bounced.md)**\n\n## Examples\n\n> **[Next.js (TypeScript)](https://github.com/resend/resend-examples/tree/main/nextjs-resend-examples/typescript/src/app/inbound)**\n>\n> See the full source code.\n\n> **[Next.js (JavaScript)](https://github.com/resend/resend-examples/tree/main/nextjs-resend-examples/javascript/src/app/inbound)**\n>\n> See the full source code.\n\n> **[PHP](https://github.com/resend/resend-examples/tree/main/php-resend-examples/src/inbound)**\n>\n> See the full source code.\n\n> **[Laravel](https://github.com/resend/resend-examples/tree/main/laravel-resend-examples)**\n>\n> See the full source code.\n\n> **[Python](https://github.com/resend/resend-examples/tree/main/python-resend-examples/examples)**\n>\n> See the full source code."
-      ]
-    },
-    {
-      "url": "https://resend.com/inbound",
-      "title": "Inbound · Receive emails with Resend · Resend",
-      "publish_date": null,
-      "excerpts": [
-        "\n* Features\n* Company\n* Resources\n* Help\n* Docs\n* AI\n* Pricing\n\n Get started\n\n# Receive emails with Resend\n\nBuild automations triggered by inbound emails. Handle webhooks, attachments, and replies easily.\n\nEmail as an interface\n\n## Let your app listen  \nto your inbox\n\nTurn emails into structured input for your application.  \nWhen an email is received, your app gets the full payload so  \nyou can act on it.\n\n[See API Docs](https://resend.com/docs/api-reference/emails/retrieve-received-email) Get API key\n\n## List received emails\n\nGET\n\nGet a high-level view of the emails you’ve received and manage them via the API. ## List attachments\n\nGET\n\nList attachments for a given email. ## Retrieve attachment\n\n...\n\nin one place\n\nExplore and manage inbound emails in the dashboard with  \nbuilt-in redundancy, even during your app’s outages or errors.\n\nInbound visibility screenshot\n\nAttachments\n\n## Work with email attachments\n\nAccess and process files sent to your inbox. Attachments are automatically parsed and delivered with metadata, content type, and base64-encoded data ready for your application to handle.\n\nNode.js\n\n...\n\n```\nfilename : 'invoice.pdf' ,\n\n} ,\n\n] ,\n\n} ) ;\n```\n\nDelivery & access\n\n## Receive structured  \nemail data\n\nInbound emails are delivered as structured data, making it  \neasy for your app to parse content and attachments.\n\n#### Ready for personalization\n\nUse a Resend-provided email address or receive emails on your own domain\n\n#### Webhook delivery\n\nReceive a POST request to your endpoint when you receive an email\n\n#### Handles attachments\n\nParse attachments via the API or one of the 9 official SDKs\n\nEasy to use\n\n## Get started  \nwith inbound\n\nFollow these steps to start receiving emails.\n\nStep 1\n\n#### Get your Resend domain\n\nAny emails sent to this address will be forwarded to your webhook.\n\n### Get a Resend inbox\n\nUse this exclusive Resend domain to start receiving  \nand processing all incoming emails.\n\n<anything>@<id>.resend.app\n\nCopy address\n\n`⌘` `↩︎` Cancel `Esc`\n\nStep 2\n\n#### Configure a webhook\n\nRegister your publicly accessible URL and choose which events you want to receive.\n\n### Add webhook\n\nEndpoint URL\n\nEvents types\n\nemail.received\n\nAdd\n\n`⌘` `↩︎` Cancel `Esc`\n\nStep 3\n\n#### Receive email events\n\nIn your application, create a new route that can accept POST requests."
-      ]
-    },
-    {
-      "url": "https://github.com/resend/resend-cli",
-      "title": "GitHub - resend/resend-cli: The official CLI for Resend · GitHub",
-      "publish_date": null,
-      "excerpts": [
-        "|`--bcc <addresses...>` |No |BCC recipients (space-separated) |\n|`--reply-to <address>` |No |Reply-to email address |\n\n#### Interactive mode\n\nWhen run in a terminal without all required flags, the CLI prompts for missing fields:\n\n...\n\nFor example: `resend.webhooks.verify({ payload, headers, webhookSecret })`\n\nThere are many events that you can listen for in your application.\n\nFor example, you can:\n\n* Set up a POST endpoint to unsubscribe users when an email bounces or they mark your email as spam.\n* Notify yourself when you get a new subscriber using the `contact.created` event.\n* Use an `email.received` webhook to set up an inbox for your agent and notify it when a new email is received.\n\n#### Event types\n\n...\n\n```shell\nresend webhooks create --endpoint https://app.example.com/hooks/resend --events email.sent,email.delivered\n```\n\n#### **`resend webhooks get`**\n\nFetches one webhook by ID.\n\n...\n\nFetches one email of a thread.\n\n```shell\nresend inboxes threads emails get <inbox-id> <thread-id> <email-id>\n```\n\n#### **`resend inboxes threads emails reply`**\n\nSends a reply from the inbox address. The reply goes to the `Reply-To` addresses of the email, or to its sender. If the inbox sent the email, the reply goes to its `to` recipients. `--reply-all` also copies the other recipients, without the inbox address and without duplicates. With `--reply-all` , a reply to an email the inbox sent goes to its `Reply-To` addresses when they are not the inbox address.\n\n...\n\n|`--reply-all` |Reply to everyone on the original email |\n\n...\n\n|`--headers <key=value...>` |Custom headers. `In-Reply-To` , `References` and `Reply-To` are reserved. Names and values cannot contain line breaks |\n|`--idempotency-key <key>` |Deduplicate the send |\n\n```shell\nresend inboxes threads emails reply <inbox-id> <thread-id> <email-id> --text \"Thanks!\"\n```\n\n...\n\n#### **`resend inboxes drafts create`**\n\nCreates a draft that starts a new thread. Pass `--thread-id` and `--reply-to-email-id` together for a reply draft.\n\n...\n\n--dry-run`** — same for the broadcast create payload.\n* **`resend emails batch --file ./emails.json --dry-run`** — parses and normalises the JSON array, resolves any `--react-email` template, then prints the request payload without sending. No API key required.\n\nOther commands do not support `--dry-run` .\n\n* * *\n\n## Configuration\n\n|Item |Path |Notes |\n| --- | --- | --- |\n|Config directory |`~/.config/resend/` |Respects `$XDG_CONFIG_HOME` on Linux, `%APPDATA%` on Windows |"
-      ]
-    },
-    {
-      "url": "https://resend.com/docs/knowledge-base/how-can-i-receive-emails-with-resend",
-      "title": "Can You Receive Emails with Resend? - Resend",
-      "publish_date": null,
-      "excerpts": [
-        "> ## Documentation Index\n> \n> Fetch the complete documentation index at: [/docs/llms.txt](https://resend.com/docs/llms.txt)\n> \n> Use this file to discover all available pages before exploring further.\n> \n> \n\n\nSearch...\n\nNavigation\n\nDeliverability\n\nCan You Receive Emails with Resend?\n\n1. Deliverability\n\n# Can You Receive Emails with Resend?\n\nCopy page Copy page\n\nReceive emails with webhooks and process content, attachments, forwarding, and replies.\n\nCopy page Copy page\n\nYes. Resend supports receiving emails (inbound) via webhooks. With Receiving, you can:\n\n* Receive incoming emails and get notified with the `email.received` webhook event.\n* Retrieve full email content (HTML, text, headers) using the Receiving API.\n* Process attachments using attachment metadata and temporary download URLs.\n\nYou can receive emails at:\n\n* A Resend-managed `*.resend.app` receiving domain, or\n* Your own custom domain by adding the required `MX` record.\n\nSee the full guide: [Receiving Emails](https://resend.com/docs/dashboard/receiving/introduction) .\n\nWas this page helpful?\n\nYes No\n\n[Why are my emails landing on the Suppression List? Previous](https://resend.com/docs/knowledge-base/why-are-my-emails-landing-on-the-suppression-list) [Is it better to send emails from a subdomain or the root domain Next](https://resend.com/docs/knowledge-base/is-it-better-to-send-emails-from-a-subdomain-or-the-root-domain)\n\nCtrl+I\n\n[x](https://x.com/resend) [github](https://github.com/resend) [youtube](https://www.youtube.com/@resendlabs) [website](https://resend.com/)"
-      ]
-    },
-    {
-      "url": "https://github.com/resend/resend-examples/blob/main/php-resend-examples/src/inbound/webhook.php",
-      "title": "resend-examples/php-resend-examples/src/inbound/webhook.php at main · resend/resend-examples · GitHub",
-      "publish_date": null,
-      "excerpts": [
-        "- Repository: resend/resend-examples\n- Path: php-resend-examples/src/inbound/webhook.php\n- Ref: main\n- Lines: 113\n\n---\n\n```php\n<?php\n/**\n * Inbound Email Webhook Handler\n *\n * Receives webhook events from Resend for inbound emails.\n * Deploy this file to a publicly accessible URL and register\n * it as a webhook endpoint in the Resend dashboard.\n *\n * For local development, use ngrok:\n *   ngrok http 8000\n *   Then register: https://abc123.ngrok.io/webhook.php\n *\n * @see https://resend.com/docs/receive-emails\n */\n\nrequire_once __DIR__ . '/../../vendor/autoload.php';\n```\n\n...\n\n```php\n        'payload' => $payload,\n        'headers' => [\n            'svix-id' => $svixId,\n            'svix-timestamp' => $svixTimestamp,\n            'svix-signature' => $svixSignature,\n        ],\n        'secret' => $webhookSecret,\n    ]);\n\n    // Handle different event types\n    switch ($event->type) {\n        case 'email.received':\n            // New inbound email!\n            error_log(\"New email from: \" . $event->data->from);\n            error_log(\"Subject: \" . $event->data->subject);\n\n            // Webhook only has metadata - fetch full content\n            $email = $resend->emails->receiving->get($event->data->email_id);\n            error_log(\"Body: \" . ($email->text ?? $email->html));\n\n            // Optional: Forward the email\n            // $resend->emails->send([\n            //     'from' => 'System <system@yourdomain.com>',\n            //     'to' => ['team@yourdomain.com'],\n            //     'subject' => 'Fwd: ' . $event->data->subject,\n            //     'html' => $email->html ?? $email->text,\n            // ]);\n            break;\n\n        case 'email.delivered':\n            error_log(\"Email delivered: \" . $event->data->email_id);\n            break;\n\n        case 'email.bounced':\n            error_log(\"Email bounced: \" . $event->data->email_id);\n            // Remove from mailing list, alert user, etc.\n            break;\n\n        case 'email.complained':\n            error_log(\"Spam complaint: \" . $event->data->email_id);\n            // Unsubscribe user immediately!\n            break;\n\n        default:\n            error_log(\"Unhandled event: \" . $event->type);\n    }\n\n    // Return 200 to acknowledge receipt\n    http_response_code(200);\n    echo json_encode(['received' => true, 'type' => $event->type]);\n\n} catch (Exception $e) {\n    error_log(\"Webhook error: \" . $e->getMessage());\n    http_response_code(400);\n    echo json_encode(['error' => $e->getMessage()]);\n}\n```"
-      ]
-    },
-    {
-      "url": "https://resend.com/docs/webhooks/emails/received",
-      "title": "email.received",
-      "publish_date": null,
-      "excerpts": [
-        "> ## Documentation Index\n> Fetch the complete documentation index at: https://resend.com/docs/llms.txt\n> Use this file to discover all available pages before exploring further.\n\n# email.received\n\n> Received when an inbound email is received.\n\nEvent triggered whenever Resend **successfully receives an email**.\n\n> [!NOTE]\n>\n> Webhooks do not include the email body, headers, or attachments, only their\n> metadata. You must call the [Received emails\n> API](https://resend.com/docs/api-reference/emails/retrieve-received-email.md) or the [Attachments\n> API](https://resend.com/docs/api-reference/emails/list-received-email-attachments.md) to retrieve them.\n> This design choice supports large attachments in serverless environments that\n\n...\n\n**type** `string`\n\nThe event type that triggered the webhook (e.g., `email.received`).\n**created\\_at** `string`\n\nISO 8601 timestamp when the webhook event was created.\n**data** `object`\n\nEvent-specific data containing detailed information about the event. The\n\n...\n\nendpoint](https://resend.com/docs/api-reference/emails/retrieve-received-email.md).\n\n**to** `array`\n\n...\n\n**tags** `Record\\<string, string\\>`\n\nObject of tag key-value pairs associated with the email.\n\nExample:\n\n```json theme={\"theme\":{\"light\":\"github-light\",\"dark\":\"vesper\"}}\n{\n  \"category\": \"welcome\",\n  \"user_id\": \"1234567890\"\n}\n```\n\n**received\\_for** `array`\n\nThe recipient addresses the email was forwarded for, taken from the `for` clause of the message's `Received` headers.\n\n```json theme={\"theme\":{\"light\":\"github-light\",\"dark\":\"vesper\"}}\n{\n  \"type\": \"email.received\",\n  \"created_at\": \"2026-02-22T23:41:12.126Z\",\n  \"data\": {\n    \"email_id\": \"56761188-7520-42d8-8898-ff6fc54ce618\",\n    \"created_at\": \"2026-02-22T23:41:11.894Z\",\n    \"from\": \"onboarding@resend.dev\",\n    \"to\": [\"delivered@resend.dev\"],\n    \"bcc\": [],\n    \"cc\": [],\n    \"received_for\": [\"forwarded@example.com\"],\n    \"message_id\": \"<111-222-333@email.example.com>\",\n    \"subject\": \"Sending this example\",\n    \"attachments\": [\n      {\n        \"id\": \"2a0c9ce0-3112-4728-976e-47ddcd16a318\",\n        \"filename\": \"avatar.png\",\n        \"content_type\": \"image/png\",\n        \"content_disposition\": \"inline\",\n        \"content_id\": \"img001\"\n      }\n    ]\n  }\n}\n```"
-      ]
-    },
-    {
-      "url": "https://resend.com/docs/dashboard/receiving/introduction",
-      "title": "Receiving Emails",
-      "publish_date": null,
-      "excerpts": [
-        "* Processing forwarded attachments.\n* Replying to emails from customers.\n\n## Receiving features\n\nWith Resend's email receiving features, you can:\n\n* View all received emails in the [**Emails** Dashboard page](https://resend.com/emails).\n* Receive incoming emails and [get notified with a webhook](https://resend.com/docs/dashboard/receiving/create-receiving-webhook.md) event.\n* [Poll for new inbound emails in the terminal](https://resend.com/docs/cli.md#receiving) and display them as they arrive.\n* [Retrieve full email content](https://resend.com/docs/dashboard/receiving/get-email-content.md) (HTML, text, headers)\n\n...\n\n* [Forward emails](https://resend.com/docs/dashboard/receiving/forward-emails.md) to another email address.\n* [Reply to emails](https://resend.com/docs/dashboard/receiving/reply-to-emails.md) in the same thread\n* [View API endpoint logs](https://resend.com/docs/dashboard/logs/introduction.md) and deliverability metrics for monitoring and troubleshooting.\n\n## Quickstart\n\n...\n\nOnce you add the MX record to your custom domain, you will receive emails through Resend for any address at that domain.\n\n## Configure Webhook\n\nOnce you can receive mail, you can [create a received mail webhook](https://resend.com/docs/dashboard/receiving/create-receiving-webhook.md) to receive real-time notifications about incoming email.\n\nResend processes all incoming emails to your receiving domain, parses the contents and attachments, and then sends a `POST` request to an endpoint that you choose to handle the received email.\n\n![Receiving email process](https://mintcdn.com/resend/bxWCBKtofKnXvbvf/images/receiving-emails.jpeg?fit=max\\&auto=format\\&n=bxWCBKtofKnXvbvf\\&q=85\\&s=faa9d79f48a43f320d2b5a800256060e)\n\n...\n\nLearn more about [managing your received emails](https://resend.com/docs/dashboard/receiving/manage-emails.md) in the dedicated guide.\n\n## Related Guides\n\nSee how to use Resend's receiving features.\n\n> **[Custom domains](https://resend.com/docs/dashboard/receiving/custom-domains.md)**\n\n> **[Received email webhook](https://resend.com/docs/dashboard/receiving/create-receiving-webhook.md)**\n\n...\n\n> **[Forward emails](https://resend.com/docs/dashboard/receiving/forward-emails.md)**\n\n> **[Threaded replies](https://resend.com/docs/dashboard/receiving/reply-to-emails.md)**\n\n## Examples\n\n> **[Next.js (TypeScript)](https://github.com/resend/resend-examples/tree/main/nextjs-resend-examples/typescript/src/app/inbound)**\n>\n> See the full source code."
-      ]
-    },
-    {
-      "url": "https://github.com/resend/resend-skills/blob/main/skills/resend/references/webhooks.md",
-      "title": "resend-skills/skills/resend/references/webhooks.md at main · resend/resend-skills · GitHub",
-      "publish_date": null,
-      "excerpts": [
-        "- Remove bounced addresses from mailing lists\n- Trigger follow-up actions when emails are opened/clicked\n- Process inbound emails (`email.received`)\n- Create alerts for failures or complaints\n\n...\n\n| `email.sent` | API request successful, delivery attempted | Confirm email accepted |\n| `email.delivered` | Email reached recipient's mail server | Confirm successful delivery |\n| `email.bounced` | Mail server permanently rejected (hard bounce) | Remove from list, alert user |\n| `email.complained` | Recipient marked as spam | Unsubscribe, review content |\n| `email.opened` | Recipient opened email | Track engagement |\n| `email.clicked` | Recipient clicked a link | Track engagement |\n| `email.delivery_delayed` | Temporary delivery issue (soft bounce) | Monitor, may resolve automatically |\n| `email.failed` | Send error (invalid recipient, quota, etc.) | Debug, alert |\n\n### Inbound Email Events\n\n| Event | Trigger | Use Case |\n|-------|---------|----------|\n| `email.received` | Email received at your inbound domain | Process incoming email, auto-reply, forward |\n\nThe `email.received` payload contains metadata only (sender, recipient, subject, attachment list) — not the email body. Call `resend.emails.receiving.get()` to retrieve the body content. See receiving.md for full details.\n\n### Bounce Types\n\n| Type | Event | Action |\n|------|-------|--------|\n\n...\n\n| `inbox.created` / `updated` / `deleted` | Inbox created, its settings changed, or deleted |\n| `inbox.thread.created` | First email of a thread landed in an inbox, inbound or outbound |\n| `inbox.email.received` / `sent` | Inbound email added to a thread, or outbound email accepted for delivery and added to a thread |\n| `inbox.thread.folder.updated` | Thread moved between folders |\n\n...\n\n```typescript\n        // Spam complaint — unsubscribe and flag\n        break;\n      case 'email.received':\n        // Inbound email — retrieve body and process\n        const { data: email } = await resend.emails.receiving.get(event.data.email_id);\n        break;\n      default:\n        break;\n    }\n\n    return new NextResponse('OK', { status: 200 });\n  } catch (error) {\n    console.error('Webhook verification failed:', error);\n    return new NextResponse('Invalid signature', { status: 400 });\n  }\n}\n```\n\n## Common Mistakes\n\n| Mistake | Fix |\n|---------|-----|\n| Not verifying signatures | **Always verify** — unverified webhooks can't be trusted |\n| Using parsed JSON body | Use raw request body — JSON parsing breaks signature |"
-      ]
-    }
-  ],
-  "warnings": null,
-  "metadata": null,
-  "session_id": "ses_e71fc90d7ffeHNPJ6e1KipCoEH"
-}
-```
-
----
-
-## Assistant (Plan · MiMo-V2.6-Flash Free · 99.3s)
-
-_Thinking:_
-
-The user asks what needs to be implemented so that unsubscribe via ODHLASIT works. I'm in plan mode - read only, construct a plan.
-
-Current state:
-- Email says "Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT."
-- Replies go to REPLY_TO (human's email) - nothing automated processes them
-- soukromi.html says you can unsubscribe by replying ODHLASIT and "we'll delete your email"
-- There's no unsubscribe endpoint, no List-Unsubscribe header, no inbound webhook
-
-Options for implementation:
-
-- Resend Receiving: inbound emails to a receiving domain → `email.received` webhook → fetch body via API → if body contains ODHLASIT from a known lead → delete from Redis
-- Requirements: custom domain with MX records (or *.resend.app), webhook endpoint `/api/webhook` or `/api/unsubscribe`, verify webhook signature (svix), fetch full email content via API (webhook only has metadata)
-- Complexity: medium-high; free tier? Need to check if Receiving is available on free plan - not sure. Also currently they send FROM onboarding@resend.dev (free plan without own domain) - replies go to REPLY_TO, not back to resend. For inbound to work with replies, the To: address of original email would need to be on the receiving domain. Currently To: is the lead's email, From is resend - a reply from lead goes to From address (onboarding@resend.dev or custom from). So replies wouldn't hit a custom receiving domain unless From is on that domain.
-
-Actually: when user replies, they reply to the From address (or Reply-To). Currently reply_to is REPLY_TO (human email). So replies go to the human's inbox, not to Resend. To catch replies via Resend Receiving, you'd need From address on a domain with MX → Resend receiving, and NOT set reply_to to something else (or set reply_to to an address on receiving domain).
-
-- Put a magic link in the email: `https://site/api/unsubscribe?token=...` (HMAC of email or random token stored in Redis)
-- One click → deletes lead / marks unsubscribed
-- Also add `List-Unsubscribe` and `List-Unsubscribe-Post` headers (RFC 8058) - Resend may support List-Unsubscribe header- Doesn't literally process "ODHLASIT" reply word, but achieves GDPR unsubscribe; could keep reply as manual fallback (human deletes manually)
-
-- Requires reading replies somehow - without inbound email, impossible automatically- Manual: human sees reply in REPLY_TO inbox, manually deletes from Redis (or runs a script)
-
-The user specifically asked "aby fungovalo odhlásenie pomocou ODHLASIT" - so they want the reply-word mechanism to actually work. That requires inbound email processing.
-
-But also note: List-Unsubscribe mailto: link could support one-click in modern mail clients.
-
-Let me think about what's realistic for this project (Hobby Vercel, free Resend):
-
-Resend Receiving: available - need to verify free tier. Search results don't say pricing. Receiving requires custom domain with MX or uses `<id>.resend.app`.If they currently use `onboarding@resend.dev` as From (no own domain), replies go to Resend's onboarding address which they don't control. REPLY_TO is set so replies go to REPLY_TO instead.
-
-For ODHLASIT reply flow to work automatically:
-1. Own domain (e.g. clientelo.cz) with MX → Resend Receiving
-2. From: report@clientelo.cz (no reply_to, or reply_to = reports@clientelo.cz on same domain)
-3. Webhook endpoint api/unsubscribe.js (or api/webhook.js) receiving email.received
-4. Verify svix signature with RESEND_WEBHOOK_SECRET
-5. Fetch email body via Resend Receiving API (webhook has metadata only)
-6. Parse: if from matches a lead and body/subject contains ODHLASIT → delete newsletter:lead:<email>, remove from newsletter:emails set
-7. Optionally List-Unsubscribe header with one-click link as more reliable path
-
-Alternative simpler plan (what I'd recommend for this project):
-- Implement one-click unsubscribe link + List-Unsubscribe headers (works everywhere, no inbound needed)
-- Keep "reply ODHLASIT" as documented manual path: either process via inbound webhook (phase 2) or document that REPLY_TO owner must process manually
-
-But user explicitly asked what to implement for ODHLASIT to work. I should present both approaches and recommend.
-
-Actually re-read: "čo treba implementovať, aby fungovalo odhlásenie pomocou ODHLASIT" - what needs to be implemented for unsubscribe via ODHLASIT to work.
-
-I'll present a plan with two options and ask which they prefer, or recommend one.
-
-Also important constraints:
-- Currently only one email is ever sent (report email). Future "tipy" emails don't exist yet. Unsubscribe matters for future sends + GDPR claim.
-- Store: newsletter:lead:<email> + newsletter:emails set. Unsubscribe = del key + srem from set. Report key has TTL 30d separately.
-- There's no "unsubscribe" flag currently - could either delete or set unsubscribed:trueFor ODHLASIT reply automation specifically, the full chain:
-
-1. **Infra (Resend Receiving)**
-   - Own domain + MX records to Resend
-   - From address on that domain so replies land in Resend
-   - Remove/adjust REPLY_TO (if reply_to set to external email, replies go there instead!)
-   - Enable Receiving, create webhook `email.received` → https://<site>/api/unsubscribe (or /api/webhook/inbound)
-   - Set RESEND_WEBHOOK_SECRET for verification
-
-2. **Code: api/unsubscribe.js (webhook handler)**
-   - Verify svix signature (raw body!)
-   - On email.received: get email_id, call GET https://api.resend.com/emails/{id}/... receiving API for full text
-   - Extract From address, normalize   - Check body (and subject) for ODHLASIT (case-insensitive, maybe strip quotes/re: )
-   - If lead exists: HDEL/DEL newsletter:lead:<email>, SREM newsletter:emails
-   - Return 200 quickly; maybe log [unsubscribe]
-
-3. **Code: api/unsubscribe GET (optional one-click)**
-   - Token-based link in email footer: origin + /api/unsubscribe?email=...&token=HMAC
-   - Or List-Unsubscribe: <mailto:...> or https link - One-click POST per RFC 8058
-
-4. **Email text change** in lead.js
-   - Keep ODHLASIT reply line
-   - Add link + List-Unsubscribe headers
-
-5. **Manual fallback**
-   - If no inbound: REPLY_TO inbox → operator runs script or deletes manually - document in README
-
-6. **Tests**
-   - Mock webhook payload + mock receiving API → assert Redis delete
-   - Token unsubscribe endpoint tests   - Signature verification failure → 401
-
-7. **Docs**: README, soukromi.html (already claims reply works), .env.example (RESEND_WEBHOOK_SECRET)
-
-Complexity concerns:
-- Webhook verification with raw body on Vercel - need to read raw body (Vercel gives req.body parsed; may need rawBody or construct from req)
-- Receiving API requires additional API permissions- Free plan: need to check if Receiving is free - I'm not sure. Should note as risk.
-
-Simpler MVP that makes "ODHLASIT" work without Receiving:
-- Impossible automatically without reading the reply. So either inbound webhook OR manual process.
-
-I'll also mention List-Unsubscribe as complementary.
-
-Should I ask user which option? Plan mode says ask clarifying questions. I'll present two options with recommendation and ask.
-
-Actually, let me also check - does Resend support List-Unsubscribe headers natively? Many providers do. Not critical for the plan.
-
-Also: the current email has reply_to: REPLY_TO - so replies go to the operator's inbox, NOT to Resend. Even with Receiving on a custom domain, unless From is on that domain and reply_to is removed, replies won't reach Resend.
-
-Wait - if from is "ETF Clientelo <report@clientelo.cz>" and no reply_to, reply goes to report@clientelo.cz. With MX for clientelo.cz → Resend Receiving, Resend receives it. Good.
-
-If they keep onboarding@resend.dev as From (no own domain), replies go to Resend's system - they can't receive them on free tier without own domain... Actually Resend gives `<id>.resend.app` receiving domain - but From must be that domain for replies to land there? From must be verified domain for sending. Sending from onboarding@resend.dev - replies to that address go to Resend team, not you.
-
-So own domain is basically required for automated reply processing.
-
-Alternative: use a free forwarding service... too hacky.
-
-Plan structure:
-1. Current state analysis
-2. Option A: plné automatické ODHLASIT cez Resend Receiving webhook3. Option B: one-click link + List-Unsubscribe (nefunguje slovo ODHLASIT doslova)
-4. Option C: manuálny proces5. Recommendation + open questions
-
-I'll write this concisely in Slovak.
-
-## Aktuálny stav
-
-- E-mail (`api/lead.js:214`) hovorí *„odpovězte se slovem ODHLASIT"*, ale **nič to nespracúva** – odpoveď príde do `REPLY_TO` (do tvojej schránky) a nikto ju ďalej nesprací.
-- V `Redis` neexistuje žiadny flag „unsubscribed“ – je tam len `newsletter:lead:<email>` + `newsletter:emails`.
-- `soukromi.html` sľubuje zmazanie po ODHLASIT – zatiaľ je to len text.
-
-Aby **ODHLASIT reálne fungovalo automaticky**, treba vedieť čítať odpovede. Sú 3 cesty:
-
----
-
-### Možnosť A – plná automatizácia cez Resend Receiving (jediná, kde slovo ODHLASIT naozaj „funguje“)
-
-**Infra (mimo kódu):**
-1. **Vlastná doména** (napr. `clientelo.cz`) + MX záznamy → Resend Receiving  
-   *(bez vlastnej domény to nejde – odpovede na `onboarding@resend.dev` nečítaš)*
-2. `From:` meniť na `report@clientelo.cz` a **ubrať/prehodiť `REPLY_TO`** – inak odpoveď stále ide mimo Resend
-3. V Resend dashboarde: webhook **`email.received`** → `https://<doména>/api/unsubscribe`
-4. Env: `RESEND_WEBHOOK_SECRET` (overenie podpisu – svix)
-
-**Kód:**
-5. **Nový endpoint `api/unsubscribe.js`**
-   - overí svix signatúru (**na raw telese**, nie parse JSON)
-   - webhook má len metadata → dodatočne zavolá Receiving API pre telo správy
-   - ak `From` = existujúci lead a telo/subject obsahuje `ODHLASIT` (case-insensitive):
-     - `DEL newsletter:lead:<email>` + `SREM newsletter:emails`
-   - log `[unsubscribe]`, odpoveď `200`
-6. **`api/lead.js`** – v hlavičkách e-mailu pridať `List-Unsubscribe` (RFC 8058) ako zálohu jedným klikom
-7. **Testy** – mock webhook payloadu + mock Receiving API → overenie zmazania; zlý podpis → 401
-8. **Dokumentácia** – README, `.env.example`
-
-**Riziká:** Receiving nemusí byť na free pláne; treba vlastnú doménu; viac krokov nastavenia.
-
----
-
-### Možnosť B – jednoduchšie: odkaz na odhlásenie (nefunguje slovo ODHLASIT doslova)
-
-- V e-maile odkaz `/api/unsubscribe?token=HMAC(email)` → 1 klik → zmazanie z Redis
-- `List-Unsubscribe` + `List-Unsubscribe-Post` hlavičky (one-click v moderných klientoch)
-- ODHLASIT odpoveď ostáva len ako **manuálny fallback** (čítaš ju v `REPLY_TO` a mažeš ručne/scriptom)
-
----
-
-### Možnosť C – čisto manuálne
-- Žiadny kód: dostaneš odpoveď ODHLASIT do schránky → ručne zmazeš z Redis (príp. malý skript `scripts/unsubscribe.cjs`)
-
----
-
-**Odporúčanie:** B ako MVP (funguje spoľahlivo, bez vlastnej domény a webhookov) + A neskôr, ak chceš doslovné ODHLASIT. Kombinácia B+A je ideál.
-
-**Tool: question**
-
-**Input:**
-```json
-{
-  "questions": [
-    {
-      "header": "Spôsob odhlásenia",
-      "question": "Ktorú cestu chceš implementovať pre odhlásenie?",
-      "options": [
-        {
-          "label": "B – odkaz + List-Unsubscribe (Recommended)",
-          "description": "Rýchle MVP: magic link v e-maile, funguje bez vlastnej domény; ODHLASIT ostáva manuálny fallback"
-        },
-        {
-          "label": "A – plný Resend Receiving webhook",
-          "description": "Automatické spracovanie odpovede ODHLASIT; vyžaduje vlastnú doménu + MX + webhook secret"
-        },
-        {
-          "label": "A + B spolu",
-          "description": "Odkaz aj automatický webhook na ODHLASIT – maximum, viac nastavenia"
-        },
-        {
-          "label": "C – len manuálny skript",
-          "description": "Žiadny endpoint v e-maile; skript na zmazanie leadu po prečítaní odpovede"
-        }
-      ]
-    }
-  ]
-}
-```
-
-**Output:**
-```
-User has answered your questions: "Ktorú cestu chceš implementovať pre odhlásenie?"="B – odkaz + List-Unsubscribe (Recommended)". You can now continue with the user's answers in mind.
-```
+**Updated:** 30. 10. 2026 22:41:17
 
 ---
 
@@ -8014,6 +5800,1348 @@ _Thinking:_
 Good, `.muted` exists. Done. Brief response.
 
 Pridané pod lead sekcie `#portfolio` v `index.html:264` – veta o tom, že report obsiahne portfólio až pri súčte váh 100 %.
+
+---
+
+## User
+
+| `RESEND_FROM` | napr. `ETF Clientelo <report@clientelo.cz>` (voliteľné) |
+
+co je toto? aky email tam ma byt?
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 35.0s)
+
+_Thinking:_
+
+The user is asking about the RESEND_FROM email address in the README - what it is and what email should be there. This is an informational question about Resend configuration.
+
+RESEND_FROM is the "from" address that appears when emails are sent via Resend. In free plan without custom domain, it has to be `onboarding@resend.dev`. With a custom verified domain, you can use something like `report@clientelo.cz`.
+
+The README example shows `ETF Clientelo <report@clientelo.cz>` which assumes a custom domain that may not exist.
+
+I should explain this clearly and maybe fix the README to be more accurate given they don't have a custom domain.
+
+`RESEND_FROM` je **odosielateľ** – adresa, z ktorej e-mail „príde" (zobrazí sa v e-mailovom kliente).
+
+**Free plán bez vlastnej domény** – musí byť:
+```
+ETF Clientelo <onboarding@resend.dev>
+```
+(to je default v kóde, `RESEND_FROM` môžeš nechať prázdny)
+
+**S overenou vlastnou doménou** (SPF/DKIM v Resende) – potom napr.:
+```
+ETF Clientelo <report@clientelo.cz>
+```
+
+Príklad v README predpokladá doménu `clientelo.cz`, ktorú **nemáš overenú** – preto buď nechaj default, alebo v README zmeň na realitu. Ak chceš, opravím README na `onboarding@resend.dev` ako jedinú free variantu.
+
+---
+
+## User
+
+lib/report.js          – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu čo znamená toto
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 11.8s)
+
+_Thinking:_
+
+The user is asking what the README line means: "lib/report.js – JEDINÝ zdroj pravdy: sanitizácia vstupov + model + texty sekcií reportu"
+
+They want an explanation of what this means. This is an informational question, not a code change request.
+
+Znamená to, že `lib/report.js` je **jediné miesto**, kde sa definuje:
+
+1. **Sanitizácia vstupov** – `sanitizeCalc`, `sanitizePortfolio`, `sanitizeTax` – čo sa akceptuje z formulára (napr. súčet váh musí byť 100 %, inak `null` a sekcia sa do reportu nedá)
+2. **Model** – `buildReportModel` – zložený objekt `{calc, portfolio, tax}` (to sa ukladá do Redis)
+3. **Texty sekcií reportu** – `buildReportContent` + `REPORT_STATIC_TEXT` – čo presne ide do PDF a do e-mailu
+
+**Prečo „jediný zdroj pravdy":** aby sa PDF v e-maile, PDF cez `/api/report` a texty v e-maile nikde nerozchádzali – všetko ide z tej istej funkcie. Keby boli texty/výpočty na dvoch miestach, mohli by si odporovať.
+
+---
+
+## User
+
+v sekcii kalkulacka poplatku -- ake hodnoty nastavit, aby bol rozdil oproti levnymi etf iny ako 0Kc
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 28.7s)
+
+_Thinking:_
+
+The user is asking about the fee calculator section - what values to set so that the difference compared to cheap ETFs is not 0 Kč.
+
+Let me look at the calculator logic. From what I've seen:
+- The calculator has: initial deposit, monthly payment, years, and fund type (TER)
+- Cheap ETFs are 0.03% (VOO/IVV/VTI)
+- The gap is calculated as: netFv(cheap) - netFv(current fund)
+
+If the user selects "Levný indexový ETF 0,03%", the gap will be 0 because both use the same TER.
+
+To get a non-zero gap, they need to select a fund with higher TER:
+- SPY 0.0945%
+- QQQ 0.18%
+- Průměrný fond 0.77%
+
+And they need non-zero investment amounts (initial and/or monthly) and some years.
+
+Let me check calculator.js to confirm.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\assets\\js\\calculator.js"
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\calculator.js</path>
+<type>file</type>
+<content>
+1: (function () {
+2:   "use strict";
+3: 
+4:   var GROSS = 0.08;
+5:   var CHEAPEST_TER = 0.03;
+6: 
+7:   var els = {
+8:     initial: document.getElementById("c-initial"),
+9:     monthly: document.getElementById("c-monthly"),
+10:     years: document.getElementById("c-years"),
+11:     yearsOut: document.getElementById("c-years-out"),
+12:     final: document.getElementById("r-final"),
+13:     fees: document.getElementById("r-fees"),
+14:     feesNote: document.getElementById("r-fees-note"),
+15:     gap: document.getElementById("r-gap"),
+16:     gapNote: document.getElementById("r-gap-note"),
+17:     heroLoss: document.getElementById("hero-loss"),
+18:     stickyNum: document.getElementById("sticky-num")
+19:   };
+20: 
+21:   if (!els.initial) return;
+22: 
+23:   var state = { initial: null, monthly: null, years: null, ter: null, fund: null };
+24:   var isDirty = false;
+25: 
+26:   function futureValue(principal, monthly, years, rate) {
+27:     var r = rate / 12;
+28:     var n = years * 12;
+29:     if (r === 0) return principal + monthly * n;
+30:     var growth = Math.pow(1 + r, n);
+31:     return principal * growth + monthly * ((growth - 1) / r);
+32:   }
+33: 
+34:   function fmtCzk(v) {
+35:     return Math.round(v).toLocaleString("cs-CZ").replace(/\u00a0/g, " ") + " Kč";
+36:   }
+37: 
+38:   function compute(ter) {
+39:     var initial = Math.max(0, Number(els.initial.value) || 0);
+40:     var monthly = Math.max(0, Number(els.monthly.value) || 0);
+41:     var years = Number(els.years.value) || 1;
+42:     var grossFv = futureValue(initial, monthly, years, GROSS);
+43:     var netFv = futureValue(initial, monthly, years, Math.max(0, GROSS - ter / 100));
+44:     var feesPaid = grossFv - netFv;
+45:     return { initial: initial, monthly: monthly, years: years, grossFv: grossFv, netFv: netFv, feesPaid: feesPaid };
+46:   }
+47: 
+48:   function update() {
+49:     var ter = state.ter !== null ? state.ter : CHEAPEST_TER;
+50:     var r = compute(ter);
+51:     var cheap = compute(CHEAPEST_TER);
+52:     var gap = r.netFv - cheap.netFv;
+53: 
+54:     els.yearsOut.textContent = r.years + " let";
+55:     els.final.textContent = fmtCzk(r.netFv);
+56:     els.fees.textContent = fmtCzk(r.feesPaid);
+57:     els.feesNote.textContent =
+58:       "Při " + (state.fund || "VOO / IVV / VTI") + " (TER " + (state.ter !== null ? state.ter : CHEAPEST_TER).toLocaleString("cs-CZ") +
+59:       " %) strhne správce fondu zhruba tolik – bez vámi viditelné položky ve výpisu.";
+60:     els.gap.textContent = gap > 1 ? "− " + fmtCzk(gap) : "0 Kč";
+61:     els.gapNote.textContent = gap > 1
+62:       ? "Tolik méně byste měli za stejných podmínek na nejlevnějším ETF (0,03 %)."
+63:       : "Držíte už nejlevnější variantu.";
+64: 
+65:     var lossText = fmtCzk(gap > 1 ? gap : cheap.feesPaid).replace(/\s/g, "\u00a0");
+66:     if (els.heroLoss) {
+67:       els.heroLoss.textContent = state.ter !== null && state.ter > 0.03 ? lossText : "235\u00a0000\u00a0Kč";
+68:     }
+69: 
+70:     if (isDirty) {
+71:       window.etfCalcState = {
+72:         initial: r.initial,
+73:         monthly: r.monthly,
+74:         years: r.years,
+75:         gross: GROSS,
+76:         ter: state.ter !== null ? state.ter : CHEAPEST_TER,
+77:         fund: state.fund || "VOO / IVV / VTI",
+78:         finalValue: Math.round(r.netFv),
+79:         feesPaid: Math.round(r.feesPaid),
+80:         gapVsCheapest: Math.round(gap),
+81:         finalValueCheapest: Math.round(cheap.netFv),
+82:         feesPaidCheapest: Math.round(cheap.feesPaid)
+83:       };
+84:     }
+85: 
+86:     if (window.etfTrack && els.stickyNum) {
+87:       els.stickyNum.textContent = isDirty ? "ztráta " + fmtCzk(r.feesPaid) : "";
+88:     }
+89:   }
+90: 
+91:   function markDirty() {
+92:     isDirty = true;
+93:   }
+94: 
+95:   ["initial", "monthly"].forEach(function (k) {
+96:     els[k].addEventListener("input", function () { markDirty(); update(); });
+97:   });
+98:   els.years.addEventListener("input", function () { markDirty(); update(); });
+99: 
+100:   document.querySelectorAll(".chip").forEach(function (chip) {
+101:     chip.addEventListener("click", function () {
+102:       document.querySelectorAll(".chip").forEach(function (c) {
+103:         c.classList.remove("is-active");
+104:         c.setAttribute("aria-pressed", "false");
+105:       });
+106:       chip.classList.add("is-active");
+107:       chip.setAttribute("aria-pressed", "true");
+108:       state.ter = Number(chip.getAttribute("data-ter"));
+109:       state.fund = chip.getAttribute("data-fund");
+110:       markDirty();
+111:       update();
+112:       if (window.etfTrack) window.etfTrack("calc_change", { ter: state.ter, fund: state.fund });
+113:     });
+114:   });
+115: 
+116:   window.etfCalcDisplay = { compute: compute, fmtCzk: fmtCzk, GROSS: GROSS };
+117: })();
+
+(End of file - total 117 lines)
+</content>
+```
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 15.7s)
+
+_Thinking:_
+
+The gap is `r.netFv - cheap.netFv` where cheap is always 0.03% TER. Gap is 0 when:
+1. Selected fund is also 0.03% (default "Levný indexový ETF") - then ter = 0.03 = CHEAPEST_TER
+2. Initial and monthly are both 0 - then both netFv are 0
+
+To get non-zero gap: pick a fund with TER > 0.03% (SPY, QQQ, Průměrný fond) AND have some investment (initial and/or monthly > 0).
+
+Ak je rozdiel **0 Kč**, je jedna z týchto príčin (calculator.js:48–60):
+
+**1. Máš vybrané „Levný indexový ETF 0,03 %“** – to je rovnaký TER ako lacné referenčné ETF, rozdiel musí byť 0. Vyber iný chip:
+- **SPY** (0,0945 %) – menší rozdiel
+- **QQQ** (0,18 %) – stredný
+- **Průměrný fond** (0,77 %) – najväčší (výrazne desaťtisíce Kč)
+
+**2. Vklad aj mesačná platba sú 0** – potom sú obe konečné hodnoty 0. Zadaj aspoň niečo, napr.:
+- vklad **100 000 Kč**, mesačne **3 000 Kč**, 25 rokov (scénár z README → rozdiel pri SPY/QQQ nie je nula; pri 0,41 % priemernom fonde to je ~235 tis.)
+
+Výpočet: `gap = netFv(tvoj TER) − netFv(0,03 %)` pri rovnakom hrubom výnose 8 % p.a. (calculator.js:52).
+
+---
+
+## User
+
+jednorazovy vklad 11000 pravidelna platba mesicne 3000, 25 let, prumerny fond. rozdil 0Kc
+
+skus sa na to pozriet
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 31.4s)
+
+_Thinking:_
+
+The user says with initial=11000, monthly=3000, years=25, average fund (0.77%), the gap shows 0 Kč. Let me look at the calculator code carefully.
+
+Looking at calculator.js:
+
+```js
+function update() {
+  var ter = state.ter !== null ? state.ter : CHEAPEST_TER;
+  var r = compute(ter);
+  var cheap = compute(CHEAPEST_TER);
+  var gap = r.netFv - cheap.netFv;
+  ...
+  els.gap.textContent = gap > 1 ? "− " + fmtCzk(gap) : "0 Kč";
+```
+
+Wait - `gap = r.netFv - cheap.netFv`. If your fund has HIGHER TER, your netFv is LOWER, so gap is NEGATIVE. Then `gap > 1` is false for negative numbers, so it shows "0 Kč"!
+
+That's the bug! The gap should be `cheap.netFv - r.netFv` (how much more you'd have with cheap ETF), or use Math.abs.
+
+Looking at line 60: `els.gap.textContent = gap > 1 ? "− " + fmtCzk(gap) : "0 Kč";`
+
+And line 80: `gapVsCheapest: Math.round(gap)` - this would be negative too.
+
+In api/lead.js reportText and lib/report.js, they use gapVsCheapest. Let me check what tests expect.
+
+From tests/report.test.js:
+```
+assert.equal(calc.gapVsCheapest, 234728);
+assert.equal(calcRows["Rozdíl proti nejlevnějšímu ETF (0,03 %)"], "− 234 728 Kč");
+```
+
+And from tests:
+```
+gapVsCheapest: 234728,
+```
+
+So the expected gapVsCheapest is positive 234728 (absolute value of the difference).
+
+And calculator.js line 52: `var gap = r.netFv - cheap.netFv;` - this is NEGATIVE when your fund is more expensive.
+
+Then line 60: `gap > 1` - for negative gap, this is false, so shows "0 Kč". THAT'S THE BUG!
+
+Wait, but the default hero shows 235000. Let me check - when ter is 0.03 (default), gap is 0, and hero shows 235000 hardcoded. When user selects average fund 0.77%, gap = netFv(0.77) - netFv(0.03) which is NEGATIVE (like -500000), so gap > 1 is false, shows "0 Kč".
+
+But wait, the README says hero number is 234728 which is the gap between 0.41% and 0.03%. The calculator chip for "Průměrný fond" has data-ter="0.77" which is even worse.
+
+So the bug is: gap is computed as `r.netFv - cheap.netFv` which is negative for expensive funds, but the display checks `gap > 1`.
+
+The fix should be: `var gap = cheap.netFv - r.netFv;` (positive when your fund is more expensive).
+
+Then:
+- `gap > 1` works correctly
+- `gapVsCheapest: Math.round(gap)` will be positive like tests expect
+- heroLoss with gap > 1 will show the correct positive number
+
+Let me verify with the numbers:
+- initial 11000, monthly 3000, years 25, gross 8%
+- cheap TER 0.03% → net rate 7.97%
+- average fund0.77% → net rate 7.23%
+- cheap.netFv > r.netFv, so cheap - r > 0 ✓
+
+Also check portfolio.js and lib/report.js for similar issues.
+
+From earlier tests:
+```
+gapVsCheapest: 234728,  // in FULL_CALC with ter: 0.0945 (SPY)
+```
+
+And:
+```
+assert.equal(calc.gapVsCheapest, 234728);
+assert.equal(calcRows["Rozdíl proti nejlevnějšímu ETF (0,03 %)"], "− 234 728 Kč");
+```
+
+So lib/report.js probably computes gap correctly as positive. Let me check lib/report.js sanitizeCalc.
+
+**Tool: grep**
+
+**Input:**
+```json
+{
+  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\lib\\report.js",
+  "pattern": "gapVsCheapest|netFv|CHEAPEST"
+}
+```
+
+**Output:**
+```
+Found 4 matches
+C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\lib\report.js:
+  Line 64:     gapVsCheapest: round(num(input.gapVsCheapest) || 0)
+
+  Line 92:     gapVsCheapest: round(num(input.gapVsCheapest) || 0),
+
+  Line 144:         ["Rozdíl proti nejlevnějšímu ETF (0,03 %)", (calc.gapVsCheapest > 0 ? "− " : "") + formatCzk(calc.gapVsCheapest)]
+
+  Line 166:         ["Rozdíl proti nejlevnějšímu ETF (0,03 %)", p.gapVsCheapest > 0 ? "− " + formatCzk(p.gapVsCheapest) : "0 Kč"]
+
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\assets\\js\\calculator.js",
+  "limit": 25,
+  "offset": 48
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\calculator.js</path>
+<type>file</type>
+<content>
+48:   function update() {
+49:     var ter = state.ter !== null ? state.ter : CHEAPEST_TER;
+50:     var r = compute(ter);
+51:     var cheap = compute(CHEAPEST_TER);
+52:     var gap = r.netFv - cheap.netFv;
+53: 
+54:     els.yearsOut.textContent = r.years + " let";
+55:     els.final.textContent = fmtCzk(r.netFv);
+56:     els.fees.textContent = fmtCzk(r.feesPaid);
+57:     els.feesNote.textContent =
+58:       "Při " + (state.fund || "VOO / IVV / VTI") + " (TER " + (state.ter !== null ? state.ter : CHEAPEST_TER).toLocaleString("cs-CZ") +
+59:       " %) strhne správce fondu zhruba tolik – bez vámi viditelné položky ve výpisu.";
+60:     els.gap.textContent = gap > 1 ? "− " + fmtCzk(gap) : "0 Kč";
+61:     els.gapNote.textContent = gap > 1
+62:       ? "Tolik méně byste měli za stejných podmínek na nejlevnějším ETF (0,03 %)."
+63:       : "Držíte už nejlevnější variantu.";
+64: 
+65:     var lossText = fmtCzk(gap > 1 ? gap : cheap.feesPaid).replace(/\s/g, "\u00a0");
+66:     if (els.heroLoss) {
+67:       els.heroLoss.textContent = state.ter !== null && state.ter > 0.03 ? lossText : "235\u00a0000\u00a0Kč";
+68:     }
+69: 
+70:     if (isDirty) {
+71:       window.etfCalcState = {
+72:         initial: r.initial,
+
+(Showing lines 48-72 of 117. Use offset=73 to continue.)
+</content>
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 28.9s)
+
+_Thinking:_
+
+The bug is on line 52: `var gap = r.netFv - cheap.netFv;`
+
+When your fund has HIGHER TER than 0.03%, `r.netFv` is LOWER than `cheap.netFv`, so `gap` is NEGATIVE.
+
+Then line 60: `gap > 1` is false for negative numbers, so it shows "0 Kč".
+
+The fix: `var gap = cheap.netFv - r.netFv;` (positive when you lose money vs cheapest).
+
+Wait, let me also check lib/report.js line 64 - it expects `gapVsCheapest` to be positive when worse. And in calculator.js line 80: `gapVsCheapest: Math.round(gap)` - if gap is negative, the report would show wrong value.
+
+Also hero loss: `gap > 1 ? gap : cheap.feesPaid` - when gap is negative, it uses cheap.feesPaid which is wrong for "loss vs cheapest".
+
+Let me verify with numbers:
+- initial 11000, monthly 3000, years 25, GROSS 0.08
+- cheap net rate = 0.08 - 0.0003 = 0.0797
+- avg fund net rate = 0.08 - 0.0077 = 0.0723
+- cheap.netFv > r.netFv, so cheap - r > 0 ✓
+
+Also check portfolio.js for similar issue.
+
+Našiel som bug v `calculator.js:52`:
+
+```js
+var gap = r.netFv - cheap.netFv;
+```
+
+Keď má tvoj fond **vyšší TER** ako 0,03 %, `r.netFv` je **menšie** než `cheap.netFv` → `gap` je **záporné číslo** → `gap > 1` je false → zobrazí sa „0 Kč".
+
+Oprava: `cheap.netFv - r.netFv` (kladné, keď strácaš oproti najlacnejšiemu).
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\assets\\js\\calculator.js",
+  "newString": "    var gap = cheap.netFv - r.netFv;",
+  "oldString": "    var gap = r.netFv - cheap.netFv;"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 9.7s)
+
+_Thinking:_
+
+Let me verify with a quick node calculation and also check if portfolio.js has the same bug.
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "node -e \"\nfunction futureValue(principal, monthly, years, rate) {\n  var r = rate / 12;\n  var n = years * 12;\n  if (r === 0) return principal + monthly * n;\n  var growth = Math.pow(1 + r, n);\n  return principal * growth + monthly * ((growth - 1) / r);\n}\nvar GROSS = 0.08, CHEAP = 0.03, AVG = 0.77;\nvar initial = 11000, monthly = 3000, years = 25;\nvar cheapNet = futureValue(initial, monthly, years, GROSS - CHEAP/100);\nvar avgNet = futureValue(initial, monthly, years, GROSS - AVG/100);\nconsole.log('cheap netFv', Math.round(cheapNet));\nconsole.log('avg netFv', Math.round(avgNet));\nconsole.log('gap (cheap - avg)', Math.round(cheapNet - avgNet));\n\""
+}
+```
+
+**Output:**
+```
+cheap netFv 2919351
+avg netFv 2587294
+gap (cheap - avg) 332057
+
+```
+
+**Tool: grep**
+
+**Input:**
+```json
+{
+  "path": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\assets\\js\\portfolio.js",
+  "pattern": "gap|netFv|cheap"
+}
+```
+
+**Output:**
+```
+Found 57 matches
+C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\calculator.js:
+  Line 15:     gap: document.getElementById("r-gap"),
+
+  Line 16:     gapNote: document.getElementById("r-gap-note"),
+
+  Line 43:     var netFv = futureValue(initial, monthly, years, Math.max(0, GROSS - ter / 100));
+
+  Line 44:     var feesPaid = grossFv - netFv;
+
+  Line 45:     return { initial: initial, monthly: monthly, years: years, grossFv: grossFv, netFv: netFv, feesPaid: feesPaid };
+
+  Line 51:     var cheap = compute(CHEAPEST_TER);
+
+  Line 52:     var gap = cheap.netFv - r.netFv;
+
+  Line 55:     els.final.textContent = fmtCzk(r.netFv);
+
+  Line 60:     els.gap.textContent = gap > 1 ? "− " + fmtCzk(gap) : "0 Kč";
+
+  Line 61:     els.gapNote.textContent = gap > 1
+
+  Line 65:     var lossText = fmtCzk(gap > 1 ? gap : cheap.feesPaid).replace(/\s/g, "\u00a0");
+
+  Line 78:         finalValue: Math.round(r.netFv),
+
+  Line 80:         gapVsCheapest: Math.round(gap),
+
+  Line 81:         finalValueCheapest: Math.round(cheap.netFv),
+
+  Line 82:         feesPaidCheapest: Math.round(cheap.feesPaid)
+
+
+C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\charts.js:
+  Line 204:     var cheap = [], exp = [];
+
+  Line 206:       cheap.push(futureValue(INITIAL, MONTHLY, y, GROSS - CHEAP_TER / 100));
+
+  Line 209:     var maxV = Math.max.apply(null, cheap.concat(exp));
+
+  Line 216:     for (var y = 0; y <= YEARS; y++) fillPts += xp(y) + "," + yp(cheap[y]) + " ";
+
+  Line 220:     var cheapPts = "", expPts = "";
+
+  Line 222:       cheapPts += xp(y) + "," + yp(cheap[y]) + " ";
+
+  Line 226:     feeSvg.appendChild(svgEl("polyline", { points: cheapPts.trim(), fill: "none", stroke: GREEN, "stroke-width": "2" }));
+
+  Line 246:     var gap = exp[YEARS] - cheap[YEARS];
+
+  Line 247:     feeSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 40, "Modelový rozdíl po " + YEARS + " letech: " + czk(gap) + " Kč", { anchor: "end", size: "11px", fill: ORANGE, weight: "600" }));
+
+  Line 262:     var cheap = [], exp = [];
+
+  Line 264:       cheap.push(futureValue(INITIAL, MONTHLY, y, GROSS - CHEAP_TER / 100));
+
+  Line 267:     var maxV = Math.max.apply(null, cheap.concat(exp));
+
+  Line 274:     for (var y = 0; y <= YEARS; y++) fillPts += xp(y) + "," + yp(cheap[y]) + " ";
+
+  Line 278:     var cheapPts = "", expPts = "";
+
+  Line 280:       cheapPts += xp(y) + "," + yp(cheap[y]) + " ";
+
+  Line 284:     feeCompactSvg.appendChild(svgEl("polyline", { points: cheapPts.trim(), fill: "none", stroke: GREEN, "stroke-width": "2" }));
+
+  Line 304:     var gap = exp[YEARS] - cheap[YEARS];
+
+  Line 305:     feeCompactSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 32, "Rozdíl po 25 letech: " + czk(gap) + " Kč", { anchor: "end", size: "10px", fill: ORANGE, weight: "700" }));
+
+  Line 321:     var cheap = [], exp = [];
+
+  Line 323:       cheap.push(futureValue(INITIAL, MONTHLY, y, GROSS - CHEAP_TER / 100));
+
+  Line 326:     var maxV = Math.max.apply(null, cheap.concat(exp));
+
+  Line 333:     for (var y = 0; y <= YEARS; y++) fillPts += xp(y) + "," + yp(cheap[y]) + " ";
+
+  Line 337:     var cheapPts = "", expPts = "";
+
+  Line 339:       cheapPts += xp(y) + "," + yp(cheap[y]) + " ";
+
+  Line 343:     heroSvg.appendChild(svgEl("polyline", { points: cheapPts.trim(), fill: "none", stroke: GREEN, "stroke-width": "2" }));
+
+  Line 363:     var gap = exp[YEARS] - cheap[YEARS];
+
+  Line 364:     heroSvg.appendChild(textEl(pad.l + plotW, h - pad.b + 28, "Rozdiel: " + czk(gap) + " Kč", { anchor: "end", size: "10px", fill: ORANGE, weight: "700" }));
+
+
+C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\assets\js\portfolio.js:
+  Line 136:       var cheapFv = futureValue(INITIAL, MONTHLY, YEARS, GROSS - CHEAPEST_TER / 100);
+
+  Line 140:       var cheapFees = grossFv - cheapFv;
+
+  Line 143:       var gapVsCheap = cheapFv - yourFv;
+
+  Line 144:       var gapVsAvg = avgFv - yourFv;
+
+  Line 158:           "<div class=\"portfolio-result__item portfolio-result--cheap\">" +
+
+  Line 160:             "<p class=\"portfolio-result__value num\">" + fmtCzk(cheapFv) + " Kč</p>" +
+
+  Line 161:             "<p class=\"portfolio-result__note\">Odvodené poplatky: " + fmtCzk(cheapFees) + " Kč</p>" +
+
+  Line 169:         (gapVsCheap > 1
+
+  Line 170:           ? "<p class=\"portfolio-result__gap down\">O " + fmtCzk(gapVsCheap) + " Kč méně než při nejlevnějším ETF (0,03 %)</p>"
+
+  Line 171:           : "<p class=\"portfolio-result__gap up\">Jste na úrovni nejlevnějšího ETF.</p>") +
+
+  Line 172:         (gapVsAvg > 1
+
+  Line 173:           ? "<p class=\"portfolio-result__gap up\">O " + fmtCzk(gapVsAvg) + " Kč více než při průměrném fondu (0,41 %)</p>"
+
+  Line 183:         cheapFinalValue: Math.round(cheapFv),
+
+  Line 185:         gapVsCheapest: Math.round(gapVsCheap),
+
+  Line 186:         gapVsAverage: Math.round(gapVsAvg),
+
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 7.6s)
+
+_Thinking:_
+
+The fix is correct. With the user's numbers:
+- cheap netFv: 2 919 351
+- avg netFv: 2 587 294
+- gap: 332 057 Kč
+
+portfolio.js already has the correct order: `cheapFv - yourFv`.
+
+Tests still pass since they test lib/report.js not the frontend calculator.
+
+Opravené. S tvojimi číslami teraz vyjde rozdiel **≈ 332 057 Kč** (0,77 % vs 0,03 %).
+
+Príčina: `gap` sa počítal ako `r.netFv - cheap.netFv` → pri drahšom fonde záporné → `gap > 1` false → „0 Kč". Teraz je `cheap.netFv - r.netFv` (kladné). `portfolio.js` to malo správne.
+
+---
+
+## User
+
+ked chcem v gmaili kliknut na odhlasovaci odkaz, tak musim rozkliknut ... 
+cely text tejto paticky urob tak, aby som nemusel klikat na nic a videl to hned
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 35.2s)
+
+_Thinking:_
+
+The user wants the unsubscribe link in the email footer to be visible as plain text so they can click it directly in Gmail without having to expand "...". In Gmail, long emails often collapse the bottom with "..." and you need to click to expand.
+
+Actually, I think the issue is different - Gmail often truncates the message body display, or the unsubscribe URL is a long link and Gmail might collapse it. But more likely the issue is that Gmail's "..." truncation hides the footer when the email is long.
+
+Wait - re-reading: "ked chcem v gmaili kliknut na odhlasovaci odkaz, tak musim rozkliknut ..." - when clicking the unsubscribe link in Gmail, they have to expand "...". 
+
+This could be:
+1. Gmail truncates long emails and you need to click "..." to see the full message
+2. Or the List-Unsubscribe link in the email header is hidden behind "..." in Gmail's UI
+
+Actually for List-Unsubscribe headers, Gmail shows a small "Unsubscribe" link next to the sender name at the top - but that might need the List-Unsubscribe header to be properly set.
+
+Looking at api/lead.js - the email has:
+```
+if (unsubUrl) {
+  textLines.push("Odhlásit: " + unsubUrl);
+}
+```
+
+The URL is a full long URL like `https://domain/api/unsubscribe?token=longhmac...` which makes the email text long. When text is long, Gmail might truncate.
+
+The fix: make the unsubscribe link shorter/more visible, put it earlier, or use a shorter display text with the URL not taking so much visual space.
+
+Actually the classic Gmail "..." issue is that when email body is long, Gmail shows only the first part and you click "..." to expand. So the footer with unsubscribe is hidden.
+
+Solutions:
+1. Move unsubscribe link higher in the email (near the top, after the report link)
+2. Shorten the email so footer is visible
+3. BothAlso could put the unsubscribe URL as a clickable short label earlier in the email.
+
+Let me read the current email text in api/lead.js and restructure it so unsubscribe is visible without expanding.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "limit": 45,
+  "offset": 205
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js</path>
+<type>file</type>
+<content>
+205:     }
+206: 
+207:     const textLines = [
+208:       "Děkujeme za váš zájem.",
+209:       "",
+210:       reportText(model),
+211:       "V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.",
+212:       "V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).",
+213:       "Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.",
+214:       "",
+215:       "Report: " + reportUrl,
+216:       ""
+217:     ];
+218:     if (unsubUrl) {
+219:       textLines.push("Odhlásit: " + unsubUrl);
+220:     }
+221:     textLines.push(
+222:       "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
+223:     );
+224: 
+225:     await sendWithResend(apiKey, {
+226:       from: from,
+227:       to: [record.email],
+228:       reply_to: replyTo,
+229:       headers: emailHeaders,
+230:       subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
+231:       text: textLines.join("\n"),
+232:       attachments: [
+233:         {
+234:           filename: "ETF_osobni_report.pdf",
+235:           content: pdfBase64
+236:         }
+237:       ]
+238:     });
+239: 
+240:     return res.status(200).json({ ok: true, stored: true, queued: true, reportId: reportId });
+241:   } catch (err) {
+242:     console.error("[lead] resend_error", String((err && err.message) || err).slice(0, 300));
+243:     return res.status(200).json({ ok: true, stored: true, queued: false, mode: "resend_failed", reportId: reportId });
+244:   }
+245: }
+
+(End of file - total 245 lines)
+</content>
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 20.4s)
+
+_Thinking:_
+
+Gmail shows "..." to expand truncated emails. The issue is the unsubscribe URL is a very long token URL at the bottom of a long email. To make it visible without expanding:
+
+1. Put unsubscribe link **early** in the email (right after "Děkujeme" / before the long report text)
+2. Shorten display - the long URL is fine but it should be near the top
+3. Maybe also use HTML email with a proper anchor "Odhlásit se" instead of raw URL - but Resend currently sends text only
+
+Looking at the email - it's text/plain only. The long unsub URL with HMAC token is huge. Options:
+- Put "Odhlásit" near the top with the URL
+- Or create a shorter human-readable message at top
+
+Best approach for plain text email in Gmail:
+1. Move unsubscribe to the top (after first line) so it's visible without scrolling/expanding
+2. Keep List-Unsubscribe header (Gmail also shows "Unsubscribe" link at top from the header)
+
+Also could add HTML version with short "Odhlásit se z odběru" link - Resend supports html field. That would be nicer - short clickable text instead of long raw URL.
+
+I'll restructure:
+1. Put unsubscribe link right after "Děkujeme za váš zájem." at the top
+2. Optionally add HTML email with short link text
+
+Simplest fix matching request: move unsub URL to top of email so it's visible without Gmail's "..." expand.
+
+Gmail oreže spodok dlhého textu za „…”. Dám odhlásenie hore, hneď po prvom riadku.
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "newString": "    const textLines = [\n      \"Děkujeme za váš zájem.\",\n      \"\"\n    ];\n    if (unsubUrl) {\n      textLines.push(\n        \"Kdykoli se odhlásíte zde (jedno kliknutí):\",\n        unsubUrl,\n        \"\"\n      );\n    }\n    textLines.push(\n      reportText(model),\n      \"V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.\",\n      \"V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).\",\n      \"Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.\",\n      \"\",\n      \"Report: \" + reportUrl,\n      \"\",\n      \"Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR).\"\n    );",
+  "oldString": "    const textLines = [\n      \"Děkujeme za váš zájem.\",\n      \"\",\n      reportText(model),\n      \"V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.\",\n      \"V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).\",\n      \"Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.\",\n      \"\",\n      \"Report: \" + reportUrl,\n      \"\"\n    ];\n    if (unsubUrl) {\n      textLines.push(\"Odhlásit: \" + unsubUrl);\n    }\n    textLines.push(\n      \"Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR).\"\n    );"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 16.6s)
+
+_Thinking:_
+
+Also, the List-Unsubscribe header means Gmail shows an "Unsubscribe" link at the top of the email next to the sender - that's already there. The user's issue was the body footer being collapsed behind "...".
+
+I moved the unsubscribe URL to the top. Should also run tests quickly to make sure nothing broke - though tests probably don't check email body structure.
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "node --test \"tests/*.test.js\" 2>&1 | Select-String -Pattern \"^# (tests|pass|fail)\"",
+  "timeout": 60000,
+  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
+}
+```
+
+**Output:**
+```
+
+# tests 29
+# pass 29
+# fail 0
+
+
+
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 7.0s)
+
+_Thinking:_
+
+Done. The unsubscribe link is now at the top of the email, right after "Děkujeme za váš zájem." so Gmail won't hide it behind "...". The List-Unsubscribe header also shows Gmail's native "Unsubscribe" link next to the sender.
+
+Presunuté hore – hneď po „Děkujeme za váš zájem." pred reportom, takže Gmail to nezastrčí za „…". Navyše Gmail vďaka hlavičkám `List-Unsubscribe` ukazuje vlastný odkaz „Unsubscribe" pri odosielateľovi. **29/29 testov OK.**
+
+---
+
+## User
+
+nie, nechaj to dole pod reportom. ale urob to tak, aby som nemusel rozklikavat tie tri bodky
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 22.8s)
+
+_Thinking:_
+
+The user wants the unsubscribe link to stay at the bottom under the report, but they don't want to have to click "..." in Gmail to expand the truncated email.
+
+Gmail truncates long emails. The issue is that the email body is long because of the report text + long unsubscribe URL. Options to avoid Gmail's "..." truncation:
+
+1. Shorten the email body overall so Gmail doesn't truncate
+2. Make the unsubscribe URL shorter (shorter token, or use a short path)
+3. Put a short human-readable note that doesn't get cut, and rely on List-Unsubscribe header which Gmail shows at the top anyway
+
+Actually the Gmail "..." happens when the email is too long - Gmail collapses the bottom. To avoid this:
+- Make the email shorter
+- Or the unsubscribe URL is very long (HMAC token can be long)
+
+Looking at the token - HMAC-SHA256 hex is 64 chars, plus email in base64 or similar - the URL could be very long.
+
+Let me check lib/unsubscribe.js for token format.
+
+Also I could:
+1. Keep unsubscribe at bottom
+2. Shorten email body (shorten reportText or reduce lines)
+3. Shorten token (e.g. use shorter encoding)
+
+The main reason Gmail shows "..." is long plain text emails. Long URLs also contribute.
+
+Strategy:
+1. Revert putting unsubscribe at top - put it back at bottom under report
+2. Shorten the overall email so Gmail doesn't collapse it
+3. Maybe shorten the token URL
+
+Let me read unsubscribe.js to see token length.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\lib\\unsubscribe.js"
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\lib\unsubscribe.js</path>
+<type>file</type>
+<content>
+1: import crypto from "node:crypto";
+2: 
+3: function getSecret() {
+4:   return process.env.UNSUBSCRIBE_SECRET || process.env.RESEND_API_KEY || null;
+5: }
+6: 
+7: function b64url(buf) {
+8:   return Buffer.from(buf, "utf8").toString("base64url");
+9: }
+10: 
+11: function hmac(data, secret) {
+12:   return crypto.createHmac("sha256", secret).update(data).digest("base64url");
+13: }
+14: 
+15: export function signToken(email) {
+16:   const secret = getSecret();
+17:   if (!secret) return null;
+18:   const payload = b64url(String(email).trim().toLowerCase());
+19:   return payload + "." + hmac(payload, secret);
+20: }
+21: 
+22: export function verifyToken(token) {
+23:   const secret = getSecret();
+24:   if (!secret || typeof token !== "string" || token.length > 512) return null;
+25:   const dot = token.lastIndexOf(".");
+26:   if (dot <= 0) return null;
+27:   const payload = token.slice(0, dot);
+28:   const sig = token.slice(dot + 1);
+29:   const expected = hmac(payload, secret);
+30:   const a = Buffer.from(sig);
+31:   const b = Buffer.from(expected);
+32:   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+33:   try {
+34:     const email = Buffer.from(payload, "base64url").toString("utf8");
+35:     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return null;
+36:     return email;
+37:   } catch (e) {
+38:     return null;
+39:   }
+40: }
+41: 
+42: export async function unsubscribeLead(redis, email) {
+43:   if (!redis || !email) return false;
+44:   const key = "newsletter:lead:" + email;
+45:   try {
+46:     const existed = await redis.exists(key);
+47:     await redis.del(key);
+48:     await redis.srem("newsletter:emails", email);
+49:     return !!existed;
+50:   } catch (err) {
+51:     console.error("[unsubscribe] db_error", String((err && err.message) || err).slice(0, 300));
+52:     throw err;
+53:   }
+54: }
+
+(End of file - total 54 lines)
+</content>
+```
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "limit": 50,
+  "offset": 185
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js</path>
+<type>file</type>
+<content>
+185:   }
+186: 
+187:   try {
+188:     const apiKey = process.env.RESEND_API_KEY;
+189:     if (!apiKey) {
+190:       console.log("[lead] log_only – report ulozen, reportId=" + reportId);
+191:       return res.status(200).json({ ok: true, stored: true, queued: false, mode: "log_only", reportId: reportId });
+192:     }
+193: 
+194:     const origin = "https://" + (req.headers.host || "etf-poplatky.vercel.app");
+195:     const from = process.env.RESEND_FROM || "ETF Clientelo <onboarding@resend.dev>";
+196:     const replyTo = process.env.REPLY_TO || undefined;
+197:     const reportUrl = origin + "/thank-you.html?id=" + reportId;
+198:     const unsubToken = signToken(record.email);
+199:     const unsubUrl = unsubToken ? origin + "/api/unsubscribe?token=" + unsubToken : null;
+200: 
+201:     const emailHeaders = {};
+202:     if (unsubUrl) {
+203:       emailHeaders["List-Unsubscribe"] = "<" + unsubUrl + ">";
+204:       emailHeaders["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
+205:     }
+206: 
+207:     const textLines = [
+208:       "Děkujeme za váš zájem.",
+209:       ""
+210:     ];
+211:     if (unsubUrl) {
+212:       textLines.push(
+213:         "Kdykoli se odhlásíte zde (jedno kliknutí):",
+214:         unsubUrl,
+215:         ""
+216:       );
+217:     }
+218:     textLines.push(
+219:       reportText(model),
+220:       "V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.",
+221:       "V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).",
+222:       "Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.",
+223:       "",
+224:       "Report: " + reportUrl,
+225:       "",
+226:       "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
+227:     );
+228: 
+229:     await sendWithResend(apiKey, {
+230:       from: from,
+231:       to: [record.email],
+232:       reply_to: replyTo,
+233:       headers: emailHeaders,
+234:       subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
+
+(Showing lines 185-234 of 249. Use offset=235 to continue.)
+</content>
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 23.9s)
+
+_Thinking:_
+
+Gmail shows "..." when the email body is too long. The token is base64url of email + "." + base64url HMAC (43 chars). Email "test@example.com" base64url is ~20 chars, so token ~64 chars. URL is ~100 chars. That's not terrible.
+
+The main issue is the overall length of the plain text email. reportText can be quite long with all sections filled.
+
+Options to avoid Gmail "..." truncation:
+1. Shorten the email body significantly
+2. Use HTML email with short "Odhlásit se" link text instead of raw URL (HTML emails with short link text don't show as long URLs)
+3. Put unsubscribe as short text and rely on List-Unsubscribe header (Gmail shows "Unsubscribe" at top from header)
+
+Actually the best approach for Gmail: send HTML email with a short clickable "Odhlásit se z odběru" link instead of the long raw URL in plain text. Or keep text but much shorter.
+
+Even better: keep text version short, put unsubscribe at bottom with short label and URL - but Gmail truncates based on total length.
+
+The real fix for Gmail "..." with plain text:
+- Make the email shorter overall
+- Or use HTML format with <a href>Odhlásit</a> so the long URL doesn't take visual space... but Gmail still truncates long HTML emails
+
+Actually Gmail truncates when email is very long. Let me check - Gmail shows about 105 characters of preview and then "... Show more" for long emails? Or is it that the body is collapsed?
+
+Actually for Gmail, the "..." is typically at the end of truncated plain text when the message is long. The user says they need to expand "..." to click the unsubscribe link.
+
+Best solutions:
+1. Shorten reportText and email body so full email is visible
+2. Put short "Odhlásit se: <url>" at the bottom but make email shorter so it fits
+3. Send HTML email with short anchor text
+
+I'll do both:
+1. Revert unsubscribe to bottom
+2. Shorten the email body - make reportText more compact, reduce redundant lines
+3. Optionally send HTML with short link text
+
+Looking at reportText - when all sections filled it's quite long. The email also has multiple explanatory lines.
+
+I'll restructure to a compact email:
+```
+Děkujeme za váš zájem.
+
+[reportText - keep]
+
+PDF report je v příloze a online: <reportUrl>
+
+Odhlásit se: <unsubUrl>
+Údaje slouží pouze ke zaslání reportu (GDPR).
+```
+
+That's much shorter. Also could add HTML version with short link.
+
+Let me also add an html body with short "Odhlásit se" link - that way even if plain text is long, HTML shows short links. Resend supports both text and html.
+
+I'll create a simple HTML email with:
+- Short structure
+- Odhlásit as short link text at bottom
+- Report link as short text
+
+This way Gmail won't have a giant raw URL and the email is shorter visually.
+
+Gmail oreže **dlhý plain text**. Skrátim e-mail a dám odhlásenie späť pod report – v HTML s krátkym textom odkazu, aby nebol vidno celý URL.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "limit": 60,
+  "offset": 24
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js</path>
+<type>file</type>
+<content>
+24: function reportText(model) {
+25:   const lines = [];
+26:   if (model.calc) {
+27:     const calc = model.calc;
+28:     lines.push(
+29:       "Váš výpočet z kalkulačky poplatků:",
+30:       "- Vklad: " + formatCzk(calc.initial) + ", měsíčně " + formatCzk(calc.monthly) + ", " + calc.years + " let",
+31:       "- Model: hrubý výnos 8 % p.a., poplatek TER " + formatTer(calc.ter) + " (" + calc.fund + ")",
+32:       "- Koncová hodnota portfolia: " + formatCzk(calc.finalValue),
+33:       "- Zaplacené poplatky celkem: " + formatCzk(calc.feesPaid),
+34:       ""
+35:     );
+36:   }
+37:   if (model.portfolio) {
+38:     lines.push(
+39:       "Vaše skladání portfolia:",
+40:       "- Váhované TER: " + formatTer(model.portfolio.weightedTer),
+41:       "- Koncová hodnota vašeho portfolia: " + formatCzk(model.portfolio.yourFinalValue),
+42:       ""
+43:     );
+44:   }
+45:   if (model.tax) {
+46:     lines.push(
+47:       "Výpočet daně z dividend (W-8BEN):",
+48:       "- Roční dividendový příjem: " + formatCzk(model.tax.annualDividend),
+49:       "- Srážková sazba: " + formatRate(model.tax.taxRate),
+50:       "- Úspora s W-8BEN ročně: " + formatCzk(model.tax.annualSavings),
+51:       ""
+52:     );
+53:   }
+54:   if (!lines.length) {
+55:     lines.push("V příloze najdete srovnání šesti ETF, checklist prvních kroků a upozornění na rizika.", "");
+56:   }
+57:   return lines.join("\n");
+58: }
+59: 
+60: async function sendWithResend(key, payload) {
+61:   const res = await fetch("https://api.resend.com/emails", {
+62:     method: "POST",
+63:     headers: {
+64:       Authorization: "Bearer " + key,
+65:       "Content-Type": "application/json"
+66:     },
+67:     body: JSON.stringify(payload)
+68:   });
+69:   if (!res.ok) {
+70:     const body = await res.text();
+71:     throw new Error("Resend " + res.status + ": " + body);
+72:   }
+73:   return res.json();
+74: }
+75: 
+76: async function saveLeadToDb(record) {
+77:   const redis = getRedis();
+78:   if (!redis) return { configured: false, stored: false };
+79:   if (record.consent !== true) return { configured: true, stored: false };
+80:   try {
+81:     await redis
+82:       .multi()
+83:       .hset("newsletter:lead:" + record.email, {
+
+(Showing lines 24-83 of 249. Use offset=84 to continue.)
+</content>
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 74.3s)
+
+_Thinking:_
+
+I'll restructure the email to be shorter and add HTML version with short link text. Keep unsubscribe at bottom under report.
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "newString": "    const textLines = [\n      \"Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.\",\n      \"\",\n      reportText(model),\n      \"Report online: \" + reportUrl,\n      \"\"\n    ];\n    if (unsubUrl) {\n      textLines.push(\"Odhlásit: \" + unsubUrl);\n    }\n    textLines.push(\"Údaje slouží pouze ke zaslání reportu a tipů (GDPR).\");\n\n    let html = null;\n    if (unsubUrl) {\n      const esc = (s) => String(s)\n        .replace(/&/g, \"&amp;\")\n        .replace(/</g, \"&lt;\")\n        .replace(/>/g, \"&gt;\")\n        .replace(/\"/g, \"&quot;\");\n      const reportHtml = model.calc || model.portfolio || model.tax\n        ? \"<pre style=\\\"font:14px/1.5 monospace;white-space:pre-wrap;margin:0 0 16px\\\">\" + esc(reportText(model)) + \"</pre>\"\n        : \"\";\n      html =\n        \"<div style=\\\"font:15px/1.5 system-ui,sans-serif;color:#1a1a1a;max-width:520px\\\">\" +\n        \"<p>Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>\" +\n        reportHtml +\n        \"<p><a href=\\\"\" + esc(reportUrl) + \"\\\">Otevřít report online</a></p>\" +\n        \"<p style=\\\"font-size:12px;color:#666;margin-top:24px\\\">\" +\n        \"<a href=\\\"\" + esc(unsubUrl) + \"\\\">Odhlásit se z odběru</a><br>\" +\n        \"Údaje slouží pouze ke zaslání reportu a tipů (GDPR).\" +\n        \"</p></div>\";\n    }",
+  "oldString": "    const textLines = [\n      \"Děkujeme za váš zájem.\",\n      \"\"\n    ];\n    if (unsubUrl) {\n      textLines.push(\n        \"Kdykoli se odhlásíte zde (jedno kliknutí):\",\n        unsubUrl,\n        \"\"\n      );\n    }\n    textLines.push(\n      reportText(model),\n      \"V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.\",\n      \"V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).\",\n      \"Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.\",\n      \"\",\n      \"Report: \" + reportUrl,\n      \"\",\n      \"Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR).\"\n    );"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "newString": "    const payload = {\n      from: from,\n      to: [record.email],\n      reply_to: replyTo,\n      headers: emailHeaders,\n      subject: \"Váš osobní report: kolik vás stojí poplatky u ETF\",\n      text: textLines.join(\"\\n\"),\n      attachments: [\n        {\n          filename: \"ETF_osobni_report.pdf\",\n          content: pdfBase64\n        }\n      ]\n    };\n    if (html) payload.html = html;\n\n    await sendWithResend(apiKey, payload);",
+  "oldString": "    await sendWithResend(apiKey, {\n      from: from,\n      to: [record.email],\n      reply_to: replyTo,\n      headers: emailHeaders,\n      subject: \"Váš osobní report: kolik vás stojí poplatky u ETF\",\n      text: textLines.join(\"\\n\"),\n      attachments: [\n        {\n          filename: \"ETF_osobni_report.pdf\",\n          content: pdfBase64\n        }\n      ]\n    });"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 14.4s)
+
+_Thinking:_
+
+Let me verify the file looks correct and run tests.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "limit": 80,
+  "offset": 194
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js</path>
+<type>file</type>
+<content>
+194:     const origin = "https://" + (req.headers.host || "etf-poplatky.vercel.app");
+195:     const from = process.env.RESEND_FROM || "ETF Clientelo <onboarding@resend.dev>";
+196:     const replyTo = process.env.REPLY_TO || undefined;
+197:     const reportUrl = origin + "/thank-you.html?id=" + reportId;
+198:     const unsubToken = signToken(record.email);
+199:     const unsubUrl = unsubToken ? origin + "/api/unsubscribe?token=" + unsubToken : null;
+200: 
+201:     const emailHeaders = {};
+202:     if (unsubUrl) {
+203:       emailHeaders["List-Unsubscribe"] = "<" + unsubUrl + ">";
+204:       emailHeaders["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click";
+205:     }
+206: 
+207:     const textLines = [
+208:       "Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.",
+209:       "",
+210:       reportText(model),
+211:       "Report online: " + reportUrl,
+212:       ""
+213:     ];
+214:     if (unsubUrl) {
+215:       textLines.push("Odhlásit: " + unsubUrl);
+216:     }
+217:     textLines.push("Údaje slouží pouze ke zaslání reportu a tipů (GDPR).");
+218: 
+219:     let html = null;
+220:     if (unsubUrl) {
+221:       const esc = (s) => String(s)
+222:         .replace(/&/g, "&amp;")
+223:         .replace(/</g, "&lt;")
+224:         .replace(/>/g, "&gt;")
+225:         .replace(/"/g, "&quot;");
+226:       const reportHtml = model.calc || model.portfolio || model.tax
+227:         ? "<pre style=\"font:14px/1.5 monospace;white-space:pre-wrap;margin:0 0 16px\">" + esc(reportText(model)) + "</pre>"
+228:         : "";
+229:       html =
+230:         "<div style=\"font:15px/1.5 system-ui,sans-serif;color:#1a1a1a;max-width:520px\">" +
+231:         "<p>Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>" +
+232:         reportHtml +
+233:         "<p><a href=\"" + esc(reportUrl) + "\">Otevřít report online</a></p>" +
+234:         "<p style=\"font-size:12px;color:#666;margin-top:24px\">" +
+235:         "<a href=\"" + esc(unsubUrl) + "\">Odhlásit se z odběru</a><br>" +
+236:         "Údaje slouží pouze ke zaslání reportu a tipů (GDPR)." +
+237:         "</p></div>";
+238:     }
+239: 
+240:     const payload = {
+241:       from: from,
+242:       to: [record.email],
+243:       reply_to: replyTo,
+244:       headers: emailHeaders,
+245:       subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
+246:       text: textLines.join("\n"),
+247:       attachments: [
+248:         {
+249:           filename: "ETF_osobni_report.pdf",
+250:           content: pdfBase64
+251:         }
+252:       ]
+253:     };
+254:     if (html) payload.html = html;
+255: 
+256:     await sendWithResend(apiKey, payload);
+257: 
+258:     return res.status(200).json({ ok: true, stored: true, queued: true, reportId: reportId });
+259:   } catch (err) {
+260:     console.error("[lead] resend_error", String((err && err.message) || err).slice(0, 300));
+261:     return res.status(200).json({ ok: true, stored: true, queued: false, mode: "resend_failed", reportId: reportId });
+262:   }
+263: }
+
+(End of file - total 263 lines)
+</content>
+```
+
+**Tool: bash**
+
+**Input:**
+```json
+{
+  "command": "node --test \"tests/*.test.js\" 2>&1 | Select-String -Pattern \"^# (tests|pass|fail)\"",
+  "timeout": 60000,
+  "workdir": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie"
+}
+```
+
+**Output:**
+```
+
+# tests 29
+# pass 29
+# fail 0
+
+
+
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 9.3s)
+
+_Thinking:_
+
+Done. Summary for user.
+
+Hotovo – odhlásenie zostalo **dole pod reportom**. Čo sa zmenilo:
+
+1. **Text e-mailu sa skrátil** (menej riadkov → Gmail menej orezáva za „…")
+2. **Pridaný HTML variant** – Gmail v ňom zobrazí krátky text **„Odhlásit se z odběru"** namiesto celého URL (klik je v odkaze)
+
+Plain text fallback stále obsahuje plný URL. **29/29 testov OK.**
 
 ---
 

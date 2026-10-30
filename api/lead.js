@@ -205,24 +205,39 @@ export default async function handler(req, res) {
     }
 
     const textLines = [
-      "Děkujeme za váš zájem.",
+      "Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.",
       "",
       reportText(model),
-      "V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.",
-      "V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).",
-      "Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.",
-      "",
-      "Report: " + reportUrl,
+      "Report online: " + reportUrl,
       ""
     ];
     if (unsubUrl) {
       textLines.push("Odhlásit: " + unsubUrl);
     }
-    textLines.push(
-      "Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR)."
-    );
+    textLines.push("Údaje slouží pouze ke zaslání reportu a tipů (GDPR).");
 
-    await sendWithResend(apiKey, {
+    let html = null;
+    if (unsubUrl) {
+      const esc = (s) => String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+      const reportHtml = model.calc || model.portfolio || model.tax
+        ? "<pre style=\"font:14px/1.5 monospace;white-space:pre-wrap;margin:0 0 16px\">" + esc(reportText(model)) + "</pre>"
+        : "";
+      html =
+        "<div style=\"font:15px/1.5 system-ui,sans-serif;color:#1a1a1a;max-width:520px\">" +
+        "<p>Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>" +
+        reportHtml +
+        "<p><a href=\"" + esc(reportUrl) + "\">Otevřít report online</a></p>" +
+        "<p style=\"font-size:12px;color:#666;margin-top:24px\">" +
+        "<a href=\"" + esc(unsubUrl) + "\">Odhlásit se z odběru</a><br>" +
+        "Údaje slouží pouze ke zaslání reportu a tipů (GDPR)." +
+        "</p></div>";
+    }
+
+    const payload = {
       from: from,
       to: [record.email],
       reply_to: replyTo,
@@ -235,7 +250,10 @@ export default async function handler(req, res) {
           content: pdfBase64
         }
       ]
-    });
+    };
+    if (html) payload.html = html;
+
+    await sendWithResend(apiKey, payload);
 
     return res.status(200).json({ ok: true, stored: true, queued: true, reportId: reportId });
   } catch (err) {
