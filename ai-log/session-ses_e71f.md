@@ -2,418 +2,7 @@
 
 **Session ID:** ses_e71fc90d7ffeHNPJ6e1KipCoEH
 **Created:** 30. 10. 2026 19:12:32
-**Updated:** 30. 10. 2026 22:41:17
-
----
-
-## Assistant (Plan · MiMo-V2.6-Flash Free · 37.8s)
-
-_Thinking:_
-
-User chose option B. Now I need to create a detailed implementation plan. I'm in plan mode - read only, no edits.
-
-Let me design the plan for option B:
-
-1. Token generation for unsubscribe
-2. API endpoint GET/POST /api/unsubscribe
-3. Email changes in lead.js (link + List-Unsubscribe headers)
-4. Store changes (maybe unsubscribe function in store.js)
-5. Tests
-6. DocumentationLet me think through details:
-
-**Token approach:**
-- HMAC-SHA256 of email with a secret (UNSUBSCRIBE_SECRET env) - no need to store tokens in Redis
-- Or simpler: base64(email) + HMAC - token = payload.signature
-- URL: `/api/unsubscribe?email=...&sig=...` or single token that encodes both
-
-**Endpoint behavior:**
-- GET: show a simple confirmation page (HTML) or auto-unsubscribe with message - for email clients, GET link click should work
-- POST with List-Unsubscribe-Post: body `List-Unsubscribe=One-Click` - RFC 8058 one-click
-- Best practice: GET shows confirm page, POST does the actual unsubscribe (or GET does it directly for simplicity in Czech GDPR context)
-
-For simplicity on Vercel serverless:
-- `api/unsubscribe.js` handles GET and POST
-- GET: verify token → unsubscribe → return simple HTML "Byli jste odhlášeni"
-- POST: same for one-click (List-Unsubscribe-Post)
-
-**What does unsubscribe do:**
-- DEL newsletter:lead:<email>
-- SREM newsletter:emails, email
-- Optionally also mark report deleted? Report has TTL 30 days - GDPR says delete email address. Report is keyed by UUID not email, so it's fine - but model doesn't contain email. Lead record contains email. So just delete lead.
-
-**Secret env:** UNSUBSCRIBE_SECRET (or reuse something). Should be required when RESEND is used; if missing, could fallback to unsigned? Better: if secret missing, generate/require. For plan: add `UNSUBSCRIBE_SECRET` env var - if missing, endpoint returns 503 or link uses HMAC with a derived secret from RESEND_API_KEY? Cleaner: dedicated env var, document in .env.example. If not set, fall back to HMAC with RESEND_API_KEY (which exists when emails are sent). Actually simplest: derive from UNSUBSCRIBE_SECRET, and if unset use RESEND_API_KEY as secret - emails only sent when RESEND_API_KEY set.
-
-Hmm, but tests delete RESEND_API_KEY. For tests set UNSUBSCRIBE_SECRET.
-
-**Email content:**
-```
-"Odhlásit: " + origin + "/api/unsubscribe?token=" + token
-```
-Or keep ODHLASIT line and add link:
-```
-"Pro odhlášení klikněte na odkaz: " + url + " (nebo odpovězte se slovem ODHLASIT – zpracujeme ručně)."
-```
-
-Actually user chose B only - ODHLASIT stays as manual fallback. Update text accordingly.
-
-**List-Unsubscribe headers:**
-Resend API supports headers? Looking at resend send API - yes, `headers` parameter supports custom headers including List-Unsubscribe.
-```js
-headers: {
-  "List-Unsubscribe": "<https://...>",
-  "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
-}
-```
-
-**Token format:**
-```
-token = base64url(email) + "." + hmac_sha256(base64url(email), secret).hex
-```
-Verify by recomputing.
-
-**HTML response:** simple inline HTML page, Czech text, no external deps.
-
-**Rate limiting?** Not critical for unsubscribe.
-
-**CORS?** Not needed for same-origin link.
-
-**Tests:**
-- token generate/verify valid- wrong signature → 401- valid GET → 200, lead deleted from fake redis
-- valid POST one-click → 200
-- missing lead → 200 idempotent (already unsubscribed)
-- no secret configured → 503 or skip?
-
-**Files to change:**
-1. `lib/store.js` or new `lib/unsubscribe.js` – sign/verify token, unsubscribeLead(redis, email)
-2. `api/unsubscribe.js` – new endpoint
-3. `api/lead.js` – add link + List-Unsubscribe headers to email
-4. `tests/unsubscribe.test.js` – new tests (or add to api.test.js)
-5. `.env.example` – UNSUBSCRIBE_SECRET
-6. `README.md` – document flow
-7. `soukromi.html` – update text: link is primary, reply ODHLASIT secondary/manual
-8. `index.html` FAQ – update unsubscribe description
-
-**Vercel routing:** api/unsubscribe.js automatically becomes /api/unsubscribe
-
-Should GET auto-unsubscribe without confirm? For email one-click and simplicity: yes, direct unsubscribe on GET and POST. Confirm page is nicer UX but two-step is worse for List-Unsubscribe-Post. RFC 8058: POST only. Common pattern: GET shows page with button, POST confirms. But many systems just unsubscribe on GET.
-
-I'll plan: GET → unsubscribe + simple HTML success page (idempotent). POST → unsubscribe + JSON/HTML for one-click clients.
-
-Also note: only first email exists currently; unsubscribe matters for "související tipy" promised in consent - future emails should check newsletter set before sending (currently no second email is sent automatically). Mention as optional future step: before sending any tip emails, check SISMEMBER newsletter:emails.
-
-Plan mode - present the plan, don't execute.
-
-# Plán: odhlásenie cez odkaz + List-Unsubscribe (možnosť B)
-
-## Návrh
-
-**Token:** `base64url(email) + "." + HMAC-SHA25(email, secret)` – bez ukladania do Redis, overiteľný len z tokenu.  
-**Secret:** `UNSUBSCRIBE_SECRET` (env); ak chýba, fallback na `RESEND_API_KEY` (e-mail sa posiela len keď je nastavený).
-
-**Endpoint `GET/POST /api/unsubscribe`:**
-- overí podpis → `DEL newsletter:lead:<email>` + `SREM newsletter:emails`
-- idempotentné (aj keď lead už neexistuje → 200)
-- `GET` → jednoduchá HTML stránka „Byli jste odhlášeni“  
-- `POST` (`List-Unsubscribe=One-Click`) → 200 pre poštových klientov (RFC 8058)
-
-## Zmeny po súboroch
-
-| Súbor | Zmena |
-|---|---|
-| **`lib/unsubscribe.js`** (nový) | `signToken(email)`, `verifyToken(token)`, `unsubscribeLead(redis, email)` |
-| **`api/unsubscribe.js`** (nový) | handler GET/POST, overenie tokenu, zmazanie z Redis, HTML odpoveď |
-| **`api/lead.js`** | do textu e-mailu odkaz `origin + /api/unsubscribe?token=…`; hlavičky `List-Unsubscribe` + `List-Unsubscribe-Post` (cez `headers` v Resend API); zachovať riadok s ODHLASIT ako manuálny fallback |
-| **`tests/unsubscribe.test.js`** (nový) | sign/verify, zlý podpis → 401, GET/POST maže lead, idempotencia, chýbajúci secret |
-| **`.env.example`** | `UNSUBSCRIBE_SECRET` (voliteľné, popis) |
-| **`soukromi.html`** | primárne: odkaz v e-maile; ODHLASIT odpoveď = manuálne spracovanie |
-| **`index.html` FAQ** | „jedním klikem“ → „odkazem v e-maile“ (už sme opravili na ODHLASIT – doladiť na odkaz) |
-| **`README.md`** | sekcia k odhláseniu + env premenná |
-
-## Overenie
-1. `node --test` – všetky testy zelené (19 existujúcich + nové)
-2. Manuálne: `npx vercel dev` → `GET /api/unsubscribe?token=…` → lead zmazaný
-
-## Mimo scope (voliteľne neskôr)
-- Resend Receiving webhook pre doslovné ODHLASIT (možnosť A)
-- Kontrola `SISMEMBER newsletter:emails` pred prípadnými budúcimi tipmi
-
----
-
-Súhlasíš s plánom? Môžem ísť implementovať.
-
----
-
-## User
-
-chcem možnosť b
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 17.2s)
-
-_Thinking:_
-
-The user wants option B implemented. I'm now in build mode. Let me implement:
-
-1. `lib/unsubscribe.js` - signToken, verifyToken, unsubscribeLead
-2. `api/unsubscribe.js` - GET/POST handler
-3. `api/lead.js` - add link + List-Unsubscribe headers
-4. `tests/unsubscribe.test.js` - tests
-5. `.env.example` - UNSUBSCRIBE_SECRET
-6. `soukromi.html` - update text
-7. `index.html` FAQ - update text
-8. `README.md` - document
-
-Let me start implementing.
-
-Implementujem možnosť B.
-
-**Tool: todowrite**
-
-**Input:**
-```json
-{
-  "todos": [
-    {
-      "content": "Vytvoriť lib/unsubscribe.js (token + zmazanie leadu)",
-      "priority": "high",
-      "status": "in_progress"
-    },
-    {
-      "content": "Vytvoriť api/unsubscribe.js (GET/POST endpoint)",
-      "priority": "high",
-      "status": "pending"
-    },
-    {
-      "content": "Doplniť api/lead.js – odkaz + List-Unsubscribe hlavičky",
-      "priority": "high",
-      "status": "pending"
-    },
-    {
-      "content": "Testy unsubscribe",
-      "priority": "high",
-      "status": "pending"
-    },
-    {
-      "content": "Dokumentácia: .env.example, README, soukromi.html, index.html FAQ",
-      "priority": "medium",
-      "status": "pending"
-    },
-    {
-      "content": "Spustiť všetky testy",
-      "priority": "high",
-      "status": "pending"
-    }
-  ]
-}
-```
-
-**Output:**
-```
-[
-  {
-    "content": "Vytvoriť lib/unsubscribe.js (token + zmazanie leadu)",
-    "status": "in_progress",
-    "priority": "high"
-  },
-  {
-    "content": "Vytvoriť api/unsubscribe.js (GET/POST endpoint)",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "content": "Doplniť api/lead.js – odkaz + List-Unsubscribe hlavičky",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "content": "Testy unsubscribe",
-    "status": "pending",
-    "priority": "high"
-  },
-  {
-    "content": "Dokumentácia: .env.example, README, soukromi.html, index.html FAQ",
-    "status": "pending",
-    "priority": "medium"
-  },
-  {
-    "content": "Spustiť všetky testy",
-    "status": "pending",
-    "priority": "high"
-  }
-]
-```
-
-**Tool: write**
-
-**Input:**
-```json
-{
-  "content": "import crypto from \"node:crypto\";\n\nfunction getSecret() {\n  return process.env.UNSUBSCRIBE_SECRET || process.env.RESEND_API_KEY || null;\n}\n\nfunction b64url(buf) {\n  return Buffer.from(buf, \"utf8\").toString(\"base64url\");\n}\n\nfunction hmac(data, secret) {\n  return crypto.createHmac(\"sha256\", secret).update(data).digest(\"base64url\");\n}\n\nexport function signToken(email) {\n  const secret = getSecret();\n  if (!secret) return null;\n  const payload = b64url(String(email).trim().toLowerCase());\n  return payload + \".\" + hmac(payload, secret);\n}\n\nexport function verifyToken(token) {\n  const secret = getSecret();\n  if (!secret || typeof token !== \"string\" || token.length > 512) return null;\n  const dot = token.lastIndexOf(\".\");\n  if (dot <= 0) return null;\n  const payload = token.slice(0, dot);\n  const sig = token.slice(dot + 1);\n  const expected = hmac(payload, secret);\n  const a = Buffer.from(sig);\n  const b = Buffer.from(expected);\n  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;\n  try {\n    const email = Buffer.from(payload, \"base64url\").toString(\"utf8\");\n    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)) return null;\n    return email;\n  } catch (e) {\n    return null;\n  }\n}\n\nexport async function unsubscribeLead(redis, email) {\n  if (!redis || !email) return false;\n  const key = \"newsletter:lead:\" + email;\n  try {\n    const existed = await redis.exists(key);\n    await redis.del(key);\n    await redis.srem(\"newsletter:emails\", email);\n    return !!existed;\n  } catch (err) {\n    console.error(\"[unsubscribe] db_error\", String((err && err.message) || err).slice(0, 300));\n    throw err;\n  }\n}\n",
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\lib\\unsubscribe.js"
-}
-```
-
-**Output:**
-```
-Wrote file successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 31.4s)
-
-_Thinking:_
-
-Note: the fake redis in tests doesn't have `exists`, `del`, `srem` methods - only set/get/multi. I'll need to extend the fake redis in tests, or use methods that exist. Looking at makeFakeRedis in api.test.js - it has set, get, multi (hset, sadd). For unsubscribe tests I'll create a more complete fake redis with exists, del, srem.
-
-Also Upstash Redis client has exists, del, srem methods - yes standard.
-
-Now create api/unsubscribe.js.
-
-**Tool: write**
-
-**Input:**
-```json
-{
-  "content": "import { getRedis } from \"../lib/store.js\";\nimport { verifyToken, unsubscribeLead } from \"../lib/unsubscribe.js\";\n\nconst PAGE = (msg) =>\n  '<!DOCTYPE html><html lang=\"cs\"><head><meta charset=\"UTF-8\">' +\n  '<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">' +\n  '<meta name=\"robots\" content=\"noindex\">' +\n  \"<title>Odhlášení – ETF Clientelo.cz</title>\" +\n  '<link rel=\"stylesheet\" href=\"/assets/css/style.css\"></head>' +\n  '<body><main><section class=\"section\"><div class=\"wrap narrow center\">' +\n  '<h1 class=\"section__title\">' + msg + \"</h1>\" +\n  '<p class=\"section__lead\">Týmto e-mailom už nebudú chodiť žiadne ďalšie tipy. ' +\n  \"Ak ste sa odhlásili omylom, môžete sa znova prihlásiť cez formulár na stránke.</p>\" +\n  '<a href=\"/\" class=\"btn btn--accent btn--lg\">Späť na kalkulačku</a>' +\n  \"</div></section></main></body></html>\";\n\nexport default async function handler(req, res) {\n  if (req.method !== \"GET\" && req.method !== \"POST\") {\n    return res.status(405).json({ error: \"method_not_allowed\" });\n  }\n\n  let token = req.query?.token;\n  if (!token && req.method === \"POST\") {\n    const body = typeof req.body === \"string\" ? safeParse(req.body) : req.body;\n    token = body && body.token;\n  }\n  if (typeof token !== \"string\" || !token) {\n    return res.status(400).json({ error: \"missing_token\" });\n  }\n\n  const email = verifyToken(token);\n  if (!email) {\n    return res.status(401).json({ error: \"invalid_token\" });\n  }\n\n  const redis = getRedis();\n  if (!redis) {\n    return res.status(503).json({ error: \"db_not_configured\" });\n  }\n\n  try {\n    const removed = await unsubscribeLead(redis, email);\n    console.log(\"[unsubscribe]\", JSON.stringify({ email: email, removed: removed, ts: new Date().toISOString() }));\n    if (req.method === \"POST\") {\n      return res.status(200).json({ ok: true, removed: removed });\n    }\n    res.setHeader(\"Content-Type\", \"text/html; charset=utf-8\");\n    return res.status(200).send(PAGE(\"Boli ste odhlásen\\u00ed.\"));\n  } catch (err) {\n    console.error(\"[unsubscribe] error\", String((err && err.message) || err).slice(0, 300));\n    return res.status(503).json({ error: \"db_unavailable\" });\n  }\n}\n\nfunction safeParse(s) {\n  try { return JSON.parse(s); } catch (e) { return null; }\n}\n",
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\unsubscribe.js"
-}
-```
-
-**Output:**
-```
-Wrote file successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
-  "newString": "import { randomUUID } from \"node:crypto\";\nimport { buildReportModel, formatCzk, formatTer, formatRate } from \"../lib/report.js\";\nimport { generateReportPdf } from \"../lib/report-pdf.js\";\nimport { getRedis, saveReport, isValidReportId } from \"../lib/store.js\";\nimport { signToken } from \"../lib/unsubscribe.js\";",
-  "oldString": "import { randomUUID } from \"node:crypto\";\nimport { buildReportModel, formatCzk, formatTer, formatRate } from \"../lib/report.js\";\nimport { generateReportPdf } from \"../lib/report-pdf.js\";\nimport { getRedis, saveReport, isValidReportId } from \"../lib/store.js\";"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
-  "newString": "    const origin = \"https://\" + (req.headers.host || \"etf-poplatky.vercel.app\");\n    const from = process.env.RESEND_FROM || \"ETF Clientelo <onboarding@resend.dev>\";\n    const replyTo = process.env.REPLY_TO || undefined;\n    const reportUrl = origin + \"/thank-you.html?id=\" + reportId;\n    const unsubToken = signToken(record.email);\n    const unsubUrl = unsubToken ? origin + \"/api/unsubscribe?token=\" + unsubToken : null;\n\n    const emailHeaders = {};\n    if (unsubUrl) {\n      emailHeaders[\"List-Unsubscribe\"] = \"<\" + unsubUrl + \">\";\n      emailHeaders[\"List-Unsubscribe-Post\"] = \"List-Unsubscribe=One-Click\";\n    }\n\n    const textLines = [\n      \"Děkujeme za váš zájem.\",\n      \"\",\n      reportText(model),\n      \"V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.\",\n      \"V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).\",\n      \"Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.\",\n      \"\",\n      \"Report: \" + reportUrl,\n      \"\"\n    ];\n    if (unsubUrl) {\n      textLines.push(\"Odhlásit: \" + unsubUrl);\n    }\n    textLines.push(\n      \"Pro odhlášení můžete také odpovědět na tento e-mail se slovem ODHLASIT (zpracujeme ručně).\",\n      \"Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR).\"\n    );\n\n    await sendWithResend(apiKey, {\n      from: from,\n      to: [record.email],\n      reply_to: replyTo,\n      headers: emailHeaders,\n      subject: \"Váš osobní report: kolik vás stojí poplatky u ETF\",\n      text: textLines.join(\"\\n\"),\n      attachments: [\n        {\n          filename: \"ETF_osobni_report.pdf\",\n          content: pdfBase64\n        }\n      ]\n    });",
-  "oldString": "    const origin = \"https://\" + (req.headers.host || \"etf-poplatky.vercel.app\");\n    const from = process.env.RESEND_FROM || \"ETF Clientelo <onboarding@resend.dev>\";\n    const replyTo = process.env.REPLY_TO || undefined;\n    const reportUrl = origin + \"/thank-you.html?id=\" + reportId;\n\n    await sendWithResend(apiKey, {\n      from: from,\n      to: [record.email],\n      reply_to: replyTo,\n      subject: \"Váš osobní report: kolik vás stojí poplatky u ETF\",\n      text: [\n        \"Děkujeme za váš zájem.\",\n        \"\",\n        reportText(model),\n        \"V příloze tohoto e-mailu najdete Váš osobní report ve formátu PDF.\",\n        \"V PDF jsou zahrnuty pouze sekce, které jste vyplnil(a) (kalkulačka, portfólio, daň z dividend).\",\n        \"Jde o tentýž soubor, který se zobrazí po kliknutí na odkaz níže.\",\n        \"\",\n        \"Report: \" + reportUrl,\n        \"\",\n        \"--\",\n        \"Pro odhlášení odpovězte na tento e-mail se slovem ODHLASIT.\",\n        \"Údaje slouží pouze ke zaslání reportu a souvisejících tipů (GDPR).\"\n      ].join(\"\\n\"),\n      attachments: [\n        {\n          filename: \"ETF_osobni_report.pdf\",\n          content: pdfBase64\n        }\n      ]\n    });"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 15.1s)
-
-_Thinking:_
-
-There's a bug in my HTML - I used `Odhlásení` with unicode escape wrong: `"Boli ste odhlásen\u00ed."` - in a JS string with double quotes, `\u00ed` is fine and produces í. Actually `odhlásen\u00ed` = "odhlásení" - correct Czech. Wait "Boli ste odhlásení" is Slovak-ish. The site is Czech. Let me use Czech: "Byli jste odhlášeni." Also I accidentally mixed Slovak in the lead message: "Týmto e-mailom už nebudú chodiť..." should be Czech for consistency.
-
-Let me fix the PAGE message to proper Czech.
-
-Opravím texty endpointu do češtiny (web je v češtine):
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\unsubscribe.js",
-  "newString": "const PAGE =\n  '<!DOCTYPE html><html lang=\"cs\"><head><meta charset=\"UTF-8\">' +\n  '<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">' +\n  '<meta name=\"robots\" content=\"noindex\">' +\n  \"<title>Odhlášení – ETF Clientelo.cz</title>\" +\n  '<link rel=\"stylesheet\" href=\"/assets/css/style.css\"></head>' +\n  '<body><main><section class=\"section\"><div class=\"wrap narrow center\">' +\n  '<h1 class=\"section__title\">Byli jste odhlášeni.</h1>' +\n  '<p class=\"section__lead\">Na tento e-mail už nebudou chodit žádné další tipy. ' +\n  \"Pokud jste se odhlásili omylem, můžete se znovu přihlásit přes formulář na stránce.</p>\" +\n  '<a href=\"/\" class=\"btn btn--accent btn--lg\">Zpět na kalkulačku</a>' +\n  \"</div></section></main></body></html>\";",
-  "oldString": "const PAGE = (msg) =>\n  '<!DOCTYPE html><html lang=\"cs\"><head><meta charset=\"UTF-8\">' +\n  '<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">' +\n  '<meta name=\"robots\" content=\"noindex\">' +\n  \"<title>Odhlášení – ETF Clientelo.cz</title>\" +\n  '<link rel=\"stylesheet\" href=\"/assets/css/style.css\"></head>' +\n  '<body><main><section class=\"section\"><div class=\"wrap narrow center\">' +\n  '<h1 class=\"section__title\">' + msg + \"</h1>\" +\n  '<p class=\"section__lead\">Týmto e-mailom už nebudú chodiť žiadne ďalšie tipy. ' +\n  \"Ak ste sa odhlásili omylom, môžete sa znova prihlásiť cez formulár na stránke.</p>\" +\n  '<a href=\"/\" class=\"btn btn--accent btn--lg\">Späť na kalkulačku</a>' +\n  \"</div></section></main></body></html>\";"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\unsubscribe.js",
-  "newString": "    res.setHeader(\"Content-Type\", \"text/html; charset=utf-8\");\n    return res.status(200).send(PAGE);",
-  "oldString": "    res.setHeader(\"Content-Type\", \"text/html; charset=utf-8\");\n    return res.status(200).send(PAGE(\"Boli ste odhlásen\\u00ed.\"));"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
-
----
-
-## Assistant (Build · MiMo-V2.6-Flash Free · 30.1s)
-
-_Thinking:_
-
-Now write tests. The fake redis in api.test.js only has set/get/multi - I need exists, del, srem for unsubscribe tests. I'll create tests/unsubscribe.test.js with its own fuller fake redis.
-
-Also mockRes needs send() method.
-
-For testing lead.js email headers - might be complex; focus on unsubscribe endpoint tests primarily. Could also test that signToken works and lead integration lightly.
-
-Tests:
-1. signToken/verifyToken roundtrip
-2. invalid token → 401
-3. missing token → 400
-4. GET valid → 200 HTML, lead deleted
-5. POST valid → 200 JSON, lead deleted
-6. idempotent - lead already gone → 200 removed:false
-7. no redis → 503
-8. wrong method → 405
-
-**Tool: write**
-
-**Input:**
-```json
-{
-  "content": "import test from \"node:test\";\nimport assert from \"node:assert/strict\";\nimport { signToken, verifyToken, unsubscribeLead } from \"../lib/unsubscribe.js\";\nimport unsubHandler from \"../api/unsubscribe.js\";\nimport { _setRedisForTests } from \"../lib/store.js\";\n\nfunction makeFakeRedis() {\n  const store = new Map();\n  const sets = new Map();\n  return {\n    store,\n    sets,\n    async set(key, value) { store.set(key, value); return \"OK\"; },\n    async get(key) { return store.has(key) ? store.get(key) : null; },\n    async exists(key) { return store.has(key) ? 1 : 0; },\n    async del(key) { return store.delete(key) ? 1 : 0; },\n    async sadd(key, member) {\n      if (!sets.has(key)) sets.set(key, new Set());\n      sets.get(key).add(member);\n      return 1;\n    },\n    async srem(key, member) {\n      if (!sets.has(key)) return 0;\n      return sets.get(key).delete(member) ? 1 : 0;\n    }\n  };\n}\n\nfunction mockRes() {\n  return {\n    statusCode: 0,\n    headers: {},\n    body: undefined,\n    setHeader(k, v) { this.headers[k] = v; },\n    status(code) { this.statusCode = code; return this; },\n    json(payload) { this.body = payload; return this; },\n    send(payload) { this.body = payload; return this; },\n    end() { return this; }\n  };\n}\n\nasync function call(method, { token, body } = {}) {\n  const req = {\n    method: method,\n    query: token ? { token: token } : {},\n    body: body,\n    headers: {}\n  };\n  const res = mockRes();\n  await unsubHandler(req, res);\n  return res;\n}\n\ntest.beforeEach(() => {\n  process.env.UNSUBSCRIBE_SECRET = \"test-secret\";\n});\n\ntest.afterEach(() => {\n  delete process.env.UNSUBSCRIBE_SECRET;\n  delete process.env.RESEND_API_KEY;\n});\n\ntest(\"signToken/verifyToken: roundtrip vráti normalizovaný e-mail\", () => {\n  const token = signToken(\"Test@Example.COM\");\n  assert.ok(token && token.includes(\".\"));\n  assert.equal(verifyToken(token), \"test@example.com\");\n});\n\ntest(\"verifyToken: zlý podpis alebo formát → null\", () => {\n  assert.equal(verifyToken(\"\"), null);\n  assert.equal(verifyToken(\"abc\"), null);\n  assert.equal(verifyToken(\"..\"), null);\n  const token = signToken(\"a@b.cz\");\n  assert.equal(verifyToken(token + \"x\"), null);\n  assert.equal(verifyToken(\"bm90LWEtZW1haWw.@sig\"), null);\n});\n\ntest(\"signToken: bez žiadneho secretu → null\", () => {\n  delete process.env.UNSUBSCRIBE_SECRET;\n  delete process.env.RESEND_API_KEY;\n  assert.equal(signToken(\"a@b.cz\"), null);\n});\n\ntest(\"unsubscribe endpoint: GET s platným tokenom → 200 HTML a lead zmazaný\", async () => {\n  const redis = makeFakeRedis();\n  await redis.hsetLike?.();\n  redis.store.set(\"newsletter:lead:user@example.com\", { email: \"user@example.com\" });\n  redis.sets.set(\"newsletter:emails\", new Set([\"user@example.com\", \"other@example.com\"]));\n  _setRedisForTests(redis);\n\n  const res = await call(\"GET\", { token: signToken(\"user@example.com\") });\n  assert.equal(res.statusCode, 200);\n  assert.match(String(res.headers[\"Content-Type\"]), /text\\/html/);\n  assert.match(String(res.body), /Byli jste odhlášeni/);\n  assert.equal(redis.store.has(\"newsletter:lead:user@example.com\"), false);\n  assert.equal(redis.sets.get(\"newsletter:emails\").has(\"user@example.com\"), false);\n  assert.equal(redis.sets.get(\"newsletter:emails\").has(\"other@example.com\"), true);\n  _setRedisForTests(undefined);\n});\n\ntest(\"unsubscribe endpoint: POST one-click → 200 JSON a lead zmazaný\", async () => {\n  const redis = makeFakeRedis();\n  redis.store.set(\"newsletter:lead:a@b.cz\", { email: \"a@b.cz\" });\n  redis.sets.set(\"newsletter:emails\", new Set([\"a@b.cz\"]));\n  _setRedisForTests(redis);\n\n  const res = await call(\"POST\", {\n    token: signToken(\"a@b.cz\"),\n    body: { token: signToken(\"a@b.cz\") }\n  });\n  assert.equal(res.statusCode, 200);\n  assert.deepEqual(res.body, { ok: true, removed: true });\n  assert.equal(redis.store.has(\"newsletter:lead:a@b.cz\"), false);\n  _setRedisForTests(undefined);\n});\n\ntest(\"unsubscribe endpoint: idempotent – neexistujúci lead → 200 removed:false\", async () => {\n  const redis = makeFakeRedis();\n  _setRedisForTests(redis);\n  const res = await call(\"GET\", { token: signToken(\"ghost@example.com\") });\n  assert.equal(res.statusCode, 200);\n  assert.equal(res.body.ok, undefined); // GET vracia HTML\n  _setRedisForTests(undefined);\n});\n\ntest(\"unsubscribe endpoint: chýbajúci token → 400, neplatný → 401\", async () => {\n  const redis = makeFakeRedis();\n  _setRedisForTests(redis);\n  assert.equal((await call(\"GET\")).statusCode, 400);\n  assert.equal((await call(\"GET\", { token: \"bad.token\" })).statusCode, 401);\n  _setRedisForTests(undefined);\n});\n\ntest(\"unsubscribe endpoint: bez Redis → 503\", async () => {\n  _setRedisForTests(undefined);\n  delete process.env.UPSTASH_REDIS_REST_URL;\n  delete process.env.UPSTASH_REDIS_REST_TOKEN;\n  const res = await call(\"GET\", { token: signToken(\"a@b.cz\") });\n  assert.equal(res.statusCode, 503);\n  assert.equal(res.body.error, \"db_not_configured\");\n});\n\ntest(\"unsubscribe endpoint: nepovolená metóda → 405\", async () => {\n  const res = await call(\"DELETE\", { token: signToken(\"a@b.cz\") });\n  assert.equal(res.statusCode, 405);\n});\n\ntest(\"unsubscribeLead: bez redis → false\", async () => {\n  assert.equal(await unsubscribeLead(null, \"a@b.cz\"), false);\n});\n",
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\tests\\unsubscribe.test.js"
-}
-```
-
-**Output:**
-```
-Wrote file successfully.
-```
-
-**Tool: edit**
-
-**Input:**
-```json
-{
-  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\.env.example",
-  "newString": "# Voliteľné – odosielateľ (bez vlastnej domény nechajte default)\nRESEND_FROM=ETF Clientelo <onboarding@resend.dev>\n\n# Voliteľné – kam chodia odpovede\nREPLY_TO=vuj@email.cz\n\n# Voliteľné – tajomstvo pre podpis unsubscribe odkazov v e-mailech\n# (ak chýba, použije sa RESEND_API_KEY)\nUNSUBSCRIBE_SECRET=change-me-long-random-string",
-  "oldString": "# Voliteľné – odosielateľ (bez vlastnej domény nechajte default)\nRESEND_FROM=ETF Clientelo <onboarding@resend.dev>\n\n# Voliteľné – kam chodia odpovede\nREPLY_TO=vuj@email.cz"
-}
-```
-
-**Output:**
-```
-Edit applied successfully.
-```
+**Updated:** 30. 10. 2026 22:59:03
 
 ---
 
@@ -7142,6 +6731,201 @@ Hotovo – odhlásenie zostalo **dole pod reportom**. Čo sa zmenilo:
 2. **Pridaný HTML variant** – Gmail v ňom zobrazí krátky text **„Odhlásit se z odběru"** namiesto celého URL (klik je v odkaze)
 
 Plain text fallback stále obsahuje plný URL. **29/29 testov OK.**
+
+---
+
+## User
+
+stale musim rozklikavat tie tri bodky. daj navrhy, ako to obist.
+
+---
+
+## Assistant (Plan · MiMo-V2.6-Flash Free · 42.8s)
+
+_Thinking:_
+
+The user is still having to click "..." in Gmail to expand the email and see the unsubscribe link. They want suggestions on how to avoid this.
+
+Gmail truncates long emails with "..." - this is a Gmail UI behavior for long message bodies. The "..." appears at the end of the collapsed preview.
+
+Key facts about Gmail's "..." behavior:
+1. Gmail truncates long emails and shows "..." to expand - this is primarily based on message length
+2. HTML emails can also get truncated if too long
+3. The List-Unsubscribe header shows as a separate "Unsubscribe" link next to the sender name at the TOP of the email - this is already implemented
+4. Some sources say Gmail truncates around ~1024 characters or based on viewport height for the preview
+
+Ways to avoid the "..." truncation:
+1. Make the email body significantly shorter so it fits in Gmail's preview
+2. Remove the long raw URL from plain text (only show short HTML link text) - but plain text needs URL somewhere for non-HTML clients
+3. Send ONLY HTML email without long plain text URL - Gmail prefers HTML when both are present, so if HTML is short, Gmail might not truncate
+4. Put only short text in both text and html versions - the long URL in text/plain is what makes it long
+5. Use a short URL (URL shortener or short token) so even plain text is shorter
+
+Actually the issue is: when both text and html are present, Gmail uses HTML. So the HTML should be short. But the current HTML includes a full `<pre>` block with reportText which can be long when all calculators are filled.
+
+Also: Gmail might still show "..." if the HTML content is tall (viewport-based truncation for the preview).
+
+Best approaches:
+1. **Make HTML email very short** - remove the pre block of report text (report is in PDF attachment anyway), just: thank you + short report link + short unsubscribe link. The PDF is the value.
+2. **Remove long URL from plain text too** - or keep a minimal text version
+3. **Rely on List-Unsubscribe header** - Gmail shows "Unsubscribe" next to sender at top without expanding body - already implemented!
+4. **Shorter token** - reduces URL length
+
+The List-Unsubscribe approach is already there - Gmail shows "Unsubscribe" link at the top near the sender. User might not know about this.
+
+Plan mode - I should only present suggestions, not implement.
+
+Gmail orezáva podľa **výšky HTML** (nie len textu). Návrhy:
+
+### 1. Odstrániť report z tela e-mailu (najúčinnejšie)
+Report je **v PDF prílohe** + na online odkaze. V HTML/texte nechaj len:
+```
+Děkujeme. Report je v příloze.
+Otevřít report online: …
+Odhlásit se z odběru: …
+```
+Krátky HTML = Gmail nemá čo orezať → „…” zmizne.
+
+### 2. Skrátiť token (skráti URL)
+Token je `base64url(email).base64url(hmac)` – pri dlhšom e-maile je URL ešte dlhšia. Môžeš hashovať len ID z Redisu namiesto e-mailu v tokene → kratší odkaz v plain texte.
+
+### 3. Spoliehať sa na List-Unsubscribe hlavičku (už funguje)
+Gmail pri odosielateľovi ukazuje **„Unsubscribe"** hore – bez rozkliknutia tela. One-click už funguje (`List-Unsubscribe-Post`). Telo e-mailu nemusí obsahovať odkaz vôbec.
+
+### 4. Kombinácia (odporúčanie)
+- HTML: 3 krátke riadky + link „Odhlásit se z odběru” (bez report textu)
+- Text fallback: bez dlhého reportu, s URL
+- List-Unsubscribe hlavička zostane (Gmail UI hore)
+
+**Ktorý chceš implementovať?** Odporúčam **1 + 3** (skrátiť telo, nechať hlavičku).
+
+---
+
+## User
+
+skus urobit telo emailu jednym fontom
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 7.4s)
+
+_Thinking:_
+
+The user wants me to make the email body use one consistent font. Looking at the current HTML email, I have a mix of system-ui for the div and monospace for the pre block. I should unify to one font.
+
+Also the goal was to shorten the email so Gmail doesn't truncate. Let me simplify the HTML to use one font throughout, and keep it short.
+
+**Tool: read**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "limit": 60,
+  "offset": 207
+}
+```
+
+**Output:**
+```
+<path>C:\Users\BigON\Desktop\kopiaClientelo\Clientelo-zadanie\api\lead.js</path>
+<type>file</type>
+<content>
+207:     const textLines = [
+208:       "Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.",
+209:       "",
+210:       reportText(model),
+211:       "Report online: " + reportUrl,
+212:       ""
+213:     ];
+214:     if (unsubUrl) {
+215:       textLines.push("Odhlásit: " + unsubUrl);
+216:     }
+217:     textLines.push("Údaje slouží pouze ke zaslání reportu a tipů (GDPR).");
+218: 
+219:     let html = null;
+220:     if (unsubUrl) {
+221:       const esc = (s) => String(s)
+222:         .replace(/&/g, "&amp;")
+223:         .replace(/</g, "&lt;")
+224:         .replace(/>/g, "&gt;")
+225:         .replace(/"/g, "&quot;");
+226:       const reportHtml = model.calc || model.portfolio || model.tax
+227:         ? "<pre style=\"font:14px/1.5 monospace;white-space:pre-wrap;margin:0 0 16px\">" + esc(reportText(model)) + "</pre>"
+228:         : "";
+229:       html =
+230:         "<div style=\"font:15px/1.5 system-ui,sans-serif;color:#1a1a1a;max-width:520px\">" +
+231:         "<p>Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>" +
+232:         reportHtml +
+233:         "<p><a href=\"" + esc(reportUrl) + "\">Otevřít report online</a></p>" +
+234:         "<p style=\"font-size:12px;color:#666;margin-top:24px\">" +
+235:         "<a href=\"" + esc(unsubUrl) + "\">Odhlásit se z odběru</a><br>" +
+236:         "Údaje slouží pouze ke zaslání reportu a tipů (GDPR)." +
+237:         "</p></div>";
+238:     }
+239: 
+240:     const payload = {
+241:       from: from,
+242:       to: [record.email],
+243:       reply_to: replyTo,
+244:       headers: emailHeaders,
+245:       subject: "Váš osobní report: kolik vás stojí poplatky u ETF",
+246:       text: textLines.join("\n"),
+247:       attachments: [
+248:         {
+249:           filename: "ETF_osobni_report.pdf",
+250:           content: pdfBase64
+251:         }
+252:       ]
+253:     };
+254:     if (html) payload.html = html;
+255: 
+256:     await sendWithResend(apiKey, payload);
+257: 
+258:     return res.status(200).json({ ok: true, stored: true, queued: true, reportId: reportId });
+259:   } catch (err) {
+260:     console.error("[lead] resend_error", String((err && err.message) || err).slice(0, 300));
+261:     return res.status(200).json({ ok: true, stored: true, queued: false, mode: "resend_failed", reportId: reportId });
+262:   }
+263: }
+
+(End of file - total 263 lines)
+</content>
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 18.0s)
+
+_Thinking:_
+
+User wants one font throughout the email body. Currently there's monospace for pre and system-ui for div. I'll use one font (system-ui/sans-serif) everywhere and remove the pre monospace styling - use a simple div with white-space:pre-wrap instead.
+
+**Tool: edit**
+
+**Input:**
+```json
+{
+  "filePath": "C:\\Users\\BigON\\Desktop\\kopiaClientelo\\Clientelo-zadanie\\api\\lead.js",
+  "newString": "    let html = null;\n    if (unsubUrl) {\n      const esc = (s) => String(s)\n        .replace(/&/g, \"&amp;\")\n        .replace(/</g, \"&lt;\")\n        .replace(/>/g, \"&gt;\")\n        .replace(/\"/g, \"&quot;\");\n      const reportHtml = model.calc || model.portfolio || model.tax\n        ? \"<div style=\\\"white-space:pre-wrap;margin:0 0 16px\\\">\" + esc(reportText(model)) + \"</div>\"\n        : \"\";\n      html =\n        \"<div style=\\\"font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;color:#1a1a1a;max-width:520px\\\">\" +\n        \"<p style=\\\"margin:0 0 16px\\\">Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>\" +\n        reportHtml +\n        \"<p style=\\\"margin:0 0 16px\\\"><a href=\\\"\" + esc(reportUrl) + \"\\\">Otevřít report online</a></p>\" +\n        \"<p style=\\\"font-size:12px;color:#666;margin:24px 0 0\\\">\" +\n        \"<a href=\\\"\" + esc(unsubUrl) + \"\\\">Odhlásit se z odběru</a><br>\" +\n        \"Údaje slouží pouze ke zaslání reportu a tipů (GDPR).\" +\n        \"</p></div>\";\n    }",
+  "oldString": "    let html = null;\n    if (unsubUrl) {\n      const esc = (s) => String(s)\n        .replace(/&/g, \"&amp;\")\n        .replace(/</g, \"&lt;\")\n        .replace(/>/g, \"&gt;\")\n        .replace(/\"/g, \"&quot;\");\n      const reportHtml = model.calc || model.portfolio || model.tax\n        ? \"<pre style=\\\"font:14px/1.5 monospace;white-space:pre-wrap;margin:0 0 16px\\\">\" + esc(reportText(model)) + \"</pre>\"\n        : \"\";\n      html =\n        \"<div style=\\\"font:15px/1.5 system-ui,sans-serif;color:#1a1a1a;max-width:520px\\\">\" +\n        \"<p>Děkujeme za váš zájem. Osobní report je v příloze tohoto e-mailu.</p>\" +\n        reportHtml +\n        \"<p><a href=\\\"\" + esc(reportUrl) + \"\\\">Otevřít report online</a></p>\" +\n        \"<p style=\\\"font-size:12px;color:#666;margin-top:24px\\\">\" +\n        \"<a href=\\\"\" + esc(unsubUrl) + \"\\\">Odhlásit se z odběru</a><br>\" +\n        \"Údaje slouží pouze ke zaslání reportu a tipů (GDPR).\" +\n        \"</p></div>\";\n    }"
+}
+```
+
+**Output:**
+```
+Edit applied successfully.
+```
+
+---
+
+## Assistant (Build · MiMo-V2.6-Flash Free · 5.8s)
+
+_Thinking:_
+
+Done. One font (Helvetica/Arial/sans-serif) throughout. The pre monospace is gone - report text uses same font with pre-wrap.
+
+Celé HTML telo teraz používa **jeden font** (Helvetica/Arial/sans-serif) – monospace `pre` je preč, report je v tom istom fonte s `white-space: pre-wrap`.
 
 ---
 
