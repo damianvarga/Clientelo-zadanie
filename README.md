@@ -275,8 +275,8 @@ Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi so
 
 ## 12. Čo sa mi nepodarilo a možnosti pokračovania vývoja
 
-- zobraziť vo Verceli pokročilé štatistiky,
-- doplniť logiku, ktorá podľa `?v=A`/`?v=B` bude vedieť urobiť A/B testovanie,
+- zobraziť vo Verceli pokročilé štatistiky
+- doplniť logiku, ktorá podľa `?v=A`/`?v=B` bude vedieť urobiť A/B testovanie
 - vylepšiť dizajn stránky tak, aby vyzeral profesionálnejšie (napr. pridaním ilustračných obrázkov)
 - rozdelenie obsahu hlavnej stránky na podstránky
 - pridanie ďalších investičných kalkulačiek a nástrojov
