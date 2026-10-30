@@ -69,7 +69,7 @@ vidíte `email + utm` a **boolean prítomnosti sekcií**
 kalkulačky (tie sú len v uloženom modeli v Redis). Cesta **teda** v kóde je
 úplná: **reklama → príchod → interakcia → formulár → odoslanie → report**,
 každý lead nesie zdroj – ale vizualizáciu cesty v dashboarde treba ešte
-napojiť (viď vyššie).
+napojiť.
 
 **Hypotéza (očakávanie na 100 návštev):** 100 page_view → 35–45 `form_view`
 → 8–12 `form_submit`. Overuje sa (až po zapnutí analytiky) v dashboarde +
