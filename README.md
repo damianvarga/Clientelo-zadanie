@@ -29,7 +29,7 @@ Hodnota je zrejmá pred vyplnením: tabuľka i kalkulačka sú funkčné bez e-m
 Návštevník prichádza z mobilu na 5 sekúnd = rozhoduje prvá obrazovka a jeden sľub.
 
 1. **Hero (1. obrazovka)** – zrkadlo reklamy (message match). Číselný hák „235 000 Kč" (vypočítané, viz §5) + jasný prísľub „spočítajte si to za 30 sekúnd". Dve CTA: primárna vedie na kalkulačku (okamžitá hodnota), sekundárna na tabuľku. Úmyselne **nevedie priamo na formulár** – studený návštevník nie je pripravený dať e-mail.
-2. **Tri fakty** – rýchle „bolesti" číslami so zdrojmi (0,03 % vs 0,41 %; 3× dráž SPY; daň 15 % vs 30 %). Dôvera cez zdroje, nie cez logá klientov, ktoré nemáme.
+2. **Tri fakty** – číselné údaje so zdrojmi (0,03 % vs 0,41 %; 3× dráž SPY; daň 15 % vs 30 %). Dôvera cez zdroje, nie cez logá klientov, ktoré nemáme.
 3. **Porovnávacia tabuľka (voľná)** – prvá skutočná hodnota. Návštevník si odnáša odpoveď bez registrácie → dôvera → ochota pokračovať.
 4. **Grafy (voľné)** – historický vývoj VOO + modelový dopad poplatkov (sekcia `#grafy`).
 5. **Kalkulačka dane z dividend / W-8BEN (voľná)** – sekcia `#dan`.
@@ -47,7 +47,7 @@ Návštevník prichádza z mobilu na 5 sekúnd = rozhoduje prvá obrazovka a jed
 
 Udalosti (`assets/js/main.js` → `window.etfTrack`):
 
-> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) sa načíta **až po súhlase** v cookie lište (`consent.js`; `localStorage` kľúč `etf_consent`). Custom eventy z `window.etfTrack()` idú cez `window.va('track')` len ak je súhlas udelený a Web Analytics zapnuté vo Vercel dashboarde. UTM z URL sa pre aktuálnu návštevu použijú v lead payloade vždy; ukladanie do `localStorage` (`etf_utm`) len so súhlasom. `dataLayer` (GTM) stránka neinicializuje. Na localhoste sa eventy logujú len do konzole. **`report_view` sa nemerá** – `thank-you.html` ho pushuje len do (neinicializovaného) `dataLayer` a do konzole.
+> **Stav merania:** skript Vercel Analytics (`/_vercel/insights/script.js`) sa načíta **až po súhlase** v cookie lište (`consent.js`; `localStorage` kľúč `etf_consent`). Custom eventy z `window.etfTrack()` idú cez `window.va('track')` len ak je súhlas udelený a Web Analytics zapnuté vo Vercel dashboarde. UTM z URL sa pre aktuálnu návštevu použijú v lead payloade vždy; ukladanie do `localStorage` (`etf_utm`) len so súhlasom. `dataLayer` (GTM) stránka neinicializuje. Na localhoste sa eventy logujú len do konzoly. **`report_view` sa nemerá** – `thank-you.html` ho pushuje len do (neinicializovaného) `dataLayer` a do konzoly.
 
 | Event | Kedy | Čo meria |
 |---|---|---|
@@ -273,8 +273,9 @@ Ak sa ukázalo, že nejaká funkcionalita nefungovala tak, ako mala, agentovi so
 | **Nefungujúce odosielanie e-mailov po prerobení DB** | Po tom, čo som implementoval pomocou AI to, aby sa už base64 PDF súbora neukladalo do databázy, sa prestali odosielať e-maily | Deklarovanú konštantu som presunul mimo try block, keďže to spôsobovalo chybu pri pokuse o odoslanie prílohy.
 | **Nepochopenie požiadavky** | Namiesto úpravy README.md podľa stavu stránky začal agent opravovať stránku podľa README.md. | Požiadal som agenta, aby vrátil stránku do predošlého stavu a upresnil som požiadavku.
 
-## 12. Možnosti pokračovania vývoja
+## 12. Čo sa mi nepodarilo a možnosti pokračovania vývoja
 
+- zobraziť vo Verceli pokročilé štatistiky,
 - doplniť logiku, ktorá podľa `?v=A`/`?v=B` bude vedieť urobiť A/B testovanie,
 - vylepšiť dizajn stránky tak, aby vyzeral profesionálnejšie (napr. pridaním ilustračných obrázkov)
 - rozdelenie obsahu hlavnej stránky na podstránky
